@@ -3,13 +3,13 @@
 %define microversion 1
 
 Summary: The AbiWord word processor
-Summary(zh_CN): AbiWord 字处理程序
+Summary(zh_CN.UTF-8): AbiWord 字处理程序
 Name: abiword
 Version: %{majorversion}.%{minorversion}.%{microversion}
 Release: 1%{?dist}
 Epoch: 1
 Group: Applications/Editors
-Group(zh_CN): 应用程序/编辑器
+Group(zh_CN.UTF-8): 应用程序/编辑器
 License: GPLv2+
 Source0: http://abisource.com/downloads/abiword/%{version}/source/abiword-%{version}.tar.gz
 Source1: http://abisource.com/downloads/abiword/%{version}/source/abiword-docs-%{version}.tar.gz
@@ -24,14 +24,14 @@ Requires: libabiword = %{epoch}:%{version}-%{release}
 AbiWord is a cross-platform Open Source word processor. It is full-featured,
 while still remaining lean.
 
-%description -l zh_CN
+%description -l zh_CN.UTF-8
 AbiWord 是一个跨平台的开源字处理程序。它功能很全，不过仍有需要完善的地方。
 
 %package -n libabiword
 Summary: Library for developing applications based on AbiWord's core
-Summary(zh_CN): 基于 AbiWord 的核心开发程序需要的库
+Summary(zh_CN.UTF-8): 基于 AbiWord 的核心开发程序需要的库
 Group: System Environment/Libraries
-Group(zh_CN): 系统环境/库
+Group(zh_CN.UTF-8): 系统环境/库
 Patch0: abiword-2.6.0-windowshelppaths.patch
 Patch1: abiword-2.8.3-desktop.patch
 Patch2: abiword-2.6.0-boolean.patch
@@ -64,20 +64,20 @@ BuildRequires: libsoup-devel
 %description -n libabiword
 Library for developing applications based on AbiWord's core.
 
-%description -n libabiword -l zh_CN
+%description -n libabiword -l zh_CN.UTF-8
 基于 AbiWord 的核心开发程序需要的库。
 
 %package -n libabiword-devel
 Summary: Files for developing with libabiword
-Summary(zh_CN): 使用 libabiword 编译需要的开发文件
+Summary(zh_CN.UTF-8): 使用 libabiword 编译需要的开发文件
 Group: Development/Libraries
-Group(zh_CN): 开发/库
+Group(zh_CN.UTF-8): 开发/库
 Requires: libabiword = %{epoch}:%{version}-%{release}
 
 %description -n libabiword-devel
 Includes and definitions for developing with libabiword.
 
-%description -n libabiword-devel -l zh_CN
+%description -n libabiword-devel -l zh_CN.UTF-8
 使用 libabiword 编译程序需要的开发文件。
 
 %prep
