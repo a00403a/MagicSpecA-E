@@ -1,0 +1,14 @@
+diff -ur blitz-0.9/blitz/blitz.h blitz-0.9.gcc43/blitz/blitz.h
+--- blitz-0.9/blitz/blitz.h	2005-05-19 01:35:55.000000000 +0200
++++ blitz-0.9.gcc43/blitz/blitz.h	2009-01-20 09:54:00.000000000 +0100
+@@ -61,8 +61,10 @@
+ 
+ #ifdef BZ_MATH_FN_IN_NAMESPACE_STD 
+   #include <cmath>
++  #include <cstdlib>
+ #else
+   #include <math.h>
++  #include <stdlib.h>
+ #endif
+ 
+ #ifdef BZ_HAVE_COMPLEX
