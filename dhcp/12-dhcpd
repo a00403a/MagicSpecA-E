@@ -1,0 +1,31 @@
+#!/bin/bash
+export LC_ALL=C
+
+[ -f /etc/sysconfig/dhcpd ] && . /etc/sysconfig/dhcpd
+
+# restart dhcpd whenever $1 interface is brought up by NM (rhbz #565921)
+if [ "$2" = "up" ]; then
+    # exit if the service is not configured to be started in the current runlevel
+    /bin/systemctl is-enabled dhcpd.service || exit 0
+
+    ifaces=""                # interfaces defined in DHCPDARGS
+    net=$(ls /sys/class/net) # all interfaces on system
+
+    if [ -n "${DHCPDARGS}" ]; then
+        for iface in ${net}; do
+            for arg in ${DHCPDARGS}; do
+                [ $arg == $iface ] && ifaces="$ifaces $iface"
+            done
+        done
+    fi
+
+    # exit if dhcpd is not defined to listen on $1
+    # i.e. if there are interfaces defined in DHCPDARGS and $1 is not among them
+    if [ -n "${ifaces}" ] &&
+       [[ "${ifaces}" != *$1* ]]; then
+          exit 0
+    fi
+
+    # restart service
+    /bin/systemctl restart dhcpd.service || :
+fi
