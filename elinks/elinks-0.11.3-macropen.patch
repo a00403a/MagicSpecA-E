@@ -1,0 +1,11 @@
+--- elinks-0.11.3/src/encoding/encoding.c.macropen
++++ elinks-0.11.3/src/encoding/encoding.c
+@@ -117,7 +117,7 @@
+	if (!stream) return NULL;
+
+	stream->encoding = encoding;
+-	if (decoding_backends[stream->encoding]->open(stream, fd) >= 0)
++	if ((decoding_backends[stream->encoding]->open)(stream, fd) >= 0)
+		return stream;
+
+	mem_free(stream);
