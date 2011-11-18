@@ -9,7 +9,8 @@ License: GPL
 URL: ftp://ftp.gnome.org/pub/GNOME/sources/esound
 Group: System Environment/Daemons
 Group(zh_CN.UTF-8): 系统环境/服务
-Source0:   esound-%{version}.tar.bz2
+Source0:   http://ftp.gnome.org/pub/GNOME/sources/esound/esound-%{version}.tar.bz2
+Patch1:	   esound-0.2.41-lm.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 BuildRequires: docbook-utils, audiofile-devel
 BuildRequires: alsa-lib-devel
@@ -50,11 +51,12 @@ esound-devel 软件包包括开发 EsounD 程序所需的库、包含文件和�
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
+autoreconf -fisv
 %configure
-
-EGREP=egrep make
+make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
