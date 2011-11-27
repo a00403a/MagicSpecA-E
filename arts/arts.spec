@@ -1,19 +1,20 @@
-%define svn 1
-%define svn_date 20111031
+#已切换到 git
+%define git 1
+%define git_date 20111127
 %define _prefix /usr
-%define ver 1.5.13
+%define ver 1.5.14
 
 %define debug 0
 %define final 1
 
 %define alsa 1
-%define qt_version 3.3.8c
+%define qt_version 3.3.8d
 
 Version: %{ver}
-%if %{svn}
-Release: 0.%{svn_date}.%{?dist}
+%if %{git}
+Release: 0.%{git_date}.%{?dist}
 %else
-Release: 1%{?dist}
+Release: 0.1%{?dist}
 %endif
 Summary: aRts (analog realtime synthesizer) - the KDE sound system
 Summary(zh_CN.UTF-8): aRts (analog realtime synthesizer) - KDE 的声音系统
@@ -23,13 +24,13 @@ Group(zh_CN.UTF-8): 系统环境/服务
 License: LGPL
 Url: http://www.kde.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-%if %{svn}
-Source0: %{name}-svn%{svn_date}.tar.xz
+%if %{git}
+Source0: %{name}-git%{git_date}.tar.xz
 %else
 Source0: ftp://ftp.kde.org/pub/kde/stable/%{ver}/src/%{name}-%{version}.tar.bz2
 %endif
 
-Source1: make_%{name}_svn_package.sh
+Source1: make_%{name}_git_package.sh
 
 Patch0: arts-vorbis-fix.dif
 Patch1: arts-1.3.1-alsa.patch
@@ -112,8 +113,8 @@ KDE applications using sound).
 安装 arts-devel。
 
 %prep
-%if %{svn}
-%setup -q -n %{name}-svn%{svn_date}
+%if %{git}
+%setup -q -n %{name}-git%{git_date}
 %else
 %setup -q -n %{name}-%{version}
 %endif
@@ -150,7 +151,7 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 
 %changelog
 * Mon Oct 31 2011 Liu Di <liudidi@gmail.com> - 1.5.13-0.20111031
-- 更新到 trinity 的 svn 20111031 版本
+- 更新到 trinity 的 git 20111031 版本
 
 * Fri Aug 29 2008 Liu Di <liudidi@gmail.com> - 1.5.10-1mgc
 - 更新到 1.5.10
