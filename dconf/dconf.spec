@@ -2,33 +2,24 @@
 %define vala_version 0.11.7
 
 Name:           dconf
-Version:        0.7.4
-Release:        2%{?dist}
+Version:        0.11.2
+Release:        1%{?dist}
 Summary:        A configuration system
 
 Group:          System Environment/Base
 License:        LGPLv2+
 URL:            http://live.gnome.org/dconf
 #VCS:           git:git://git.gnome.org/dconf
-Source0:        http://download.gnome.org/sources/dconf/0.7/dconf-%{version}.tar.bz2
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=646220
-Patch0: dconf-editor-crash.patch
+Source0:        http://download.gnome.org/sources/dconf/0.11/dconf-%{version}.tar.xz
 
 BuildRequires:  glib2-devel >= %{glib2_version}
-BuildRequires:  dbus-devel
-Requires:       dbus
-
 BuildRequires:  gtk3-devel
 BuildRequires:  libxml2-devel
+BuildRequires:  dbus-devel
 BuildRequires:  vala-devel >= %{vala_version}
-BuildRequires:  libgee-devel
-# BuildRequires:  gobject-introspection-devel
-# Bootstrap requirements
-BuildRequires:  autoconf automake libtool
 BuildRequires:  gtk-doc
-BuildRequires:  vala
-BuildRequires:  gobject-introspection-devel >= 0.9.6
+
+Requires:       dbus
 
 %description
 dconf is a low-level configuration system. Its main purpose is to provide a
@@ -50,31 +41,32 @@ Group:   Applications/System
 Requires: %{name} = %{version}-%{release}
 
 %description editor
-docnf-editor allows you to browse and modify dconf databases.
+dconf-editor allows you to browse and modify dconf databases.
 
 
 %prep
 %setup -q
-%patch0 -p1 -b .editor-crash
 
 %build
-(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; CONFIGFLAGS=--enable-gtk-doc; fi;
- %configure $CONFIGFLAGS \
-	--disable-static \
-)
+%configure --disable-static
 make %{?_smp_mflags}
 
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
 
-%post
-/sbin/ldconfig
-gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
-
 %postun
+if [ $1 -eq 0 ] ; then
+  /sbin/ldconfig
+  gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
+  glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
+fi
+
+%posttrans
 /sbin/ldconfig
 gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
+glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
+
 
 %files
 %defattr(-,root,root,-)
@@ -82,14 +74,12 @@ gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
 %{_libdir}/gio/modules/libdconfsettings.so
 %{_libexecdir}/dconf-service
 %{_datadir}/dbus-1/services/ca.desrt.dconf.service
-%{_datadir}/dbus-1/system-services/ca.desrt.dconf.service
 %{_bindir}/dconf
 %{_libdir}/libdconf.so.*
 %{_libdir}/libdconf-dbus-1.so.*
-#%{_libdir}/girepository-1.0/dconf-1.0.typelib
 %dir %{_sysconfdir}/bash_completion.d
 %{_sysconfdir}/bash_completion.d/dconf-bash-completion.sh
-
+%{_datadir}/glib-2.0/schemas/ca.desrt.dconf-editor.gschema.xml
 
 %files devel
 %defattr(-,root,root,-)
@@ -99,8 +89,6 @@ gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
 %{_includedir}/dconf-dbus-1
 %{_libdir}/libdconf-dbus-1.so
 %{_libdir}/pkgconfig/dconf-dbus-1.pc
-# temporarily disable introspection until we have a new-enough goi
-#%{_datadir}/gir-1.0/dconf-1.0.gir
 %{_datadir}/gtk-doc/html/dconf
 %{_datadir}/vala
 
@@ -112,6 +100,27 @@ gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
 %{_datadir}/dconf-editor/dconf-editor.ui
 
 %changelog
+* Mon Nov 21 2011 Matthias Clasen <mclasen@redhat.com> - 0.11.2-1
+- Update to 0.11.2
+
+* Fri Nov  4 2011 Matthias Clasen <mclasen@redhat.com> - 0.11.0-2
+- Fix a typo (#710700)
+
+* Wed Nov  2 2011 Matthias Clasen <mclasen@redhat.com> - 0.11.0-1
+- Update to 0.11.0
+
+* Mon Sep 26 2011 Ray <rstrode@redhat.com> - 0.10.0-1
+- Update to 0.10.0
+
+* Mon Sep 19 2011 Matthias Clasen <mclasen@redhat.com> - 0.9.1-1
+- Update to 0.9.1
+
+* Tue Jul 26 2011 Matthias Clasen <mclasen@redhat.com> - 0.9.0-1
+- Update to 0.9.0
+
+* Wed May 11 2011 Tomas Bzatek <tbzatek@redhat.com> - 0.7.5-1
+- Update to 0.7.5
+
 * Fri May  6 2011 Matthias Clasen <mclasen@redhat.com> - 0.7.4-1
 - Update to 0.7.4
 
