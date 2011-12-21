@@ -1,6 +1,6 @@
 #已切换到 git
 %define git 1
-%define git_date 20111127
+%define git_date 20111221
 %define _prefix /usr
 %define ver 1.5.14
 
@@ -31,6 +31,10 @@ Source0: ftp://ftp.kde.org/pub/kde/stable/%{ver}/src/%{name}-%{version}.tar.bz2
 %endif
 
 Source1: make_%{name}_git_package.sh
+
+#为 tdenetwork-wifi 补充缺少的头文件
+Source2: artsflow.h
+Source3: artsflow.idl
 
 Patch0: arts-vorbis-fix.dif
 Patch1: arts-1.3.1-alsa.patch
@@ -131,7 +135,8 @@ make %{?_smp_mflags}
 %{__rm} -rf %{buildroot}
 cd build
 make install DESTDIR=%{buildroot}
-install -m 0644 ../artsc/artsc.h %{buildroot}%{_includedir}
+#补充缺少的头文件
+
 magic_rpm_clean.sh
 
 %clean
