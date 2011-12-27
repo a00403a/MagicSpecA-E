@@ -131,6 +131,12 @@ make %{?_smp_mflags}
 %{__rm} -rf %{buildroot}
 cd build
 make install DESTDIR=%{buildroot}
+mkdir %{buildroot}%{_includedir}/arts/
+cd %{buildroot}%{_includedir}/arts/
+ln -s ../*.h .
+ln -s ../*.idl .
+cd ..
+
 #install -m 0644 ../artsc/artsc.h %{buildroot}%{_includedir}
 magic_rpm_clean.sh
 
