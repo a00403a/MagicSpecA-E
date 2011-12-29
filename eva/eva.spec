@@ -1,24 +1,33 @@
 #Note: %{nil} stand for none.
 %define subver %{nil}
-%define _date 20080420
+%define _date 20111229
 %define _release %(if [ "X%{_date}" != "X" ]; then echo "0.cvs.%{_date}."; fi)2%{?dist}
+
+%define git 1
+%define gitdate 20111229
 
 Summary: Eva is the client end of QQ for KDE.
 Summary(zh_CN.UTF-8): KDE 下的 QQ 客户端
 Name: eva
 Version: 0.4.92
+%if %{git}
+Release: 0.git%{gitdate}%{?dist}
+%else
 Release: %{_release}
+%endif
 License: GPL
 URL: http://www.sourceforge.net/projects/evaq
 Group: Applications/Internet
 Group(zh_CN.UTF-8): 应用程序/互联网
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-#Source0: %{name}-%{version}%{subver}.tar.bz2
-Source0: %{name}-%{version}.tar.xz
-#Source1: eva.desktop
+%if %{git}
+Source0: %{name}-git%{gitdate}.tar.xz
+%else
+Source0: %{name}-%{_date}.tar.bz2
+%endif
+Source1: make_eva_git_package.sh
 Patch1: eva-gcc44.patch
 Prefix: %{_prefix}
-BuildRequires: kdelibs-devel, qt-devel
 Requires: qt, kdelibs, kdebase
 Packager: Bamfox<bamfox@163.com>, kde <jack@linux.net.cn>
 
@@ -29,15 +38,13 @@ Eva is the client end of QQ for KDE.
 Eva 是 KDE 下的一个 QQ (腾讯)客户端。
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{name}-git%{gitdate}
 #%patch1 -p1
-#make -f admin/Makefile.common cvs
-
 
 %Build
 ./autogen.sh
 %configure
-unsermake %{?_smp_mflags} OPTIMIZE="%{optflags}"
+make %{_smp_mflags}
 
 %install
 %{__make} DESTDIR=$RPM_BUILD_ROOT install
