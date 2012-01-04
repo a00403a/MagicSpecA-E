@@ -8,7 +8,7 @@
 
 Name:           cmake
 Version:        2.8.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Cross-platform make system
 
 Group:          Development/Tools
@@ -160,6 +160,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 
 %changelog
+* Wed Jan 04 2012 Liu Di <liudidi@gmail.com> - 2.8.6-2
+- 为 Magic 3.0 重建
+
 * Wed Oct 5 2011 Orion Poplawski <orion@cora.nwra.com> - 2.8.6-1
 - Update to 2.8.6 final
 
