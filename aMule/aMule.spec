@@ -1,8 +1,8 @@
 %define _name amule
 %define svn 0
 #%define date 20080205
-%define _rc rc2
-%if %{_rc}
+%define _rc %{nil}
+%if 0%{_rc}
 %define _dotrc .%{?_rc}
 %endif
 
@@ -12,7 +12,7 @@ Version:	 2.3.1
 %if %{svn}
 Release: 0.svn.%{svn}.1%{?dist}
 %endif
-%if %{_rc}
+%if 0%{_rc}
 Release: 0.1%{?_dotrc}.%{?dist}
 %else
 Release: 1%{?dist}
@@ -29,11 +29,13 @@ URL: http://www.amule.org
 %if %{svn}
 Source0: http://amule.sourceforge.net/tarballs/aMule-SVN-%{svn}.tar.bz2
 %else
-Source0: http://cdnetworks-kr-1.dl.sourceforge.net/project/amule/%{name}/%{version}%?{_rc}/%{name}-%{version}%{?_rc}.tar.bz2
+Source0: http://cdnetworks-kr-1.dl.sourceforge.net/project/amule/%{name}/%{version}%?{_rc}/%{name}-%{version}%{?_rc}.tar.xz
 %endif
 Source1: amule.desktop
 Source2: alc.desktop
 Source3: wxcas.desktop
+Source4: amuled.init
+Source5: amuled.sysconfig
 Source10: aMule.addresses.dat
 Source11: aMule.server.met
 
@@ -46,13 +48,14 @@ BuildRequires: flex cryptopp-devel
 BuildRequires: libupnp-devel >= 1.6.6
 
 Requires: libupnp >= 1.6.6
+Requires: %{name}-common = %{version}-%{release}
 
 # 文件名转码为 gb18030
 Patch0: aMule-2.2.1-convfilenames-gb18030.patch
 Patch1: aMule-2.2.2-convfilenames-gb18030.patch
 # dlp 补丁
 #Patch100: http://amule-dlp.googlecode.com/files/aMule-2.3.1rc1-DLP4401.patch
-Patch100: aMule-2.3.1rc2-DLP4401.patch
+Patch100: aMule-2.3.1-DLP4401.patch
 
 %description
 The "all-platform eMule", it is a eMule-like client for ed2k network, 
@@ -110,6 +113,71 @@ xchat aMule plugin.
 %description -n xchat-aMule -l zh_CN.UTF-8
 xchat aMule 插件。
 
+%package common
+Summary: amule common files
+Summary(zh_CN.UTF-8): amule 的公共文件
+Group: Applications/Internet
+Group(zh_CN.UTF-8): 应用程序/互联网
+
+%description common
+Common files for amule client sub-packages.
+
+%description common -l zh_CN.UTF-8
+amule 客户端的公用文件。
+
+%package cli 
+Summary: amule command line implementation
+Summary(zh_CN.UTF-8): amule 命令行实现
+Group: Applications/Internet
+Group(zh_CN.UTF-8): 应用程序/互联网
+Requires: %{name}-common = %{version}-%{release}
+
+%description cli 
+Command line version of amule client.
+
+%description cli -l zh_CN.UTF-8
+amule 客户端的命令行版本。
+
+%package web
+Summary: amule web implementation
+Summary(zh_CN.UTF-8): amule 的 web 实现
+Group: Applications/Internet
+Group(zh_CN.UTF-8): 应用程序/互联网
+Requires: %{name}-common = %{version}-%{release}
+
+%description web
+web version of amule client.
+
+%description web -l zh_CN.UTF-8
+amule 客户端的网页界面版本。
+
+%package daemon
+Summary: amuled
+Summary(zh_CN.UTF-8): amuled
+Group: Applications/Internet
+Group(zh_CN.UTF-8): 应用程序/互联网
+Requires: %{name}-common = %{version}-%{release}
+
+Provides: amuled = %{version}-%{release}
+
+%description daemon
+amuled client daemon.
+
+%description daemon -l zh_CN.UTF-8
+amule 客户端的后台服务。
+
+%package remote
+Summary: amule remote gui
+Summary(zh_CN.UTF-8): amule 的远程控制界面
+Group: Applications/Internet
+Group(zh_CN.UTF-8): 应用程序/互联网
+Requires: %{name}-common = %{version}-%{release}
+
+%description remote
+amule remote gui.
+
+%description remote -l zh_CN.UTF-8
+amule 的远程控制界面。
 
 %prep
 %if %{svn}
@@ -153,8 +221,8 @@ sed -i -e 's|new Cfg_Bool( wxT("/eMule/SafeServerConnect"), s_safeServerConnect,
 		--disable-debug
 
 # smp 选项编译出错  :(  --by nihui
-#%{__make} %{?_smp_mflags}
-make
+%{__make} %{?_smp_mflags}
+#make
 
 %install
 %{__rm} -rf %{buildroot}
@@ -167,14 +235,25 @@ install -D -m 644 %{SOURCE3} %{buildroot}%{_datadir}/applications/wxcas.desktop
 
 # 准备初始化数据
 mkdir -p %{buildroot}/etc/skel/.aMule
-mkdir -p %{buildroot}/root/.aMule
+#mkdir -p %{buildroot}/root/.aMule
 # ed2k 服务器地址更新地址列表
 install -m 600 %{SOURCE10} %{buildroot}/etc/skel/.aMule/addresses.dat
-install -m 600 %{SOURCE10} %{buildroot}/root/.aMule/addresses.dat
+#install -m 600 %{SOURCE10} %{buildroot}/root/.aMule/addresses.dat
 # ed2k 初始化服务器地址列表
 install -m 600 %{SOURCE11} %{buildroot}/etc/skel/.aMule/server.met
-install -m 600 %{SOURCE11} %{buildroot}/root/.aMule/server.met
+#install -m 600 %{SOURCE11} %{buildroot}/root/.aMule/server.met
 
+# 准备服务数据
+mkdir -p %{buildroot}%{_sharedstatedir}/amuled/.aMule
+# ed2k 服务器地址更新地址列表
+install -m 600 %{SOURCE10} %{buildroot}%{_sharedstatedir}/amuled/.aMule/addresses.dat
+# ed2k 初始化服务器地址列表
+install -m 600 %{SOURCE11} %{buildroot}%{_sharedstatedir}/amuled/.aMule/server.met
+
+mkdir -p %{buildroot}%{_initdir}
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+install -m 0755 %{SOURCE4} %{buildroot}%{_initdir}/amuled
+install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/amuled
 
 magic_rpm_clean.sh
 %find_lang %{_name}
@@ -195,7 +274,6 @@ if [ -d $D ];then
 fi
 done
 
-
 %postun
 
 %files -f %{_name}.lang
@@ -207,9 +285,43 @@ done
 %{_mandir}/man1/amule.1.gz
 %{_mandir}/man1/ed2k.1.gz
 %{_datadir}/pixmaps/amule.xpm
+%{_sysconfdir}/skel/.aMule/*
+
+%files common
+%defattr(-,root,root,-)
 %{_docdir}/amule/*
-/etc
-/root
+
+%files cli
+%defattr(-,root,root,-)
+%{_bindir}/amulecmd
+%{_mandir}/man1/alcc.1.gz
+%{_mandir}/man1/amulecmd.1.gz
+%{_mandir}/man1/cas.1.gz
+
+%files web
+%defattr(-,root,root,-)
+%{_bindir}/amuleweb
+%{_datadir}/amule/webserver/*
+%{_mandir}/man1/amuleweb.1.gz
+
+%files daemon
+%defattr(-,root,root,-)
+%{_bindir}/alcc
+%{_bindir}/amuled
+%{_bindir}/cas
+%{_datadir}/cas/stat.png
+%{_datadir}/cas/tmp.html
+%{_mandir}/man1/amuled.1.gz
+%{_initdir}/amuled
+%{_sysconfdir}/sysconfig/amuled
+%{_sharedstatedir}/amuled
+
+%files remote
+%defattr(-,root,root,-)
+%{_bindir}/amulegui
+%{_datadir}/applications/amulegui.desktop
+%{_mandir}/man1/amulegui.1.gz
+%{_datadir}/pixmaps/amulegui.xpm
 
 %files alc
 %defattr(-,root,root,-)
@@ -230,26 +342,12 @@ done
 %{_bindir}/autostart-xas
 %{_libdir}/xchat/plugins/xas.pl
 %{_mandir}/man1/xas.1.gz
-# 需要分包
-%{_bindir}/alcc
-%{_bindir}/amulecmd
-%{_bindir}/amuled
-%{_bindir}/amulegui
-%{_bindir}/amuleweb
-%{_bindir}/cas
-%{_datadir}/amule/webserver/*
-%{_datadir}/applications/amulegui.desktop
-%{_datadir}/cas/stat.png
-%{_datadir}/cas/tmp.html
-%{_mandir}/man1/alcc.1.gz
-%{_mandir}/man1/amulecmd.1.gz
-%{_mandir}/man1/amuled.1.gz
-%{_mandir}/man1/amulegui.1.gz
-%{_mandir}/man1/amuleweb.1.gz
-%{_mandir}/man1/cas.1.gz
-%{_datadir}/pixmaps/amulegui.xpm
 
 %changelog
+* Tue Jan 24 2012 Liu Di <liudidi@gmail.com> - 2.3.1-1
+- 更新到 2.3.1
+- 细分包
+
 * Fri Oct 28 2011 Liu Di <liudidi@Gmail.com> - 2.3.1.rc2-1
 - 升级到 2.3.1rc2
 
