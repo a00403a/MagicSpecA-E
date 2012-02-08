@@ -26,9 +26,9 @@
 
 Name: boost
 Summary: The free peer-reviewed portable C++ source libraries
-Version: 1.47.0
-%define version_enc 1_47_0
-Release: 6%{?dist}
+Version: 1.48.0
+%define version_enc 1_48_0
+Release: 9%{?dist}
 License: Boost and MIT and Python
 
 # The CMake build framework (set of CMakeLists.txt and module.cmake files) is
@@ -61,6 +61,7 @@ Requires: boost-date-time = %{version}-%{release}
 Requires: boost-filesystem = %{version}-%{release}
 Requires: boost-graph = %{version}-%{release}
 Requires: boost-iostreams = %{version}-%{release}
+Requires: boost-locale = %{version}-%{release}
 Requires: boost-program-options = %{version}-%{release}
 Requires: boost-python = %{version}-%{release}
 Requires: boost-random = %{version}-%{release}
@@ -70,6 +71,7 @@ Requires: boost-signals = %{version}-%{release}
 Requires: boost-system = %{version}-%{release}
 Requires: boost-test = %{version}-%{release}
 Requires: boost-thread = %{version}-%{release}
+Requires: boost-timer = %{version}-%{release}
 Requires: boost-wave = %{version}-%{release}
 
 BuildRequires: cmake
@@ -83,15 +85,55 @@ BuildRequires: chrpath
 # CMake-related files (CMakeLists.txt and module.cmake files).
 # That patch also contains Web-related documentation for the Trac Wiki
 # devoted to "old" Boost-CMake (up-to-date until Boost-1.41.0).
-Patch0: boost-1.47.0-cmakeify-full.patch
+Patch0: boost-1.48.0-cmakeify-full.patch
 Patch1: boost-cmake-soname.patch
 
 # The patch may break c++03, and there is therefore no plan yet to include
 # it upstream: https://svn.boost.org/trac/boost/ticket/4999
-Patch2: boost-1.47.0-signals-erase.patch
+Patch2: boost-1.48.0-signals-erase.patch
 
 # https://svn.boost.org/trac/boost/ticket/5731
-Patch3: boost-1.47.0-exceptions.patch
+Patch3: boost-1.48.0-exceptions.patch
+
+# https://svn.boost.org/trac/boost/ticket/6150
+Patch4: boost-1.48.0-fix-non-utf8-files.patch
+
+# Add a manual page for the sole executable, namely bjam, based on the
+# on-line documentation:
+# http://www.boost.org/boost-build2/doc/html/bbv2/overview.html
+Patch5: boost-1.48.0-add-bjam-man-page.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=757385
+# https://svn.boost.org/trac/boost/ticket/6182
+Patch6: boost-1.48.0-lexical_cast-incomplete.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=756005
+# https://svn.boost.org/trac/boost/ticket/6131
+Patch7: boost-1.48.0-foreach.patch
+
+# https://svn.boost.org/trac/boost/ticket/6165
+Patch8: boost-1.48.0-gcc47-pthreads.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=781859
+# https://svn.boost.org/trac/boost/ticket/6406
+# https://svn.boost.org/trac/boost/ticket/6407
+# https://svn.boost.org/trac/boost/ticket/6408
+# https://svn.boost.org/trac/boost/ticket/6409
+# https://svn.boost.org/trac/boost/ticket/6410
+# https://svn.boost.org/trac/boost/ticket/6411
+# https://svn.boost.org/trac/boost/ticket/6412
+# https://svn.boost.org/trac/boost/ticket/6413
+# https://svn.boost.org/trac/boost/ticket/6414
+# https://svn.boost.org/trac/boost/ticket/6415
+# https://svn.boost.org/trac/boost/ticket/6416
+Patch9: boost-1.48.0-attribute.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=783660
+Patch10: boost-1.48.0-long-double-1.patch
+Patch11: boost-1.48.0-long-double.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=784654
+Patch12: boost-1.48.0-polygon.patch
 
 %bcond_with tests
 %bcond_with docs_generated
@@ -151,16 +193,23 @@ Group: System Environment/Libraries
 Run-Time support for Boost.IOStreams, a framework for defining streams,
 stream buffers and i/o filters.
 
+%package locale
+Summary: Run-Time component of boost locale library
+Group: System Environment/Libraries
+
+%description locale
+
+Run-Time support for Boost.Locale, a set of localization and Unicode
+handling tools.
+
 %package math
-Summary: Stub that used to contain boost math library
+Summary: Math functions for boost TR1 library
 Group: System Environment/Libraries
 
 %description math
 
-This package is a stub that used to contain run-time component of boost
-math library.  Now that boost math library is header-only, this
-package is empty.  It's kept around only so that during yum-assisted
-update, old libraries from boost-math package aren't left around.
+Run-Time support for C99 and C++ TR1 C-style Functions from math
+portion of Boost.TR1.
 
 %package program-options
 Summary:  Run-Time component of boost program_options library
@@ -246,6 +295,16 @@ functions for managing multiple threads of execution, and for
 synchronizing data between the threads or providing separate copies of
 data specific to individual threads.
 
+%package timer
+Summary: Run-Time component of boost timer library
+Group: System Environment/Libraries
+
+%description timer
+
+"How long does my C++ code take to run?"
+The Boost Timer library answers that question and does so portably,
+with as little as one #include and one additional line of code.
+
 %package wave
 Summary: Run-Time component of boost C99/C++ pre-processing library
 Group: System Environment/Libraries
@@ -292,7 +351,7 @@ libraries. The documentation provides the same content as that on the Boost
 web page (http://www.boost.org/doc/libs/1_40_0).
 
 %package examples
-Summary: HTML documentation for the Boost C++ libraries
+Summary: Source examples for the Boost C++ libraries
 Group: Documentation
 %if 0%{?fedora} >= 10
 BuildArch: noarch
@@ -437,6 +496,14 @@ sed 's/_FEDORA_SONAME/%{sonamever}/' %{PATCH1} | %{__patch} -p0 --fuzz=0
 # Fixes
 %patch2 -p1
 %patch3 -p0
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p2
+%patch8 -p0
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
 
 %build
 # Support for building tests.
@@ -527,7 +594,7 @@ cd %{_builddir}/%{toplev_dirname}
 
 
 %install
-%{__rm} -rf $RPM_BUILD_ROOT
+rm -rf $RPM_BUILD_ROOT
 
 cd %{_builddir}/%{toplev_dirname}
 
@@ -539,17 +606,17 @@ export MPI_COMPILER
 echo ============================= install $MPI_COMPILER ==================
 DESTDIR=$RPM_BUILD_ROOT make -C $MPI_COMPILER VERBOSE=1 install
 # Remove parts of boost that we don't want installed in MPI directory.
-%{__rm} -f $RPM_BUILD_ROOT/$MPI_LIB/libboost_{python,{w,}serialization}*
+rm -f $RPM_BUILD_ROOT/$MPI_LIB/libboost_{python,{w,}serialization}*
 # Suppress the mpi.so python module, as it not currently properly
 # generated (some dependencies are missing. It is temporary until
 # upstream Boost-CMake fixes that (see
 # http://lists.boost.org/boost-cmake/2009/12/0859.php for more
 # details)
-%{__rm} -f $RPM_BUILD_ROOT/$MPI_LIB/mpi.so
+rm -f $RPM_BUILD_ROOT/$MPI_LIB/mpi.so
 # Kill any debug library versions that may show up un-invited.
-%{__rm} -f $RPM_BUILD_ROOT/$MPI_LIB/*-d.*
+rm -f $RPM_BUILD_ROOT/$MPI_LIB/*-d.*
 # Remove cmake configuration files used to build the Boost libraries
-find $RPM_BUILD_ROOT/$MPI_LIB -name '*.cmake' -exec %{__rm} -f {} \;
+find $RPM_BUILD_ROOT/$MPI_LIB -name '*.cmake' -exec rm -f {} \;
 %{_openmpi_unload}
 export PATH=/bin${PATH:+:}$PATH
 %endif
@@ -559,17 +626,17 @@ export PATH=/bin${PATH:+:}$PATH
 echo ============================= install $MPI_COMPILER ==================
 DESTDIR=$RPM_BUILD_ROOT make -C $MPI_COMPILER VERBOSE=1 install
 # Remove parts of boost that we don't want installed in MPI directory.
-%{__rm} -f $RPM_BUILD_ROOT/$MPI_LIB/libboost_{python,{w,}serialization}*
+rm -f $RPM_BUILD_ROOT/$MPI_LIB/libboost_{python,{w,}serialization}*
 # Suppress the mpi.so python module, as it not currently properly
 # generated (some dependencies are missing. It is temporary until
 # upstream Boost-CMake fixes that (see
 # http://lists.boost.org/boost-cmake/2009/12/0859.php for more
 # details)
-%{__rm} -f $RPM_BUILD_ROOT/$MPI_LIB/mpi.so
+rm -f $RPM_BUILD_ROOT/$MPI_LIB/mpi.so
 # Kill any debug library versions that may show up un-invited.
-%{__rm} -f $RPM_BUILD_ROOT/$MPI_LIB/*-d.*
+rm -f $RPM_BUILD_ROOT/$MPI_LIB/*-d.*
 # Remove cmake configuration files used to build the Boost libraries
-find $RPM_BUILD_ROOT/$MPI_LIB -name '*.cmake' -exec %{__rm} -f {} \;
+find $RPM_BUILD_ROOT/$MPI_LIB -name '*.cmake' -exec rm -f {} \;
 %{_mpich2_unload}
 export PATH=/bin${PATH:+:}$PATH
 %endif
@@ -577,26 +644,28 @@ export PATH=/bin${PATH:+:}$PATH
 echo ============================= install serial ==================
 DESTDIR=$RPM_BUILD_ROOT make -C serial VERBOSE=1 install
 # Kill any debug library versions that may show up un-invited.
-%{__rm} -f $RPM_BUILD_ROOT/%{_libdir}/*-d.*
+rm -f $RPM_BUILD_ROOT/%{_libdir}/*-d.*
 # Remove cmake configuration files used to build the Boost libraries
-find $RPM_BUILD_ROOT/%{_libdir} -name '*.cmake' -exec %{__rm} -f {} \;
+find $RPM_BUILD_ROOT/%{_libdir} -name '*.cmake' -exec rm -f {} \;
 
 echo ============================= install jam ==================
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 pushd tools/build/v2/engine/
 %{__install} -m 755 bin.linux*/bjam $RPM_BUILD_ROOT%{_bindir}
 popd
+# Install the manual page
+%{__install} -p -m 644 tools/build/v2/doc/bjam.1 -D $RPM_BUILD_ROOT%{_mandir}/man1/bjam.1
 
 echo ============================= install build ==================
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/boost-build
 pushd tools/build/v2
 # Fix some permissions
-%{__chmod} -x build/alias.py
-%{__chmod} +x tools/doxproc.py
+chmod -x build/alias.py
+chmod +x tools/doxproc.py
 # Empty file
-%{__rm} -f tools/doxygen/windows-paths-check.hpp
+rm -f tools/doxygen/windows-paths-check.hpp
 # Not a real file
-%{__rm} -f build/project.ann.py
+rm -f build/project.ann.py
 # Move into a dedicated location
 cp -a boost-build.jam bootstrap.jam build-system.jam build/ kernel/ options/ tools/ util/ user-config.jam $RPM_BUILD_ROOT%{_datadir}/boost-build/
 popd
@@ -605,7 +674,7 @@ popd
 echo ============================= install documentation ==================
 cd %{_builddir}/%{toplev_dirname}
 # Prepare the place to temporary store the generated documentation
-%{__rm} -rf %{boost_docdir} && %{__mkdir_p} %{boost_docdir}/html
+rm -rf %{boost_docdir} && %{__mkdir_p} %{boost_docdir}/html
 DOCPATH=%{boost_docdir}
 find libs doc more -type f \( -name \*.htm -o -name \*.html \) \
     | sed -n '/\//{s,/[^/]*$,,;p}' \
@@ -616,38 +685,63 @@ cat tmp-doc-directories | while read tobeinstalleddocdir; do
     find $tobeinstalleddocdir -mindepth 1 -maxdepth 1 -name \*.htm\* \
     | xargs %{__install} -p -m 644 -t $DOCPATH/$tobeinstalleddocdir
 done
-%{__rm} -f tmp-doc-directories
+rm -f tmp-doc-directories
 %{__install} -p -m 644 -t $DOCPATH LICENSE_1_0.txt index.htm index.html
 
 echo ============================= install examples ==================
+# Fix a few non-standard issues (DOS and/or non-UTF8 files)
+sed -i -e 's/\r//g' libs/geometry/example/ml02_distance_strategy.cpp
+sed -i -e 's/\r//g' libs/geometry/example/ml02_distance_strategy.vcproj
+for tmp_doc_file in flyweight/example/Jamfile.v2 \
+ format/example/sample_new_features.cpp multi_index/example/Jamfile.v2 \
+ multi_index/example/hashed.cpp serialization/example/demo_output.txt \
+ test/example/cla/wide_string.cpp
+do
+  mv libs/${tmp_doc_file} libs/${tmp_doc_file}.iso8859
+  iconv -f ISO8859-1 -t UTF8 < libs/${tmp_doc_file}.iso8859 > libs/${tmp_doc_file}
+  touch -r libs/${tmp_doc_file}.iso8859 libs/${tmp_doc_file}
+  rm -f libs/${tmp_doc_file}.iso8859
+done
+
 # Prepare the place to temporary store the examples
-%{__rm} -rf %{boost_examplesdir} && %{__mkdir_p} %{boost_examplesdir}/html
+rm -rf %{boost_examplesdir} && mkdir -p %{boost_examplesdir}/html
 EXAMPLESPATH=%{boost_examplesdir}
 find libs -type d -name example -exec find {} -type f \; \
     | sed -n '/\//{s,/[^/]*$,,;p}' \
     | sort -u > tmp-doc-directories
 sed "s:^:$EXAMPLESPATH/:" tmp-doc-directories \
     | xargs --no-run-if-empty %{__install} -d
-cat tmp-doc-directories | while read tobeinstalleddocdir; do
-    find $tobeinstalleddocdir -mindepth 1 -maxdepth 1 -type f \
-    | xargs %{__install} -p -m 644 -t $EXAMPLESPATH/$tobeinstalleddocdir
+rm -f tmp-doc-files-to-be-installed && touch tmp-doc-files-to-be-installed
+cat tmp-doc-directories | while read tobeinstalleddocdir
+do
+  find $tobeinstalleddocdir -mindepth 1 -maxdepth 1 -type f \
+    >> tmp-doc-files-to-be-installed
 done
-%{__rm} -f tmp-doc-directories
+cat tmp-doc-files-to-be-installed | while read tobeinstalledfiles
+do
+  if test -s $tobeinstalledfiles
+  then
+    tobeinstalleddocdir=`dirname $tobeinstalledfiles`
+    %{__install} -p -m 644 -t $EXAMPLESPATH/$tobeinstalleddocdir $tobeinstalledfiles
+  fi
+done
+rm -f tmp-doc-files-to-be-installed
+rm -f tmp-doc-directories
 %{__install} -p -m 644 -t $EXAMPLESPATH LICENSE_1_0.txt
 
 # Remove scripts used to generate include files
-find $RPM_BUILD_ROOT%{_includedir}/ \( -name '*.pl' -o -name '*.sh' \) -exec %{__rm} -f {} \;
+find $RPM_BUILD_ROOT%{_includedir}/ \( -name '*.pl' -o -name '*.sh' \) -exec rm -f {} \;
 
 # boost support of cmake needs some tuning.  For the time being, leave
 # the files out, and rely on cmake's FindBoost to DTRT, as it had been
 # doing in pre-cmake-boost times.  For further info, see:
 #   https://bugzilla.redhat.com/show_bug.cgi?id=597020
-%{__rm} -Rfv $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
-%{__rm} -Rfv $RPM_BUILD_ROOT%{_datadir}/cmake/%{name}
+rm -Rfv $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
+rm -Rfv $RPM_BUILD_ROOT%{_datadir}/cmake/%{name}
 
 
 %clean
-%{__rm} -rf $RPM_BUILD_ROOT
+rm -rf $RPM_BUILD_ROOT
 
 
 # MPI subpackages don't need the ldconfig magic.  They are hidden by
@@ -674,6 +768,10 @@ find $RPM_BUILD_ROOT%{_includedir}/ \( -name '*.pl' -o -name '*.sh' \) -exec %{_
 %post iostreams -p /sbin/ldconfig
 
 %postun iostreams -p /sbin/ldconfig
+
+%post locale -p /sbin/ldconfig
+
+%postun locale -p /sbin/ldconfig
 
 %post program-options -p /sbin/ldconfig
 
@@ -711,6 +809,10 @@ find $RPM_BUILD_ROOT%{_includedir}/ \( -name '*.pl' -o -name '*.sh' \) -exec %{_
 
 %postun thread -p /sbin/ldconfig
 
+%post timer -p /sbin/ldconfig
+
+%postun timer -p /sbin/ldconfig
+
 %post wave -p /sbin/ldconfig
 
 %postun wave -p /sbin/ldconfig
@@ -747,9 +849,15 @@ find $RPM_BUILD_ROOT%{_includedir}/ \( -name '*.pl' -o -name '*.sh' \) -exec %{_
 %doc LICENSE_1_0.txt
 %{_libdir}/libboost_iostreams*.so.%{sonamever}
 
+%files locale
+%defattr(-, root, root, -)
+%doc LICENSE_1_0.txt
+%{_libdir}/libboost_locale*.so.%{sonamever}
+
 %files math
 %defattr(-, root, root, -)
 %doc LICENSE_1_0.txt
+%{_libdir}/libboost_math*.so.%{sonamever}
 
 %files test
 %defattr(-, root, root, -)
@@ -797,6 +905,11 @@ find $RPM_BUILD_ROOT%{_includedir}/ \( -name '*.pl' -o -name '*.sh' \) -exec %{_
 %defattr(-, root, root, -)
 %doc LICENSE_1_0.txt
 %{_libdir}/libboost_thread*.so.%{sonamever}
+
+%files timer
+%defattr(-, root, root, -)
+%doc LICENSE_1_0.txt
+%{_libdir}/libboost_timer*.so.%{sonamever}
 
 %files wave
 %defattr(-, root, root, -)
@@ -891,8 +1004,58 @@ find $RPM_BUILD_ROOT%{_includedir}/ \( -name '*.pl' -o -name '*.sh' \) -exec %{_
 %defattr(-, root, root, -)
 %doc LICENSE_1_0.txt
 %{_bindir}/bjam
+%{_mandir}/man1/bjam.1*
 
 %changelog
+* Wed Jan 25 2012 Petr Machata <pmachata@redhat.com> - 1.48.0-9
+- Only build the long double math libraries on arches that support
+  long double.
+- ARM was considered unsupporting, because libc defines
+  __NO_LONG_DOUBLE_MATH.  Ignore this setting, ARM has perfectly
+  working long double that just happens to be only as long as double.
+- Resolves: #783660
+- Add a missing sort adaptor include to boost polygon
+- Resolves: #784654
+
+* Mon Jan 16 2012 Petr Machata <pmachata@redhat.com> - 1.48.0-8
+- Add underscores around several uses of __attribute__((X)) to prevent
+  interactions with user-defined macro X
+- Resolves: #781859
+
+* Sat Jan 14 2012 Denis Arnaud <denis.arnaud_fedora@m4x.org> - 1.48.0-7
+- Added source source files for mingw cross-compilation of Boost.Locale.
+- Resolves: #781751
+
+* Sat Jan  7 2012 Denis Arnaud <denis.arnaud_fedora@m4x.org> - 1.48.0-6
+- Added the Boost.Timer sub-package. Resolves: #772397
+
+* Wed Jan  4 2012 Denis Arnaud <denis.arnaud_fedora@m4x.org> - 1.48.0-5
+- Integrated into "upstream" (CMake-ified Boost) the Boost.TR1/Math patch.
+
+* Wed Jan  4 2012 Petr Machata <pmachata@redhat.com> - 1.48.0-4
+- Build math portion of Boost.TR1, package DSOs in boost-math.
+- Resolves: #771370
+
+* Tue Jan  3 2012 Petr Machata <pmachata@redhat.com> - 1.48.0-3
+- Add an upstream patch for BOOST_ENABLE_THREADS
+
+* Tue Nov 29 2011 Petr Machata <pmachata@redhat.com> - 1.48.0-2
+- Add an upstream patch for BOOST_FOREACH declaration issue #756005
+- Add a proposed patch for error in boost lexical_cast #757385
+
+* Sat Nov 19 2011 Denis Arnaud <denis.arnaud_fedora@m4x.org> - 1.48.0-1
+- Upgrade to Boost-1.48.0, adding two new header-only components
+  (Container and Move) and a new library (Locale).
+- Resolves: #754865
+- Added a patch with a manual page for the bjam executable.
+- Added a patch to fix the non-UTF8-encoded example source file.
+- Re-worked a little bit the example section, so as to fix the
+  DOS-formatted and the ISO-8859-encoded files.
+
+* Thu Nov  3 2011 Petr Machata <pmachata@redhat.com> - 1.47.0-7
+- Use <boost/tr1/tuple> instead of C++11 header <tuple> in boost math.
+- Resolves: #751210
+
 * Fri Sep  9 2011 Petr Machata <pmachata@redhat.com> - 1.47.0-6
 - Rebuild for libicu soname bump
 - Hack /bin back to PATH after MPI module unload
