@@ -24,7 +24,7 @@
 ### Abstract ###
 
 Name: evolution-data-server
-Version: 3.3.1
+Version: 3.3.5
 Release: 1%{?dist}
 Group: System Environment/Libraries
 Summary: Backend data server for Evolution
@@ -40,7 +40,6 @@ Obsoletes: evolution-webcal < 2.24.0
 
 # RH bug #243296
 Patch01: evolution-data-server-1.11.5-fix-64bit-acinclude.patch
-Patch02: evolution-data-server-3.3.1-no-g-thread-init.patch
 
 ### Build Dependencies ###
 
@@ -50,7 +49,6 @@ BuildRequires: db4-devel
 BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gnome-common
-BuildRequires: gnome-keyring-devel
 BuildRequires: gnome-online-accounts-devel
 BuildRequires: gnutls-devel
 BuildRequires: gperf
@@ -58,6 +56,7 @@ BuildRequires: gtk-doc >= %{gtk_doc_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
 BuildRequires: intltool >= %{intltool_version}
 BuildRequires: libgdata-devel >= %{libgdata_version}
+BuildRequires: libgnome-keyring-devel
 BuildRequires: libgweather-devel >= %{libgweather_version}
 BuildRequires: libical-devel >= %{libical_version}
 BuildRequires: liboauth-devel >= %{liboauth_version}
@@ -97,9 +96,9 @@ Summary: Development files for building against %{name}
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 Requires: dbus-glib-devel
-Requires: gnome-keyring-devel
 Requires: gnome-online-accounts-devel
 Requires: libgdata-devel
+Requires: libgnome-keyring-devel
 Requires: libgweather-devel
 Requires: libical-devel
 Requires: liboauth-devel
@@ -121,7 +120,6 @@ This package contains developer documentation for %{name}.
 %setup -q
 
 %patch01 -p1 -b .fix-64bit-acinclude
-%patch02 -p1 -b .no-g-thread-init
 
 mkdir -p krb5-fakeprefix/include
 mkdir -p krb5-fakeprefix/lib
@@ -342,6 +340,25 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/gtk-doc/html/libedataserverui
 
 %changelog
+* Mon Feb 06 2012 Milan Crha <mcrha@redhat.com> - 3.3.5-1
+- Update to 3.3.5
+
+* Mon Jan 16 2012 Milan Crha <mcrha@redhat.com> - 3.3.4-1
+- Update to 3.3.4
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.3.3-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Fri Dec 30 2011 Matthew Barnes <mbarnes@redhat.com> - 3.3.3-2
+- Require libgnome-keyring-devel instead of gnome-keyring-devel.
+
+* Mon Dec 19 2011 Milan Crha <mcrha@redhat.com> - 3.3.3-1
+- Update to 3.3.3
+
+* Mon Nov 21 2011 Milan Crha <mcrha@redhat.com> - 3.3.2-1
+- Update to 3.3.2
+- Remove patch to not call g_thread_init() (fixed upstream)
+
 * Mon Oct 24 2011 Milan Crha <mcrha@redhat.com> - 3.3.1-1
 - Update to 3.3.1
 - Add patch to not call g_thread_init()
