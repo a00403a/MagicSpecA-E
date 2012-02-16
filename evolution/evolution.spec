@@ -27,8 +27,8 @@
 ### Abstract ###
 
 Name: evolution
-Version: 3.3.1
-Release: 2%{?dist}
+Version: 3.3.5
+Release: 1%{?dist}
 Group: Applications/Productivity
 Summary: Mail and calendar client for GNOME
 License: GPLv2+ and GFDL
@@ -46,8 +46,6 @@ Patch01: evolution-1.4.4-ldap-x86_64-hack.patch
 
 # RH bug #589555
 Patch02: evolution-2.30.1-help-contents.patch
-
-Patch03: evolution-3.3.1-no-g-thread-init.patch
 
 ## Dependencies ###
 
@@ -205,7 +203,6 @@ This package contains the plugin to import Microsoft Personal Storage Table
 %setup -q -n evolution-%{version}
 %patch01 -p1 -b .ldaphack
 %patch02 -p1 -b .help-contents
-%patch03 -p1 -b .no-g-thread-init
 
 mkdir -p krb5-fakeprefix/include
 mkdir -p krb5-fakeprefix/lib
@@ -299,9 +296,16 @@ unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 
 # remove libtool archives for importers and the like
 find $RPM_BUILD_ROOT/%{_libdir}/evolution -name '*.la' -exec rm {} \;
+find $RPM_BUILD_ROOT/%{_libdir} -name 'libemail-engine.la' -exec rm {} \;
+find $RPM_BUILD_ROOT/%{_libdir} -name 'libemail-utils.la' -exec rm {} \;
 
 # remove statically built libraries:
 find $RPM_BUILD_ROOT/%{_libdir}/evolution -name '*.a' -exec rm {} \;
+find $RPM_BUILD_ROOT/%{_libdir} -name 'libemail-engine.a' -exec rm {} \;
+find $RPM_BUILD_ROOT/%{_libdir} -name 'libemail-utils.a' -exec rm {} \;
+
+# remove old GConf schemas
+find $RPM_BUILD_ROOT/%{_sysconfdir}/gconf/schemas -name '*.schemas' -exec rm {} \;
 
 # remove additional things we don't want
 %if ! %{inline_audio_support}
@@ -323,89 +327,21 @@ rm $RPM_BUILD_ROOT%{_datadir}/applications/evolution-settings.desktop
 grep "/usr/share/locale" evolution-%{evo_base_version}.lang > translations.lang
 grep -v "/usr/share/locale" evolution-%{evo_base_version}.lang > help.lang
 
-%pre
-if [ "$1" -gt 1 ] ; then
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps-evolution-mail-notification.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps-evolution-mail-prompts-checkdefault.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps_evolution_addressbook.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps-evolution-attachment-reminder.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps_evolution_calendar.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps_evolution_eplugin_face.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps_evolution_shell.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps-evolution-template-placeholders.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps_evolution_email_custom_header.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/evolution-mail.schemas > /dev/null || :
-fi
-
-%pre bogofilter
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/evolution-bogofilter.schemas > /dev/null || :
-
-%pre spamassassin
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/evolution-spamassassin.schemas > /dev/null || :
-
 %post
 /sbin/ldconfig
 touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
-
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/apps-evolution-mail-notification.schemas > /dev/null || :
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/apps-evolution-mail-prompts-checkdefault.schemas > /dev/null || :
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/apps_evolution_addressbook.schemas > /dev/null || :
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/apps-evolution-attachment-reminder.schemas > /dev/null || :
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/apps_evolution_calendar.schemas > /dev/null || :
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/apps_evolution_eplugin_face.schemas > /dev/null || :
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/apps_evolution_shell.schemas > /dev/null || :
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/apps-evolution-template-placeholders.schemas > /dev/null || :
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/apps_evolution_email_custom_header.schemas > /dev/null || :
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/evolution-mail.schemas > /dev/null || :
-
-%post bogofilter
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/evolution-bogofilter.schemas > /dev/null || :
-
-%post spamassassin
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/evolution-spamassassin.schemas > /dev/null || :
-
-%preun
-if [ "$1" -eq 0 ] ; then
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps-evolution-mail-notification.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps-evolution-mail-prompts-checkdefault.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps_evolution_addressbook.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps-evolution-attachment-reminder.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps_evolution_calendar.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps_evolution_eplugin_face.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps_evolution_shell.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps-evolution-template-placeholders.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/apps_evolution_email_custom_header.schemas > /dev/null || :
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/evolution-mail.schemas > /dev/null || :
-fi
-
-%preun bogofilter
-if [ "$1" -eq 0 ] ; then
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/evolution-bogofilter.schemas > /dev/null || :
-fi
-
-%preun spamassassin
-if [ "$1" -eq 0 ] ; then
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/evolution-spamassassin.schemas > /dev/null || :
-fi
 
 %postun
 /sbin/ldconfig
 if [ $1 -eq 0 ] ; then
     touch --no-create %{_datadir}/icons/hicolor &>/dev/null
     gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+    glib-compile-schemas %{_datadir}/glib-2.0/schemas
 fi
 
 %posttrans
 gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+glib-compile-schemas %{_datadir}/glib-2.0/schemas
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -414,17 +350,26 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %doc AUTHORS COPYING ChangeLog NEWS README
 
-# GConf schemas:
-%{_sysconfdir}/gconf/schemas/apps-evolution-attachment-reminder.schemas
-%{_sysconfdir}/gconf/schemas/apps_evolution_eplugin_face.schemas
-%{_sysconfdir}/gconf/schemas/apps-evolution-mail-notification.schemas
-%{_sysconfdir}/gconf/schemas/apps-evolution-mail-prompts-checkdefault.schemas 
-%{_sysconfdir}/gconf/schemas/apps_evolution_addressbook.schemas
-%{_sysconfdir}/gconf/schemas/apps_evolution_calendar.schemas
-%{_sysconfdir}/gconf/schemas/apps_evolution_shell.schemas
-%{_sysconfdir}/gconf/schemas/apps-evolution-template-placeholders.schemas
-%{_sysconfdir}/gconf/schemas/apps_evolution_email_custom_header.schemas
-%{_sysconfdir}/gconf/schemas/evolution-mail.schemas
+# GSettings schemas:
+%{_datadir}/GConf/gsettings/evolution.convert
+
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.shell.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.addressbook.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.calendar.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.mail.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.importer.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.bogofilter.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.spamassassin.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.attachment-reminder.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.face-picture.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.mail-notification.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.templates.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.email-custom-header.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.autocontacts.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.external-editor.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.itip.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.prefer-plain.gschema.xml
 
 # The main executable
 %{_bindir}/evolution
@@ -457,6 +402,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-composer-autosave.so
 %{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-mail.so
 %{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-mailto-handler.so
+%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-mdn.so
 %{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-offline-alert.so
 %{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-online-accounts.so
 %{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-plugin-lib.so
@@ -464,6 +410,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-startup-wizard.so
 
 # Shared libraries:
+%{_libdir}/libemail-engine.so.*
+%{_libdir}/libemail-utils.so.*
 %{_libdir}/evolution/%{evo_base_version}/libcomposer.so.*
 %{_libdir}/evolution/%{evo_base_version}/libeabutil.so.*
 %{_libdir}/evolution/%{evo_base_version}/libecontacteditor.so.*
@@ -596,6 +544,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/evolution-mail-3.0.pc
 %{_libdir}/pkgconfig/evolution-plugin-3.0.pc
 %{_libdir}/pkgconfig/evolution-shell-3.0.pc
+%{_libdir}/pkgconfig/libemail-engine.pc
+%{_libdir}/pkgconfig/libemail-utils.pc
+%{_libdir}/libemail-engine.so
+%{_libdir}/libemail-utils.so
 %{_libdir}/evolution/%{evo_base_version}/libcomposer.so
 %{_libdir}/evolution/%{evo_base_version}/libeabutil.so
 %{_libdir}/evolution/%{evo_base_version}/libecontacteditor.so
@@ -627,7 +579,6 @@ rm -rf $RPM_BUILD_ROOT
 %files bogofilter
 %defattr(-, root, root)
 %{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-bogofilter.so
-%{_sysconfdir}/gconf/schemas/evolution-bogofilter.schemas
 
 %files NetworkManager
 %defattr(-, root, root)
@@ -636,12 +587,10 @@ rm -rf $RPM_BUILD_ROOT
 %files spamassassin
 %defattr(-, root, root)
 %{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-spamassassin.so
-%{_sysconfdir}/gconf/schemas/evolution-spamassassin.schemas
 
 %files perl
 %defattr(-, root, root)
 %{_libexecdir}/evolution/%{evo_base_version}/csv2vcard
-%{_libexecdir}/evolution/%{evo_base_version}/evolution-addressbook-clean
 
 %if %{libpst_support}
 %files pst
@@ -651,6 +600,27 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Mon Feb 06 2012 Milan Crha <mcrha@redhat.com> - 3.3.5-1
+- Update to 3.3.5
+
+* Thu Jan 19 2012 Matthew Barnes <mbarnes@redhat.com> - 3.3.4-2
+- Keep all GSettings schema files in the main evolution package, even the
+  ones for the Bogofilter and Spamassassin subpackages, since we just have
+  one .convert file and missing schemas makes gsettings-data-convert crash.
+
+* Mon Jan 16 2012 Milan Crha <mcrha@redhat.com> - 3.3.4-1
+- Update to 3.3.4
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.3.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Mon Dec 19 2011 Milan Crha <mcrha@redhat.com> - 3.3.3-1
+- Update to 3.3.3
+
+* Mon Nov 21 2011 Milan Crha <mcrha@redhat.com> - 3.3.2-1
+- Update to 3.3.2
+- Remove patch to not call g_thread_init() (fixed upstream)
+
 * Fri Oct 28 2011 Matthew Barnes <mbarnes@redhat.com> - 3.3.1-2
 - Fix detection of evolution-help (not using OMF files anymore).
 
