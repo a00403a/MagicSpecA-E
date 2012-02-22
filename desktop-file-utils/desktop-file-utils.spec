@@ -3,13 +3,16 @@
 
 Summary: Utilities for manipulating .desktop files
 Name: desktop-file-utils
-Version: 0.18
-Release: 4%{?dist}
+Version: 0.19
+Release: 7%{?dist}
 URL: http://www.freedesktop.org/software/desktop-file-utils
-Source0: http://www.freedesktop.org/software/desktop-file-utils/releases/%{name}-%{version}.tar.bz2
+Source0: http://www.freedesktop.org/software/desktop-file-utils/releases/%{name}-%{version}.tar.xz
 Source1: desktop-entry-mode-init.el
 License: GPLv2+
 Group: Development/Tools
+
+# https://bugs.freedesktop.org/show_bug.cgi?id=44098
+Patch0: localelist-fixup.patch
 
 BuildRequires: glib2-devel
 
@@ -45,6 +48,7 @@ Install the %{name} package to use %{pkgname} with GNU Emacs.
 
 %prep
 %setup -q
+%patch0 -p1 -b .localelist
 
 %build
 %configure
@@ -59,25 +63,40 @@ install -Dpm 644 %{SOURCE1} $RPM_BUILD_ROOT%{_emacs_sitestartdir}/desktop-entry-
 touch $RPM_BUILD_ROOT%{_emacs_sitestartdir}/desktop-entry-mode-init.elc
 
 %files
-%defattr(-,root,root)
 %doc AUTHORS COPYING README NEWS
 %{_bindir}/*
 %{_mandir}/man1/desktop-file-install.1.gz
 %{_mandir}/man1/desktop-file-validate.1.gz
 %{_mandir}/man1/update-desktop-database.1.gz
+%{_mandir}/man1/desktop-file-edit.1.gz
 
 %files -n emacs-%{pkg}
-%defattr(-,root,root,-)
 %{_emacs_sitestartdir}/desktop-entry-mode-init.el
 %ghost %{_emacs_sitestartdir}/desktop-entry-mode-init.elc
 %dir %{_emacs_sitelispdir}/%{pkg}
 %{_emacs_sitelispdir}/%{pkg}/*.elc
 
 %files -n emacs-%{pkg}-el
-%defattr(-,root,root,-)
 %{_emacs_sitelispdir}/%{pkg}/*.el
 
 %changelog
+* Wed Feb 22 2012 Liu Di <liudidi@gmail.com> - 0.19-7
+- 为 Magic 3.0 重建
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.19-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Fri Dec 23 2011 Matthias Clasen <mclasen@redhat.com> - 0.19-5
+- Fix up locale lists just like other lists
+
+* Tue Dec 20 2011 Matthias Clasen <mclasen@redhat.com> - 0.19-1
+- Update to 0.19: support for Unity as desktop env, and support
+  for Keywords
+
+* Mon Jul 04 2011 Adam Williamson <awilliam@redhat.com> - 0.18-4
+- add unity.patch from upstream: add Unity to list of registered
+  environments
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.18-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
