@@ -4,9 +4,9 @@ After=syslog.target
 
 [Service]
 Type=forking
-PIDFile=/etc/sysconfig/saslauthd
+PIDFile=/run/saslauthd/saslauthd.pid
 EnvironmentFile=/etc/sysconfig/saslauthd
-ExecStart=/usr/sbin/saslauthd -a $MECH $FLAGS
+ExecStart=/usr/sbin/saslauthd -m $SOCKETDIR -a $MECH $FLAGS
 
 [Install]
 WantedBy=multi-user.target

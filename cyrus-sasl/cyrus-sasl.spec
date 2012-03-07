@@ -1,15 +1,14 @@
 %define username	saslauth
 %define hint		"Saslauthd user"
-%define homedir		%{_var}/empty/%{username}
+%define homedir		/run/saslauthd
 
 %define _plugindir2 %{_libdir}/sasl2
 %define bootstrap_cyrus_sasl 0
-%define systemd		0
 
 Summary: The Cyrus SASL library
 Name: cyrus-sasl
 Version: 2.1.23
-Release: 20%{?dist}
+Release: 29%{?dist}
 License: BSD with advertising
 Group: System Environment/Libraries
 # Source0 originally comes from ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/;
@@ -41,12 +40,18 @@ Patch34: cyrus-sasl-2.1.22-ldap-timeout.patch
 Patch35: cyrus-sasl-2.1.22-bad-elif.patch
 Patch36: cyrus-sasl-2.1.23-ac-quote.patch
 Patch37: cyrus-sasl-2.1.23-race.patch
+# removed due to #759334
+#Patch38: cyrus-sasl-2.1.23-pam_rhosts.patch
+Patch39: cyrus-sasl-2.1.23-ntlm.patch
+Patch40: cyrus-sasl-2.1.23-rimap2.patch
+Patch41: cyrus-sasl-2.1.23-db5.patch
+Patch42: cyrus-sasl-2.1.23-relro.patch
 
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf, automake, libtool, gdbm-devel, groff
 BuildRequires: krb5-devel >= 1.2.2, openssl-devel, pam-devel, pkgconfig
 BuildRequires: mysql-devel, postgresql-devel, zlib-devel
-BuildRequires: db4-devel
+BuildRequires: libdb-devel
 BuildRequires: fedora-usermgmt-devel
 %if ! %{bootstrap_cyrus_sasl}
 BuildRequires: openldap-devel
@@ -141,6 +146,18 @@ The %{name}-ldap package contains the Cyrus SASL plugin which supports using
 a directory server, accessed using LDAP, for storing shared secrets.
 %endif
 
+%package sysvinit
+Summary: The SysV initscript to manage the cyrus SASL authd.
+Group: System Environment/Daemons
+Requires: %{name} = %{version}-%{release}
+
+%description sysvinit
+The %{name}-sysvinit package contains the SysV init script to manage
+the cyrus SASL authd when running a legacy SysV-compatible init system.
+
+###
+
+
 %prep
 %setup -q
 chmod -x doc/*.html
@@ -161,6 +178,11 @@ chmod -x include/*.h
 %patch35 -p1 -b .elif
 %patch36 -p1 -b .ac-quote
 %patch37 -p1 -b .race
+#%patch38 -p1 -b .pam_rhosts
+%patch39 -p1 -b .ntlm
+%patch40 -p1 -b .rimap2
+%patch41 -p1 -b .db5
+%patch42 -p1 -b .relro
 
 %build
 # FIXME - we remove these files directly so that we can avoid using the -f
@@ -239,7 +261,7 @@ echo "$LDFLAGS"
         --with-gss_impl=mit \
         --with-rc4 \
         --with-dblib=berkeley \
-        --with-saslauthd=/var/run/saslauthd --without-pwcheck \
+        --with-saslauthd=/run/saslauthd --without-pwcheck \
 %if ! %{bootstrap_cyrus_sasl}
         --with-ldap \
 %endif
@@ -250,6 +272,8 @@ echo "$LDFLAGS"
         --enable-ntlm \
         --enable-plain \
         --enable-login \
+        --enable-alwaystrue \
+        --enable-httpform \
         --disable-otp \
 %if ! %{bootstrap_cyrus_sasl}
         --enable-ldapdb \
@@ -287,15 +311,13 @@ install -m755 -d $RPM_BUILD_ROOT%{_mandir}/man8/
 install -m644 -p saslauthd/saslauthd.mdoc $RPM_BUILD_ROOT%{_mandir}/man8/saslauthd.8
 
 # Create the saslauthd listening directory.
-install -m755 -d $RPM_BUILD_ROOT/var/run/saslauthd
+install -m755 -d $RPM_BUILD_ROOT/run/saslauthd
 
 # Install the init script for saslauthd and the init script's config file.
 install -m755 -d $RPM_BUILD_ROOT/etc/rc.d/init.d $RPM_BUILD_ROOT/etc/sysconfig
 install -m755 -p %{SOURCE4} $RPM_BUILD_ROOT/etc/rc.d/init.d/saslauthd
-%if %{systemd}
 install -d -m755 $RPM_BUILD_ROOT/%{_unitdir}
-install -m644 -p %{SOURCE5} $RPM_BUILD_ROOT/%{_unitdir}/saslauthd
-%endif
+install -m644 -p %{SOURCE5} $RPM_BUILD_ROOT/%{_unitdir}/saslauthd.service
 install -m644 -p %{SOURCE9} $RPM_BUILD_ROOT/etc/sysconfig/saslauthd
 install -m755 -d $RPM_BUILD_ROOT/etc/tmpfiles.d
 install -m644 -p %{SOURCE11} $RPM_BUILD_ROOT/etc/tmpfiles.d/saslauthd.conf
@@ -321,56 +343,30 @@ test "$RPM_BUILD_ROOT" != "/" && rm -rf $RPM_BUILD_ROOT
 
 %pre
 getent group %{username} >/dev/null || groupadd -r %{username}
-getent passwd %{username} >/dev/null || \
-useradd -r -g %{username} -d %{homedir} -s /sbin/nologin \
--c \"%{hint}\" %{username}
-exit 0
+getent passwd %{username} >/dev/null || useradd -r -g %{username} -d %{homedir} -s /sbin/nologin -c \"%{hint}\" %{username}
 
 %post
-%if %{systemd}
-if [ -x /bin/systemctl ]; then
-	if [ $1 -eq 1 ]; then
-		/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-	fi
+if [ $1 -eq 1 ]; then
+	/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
-%endif
-if [ -x /sbin/chkconfig ]; then
-	/sbin/chkconfig --add saslauthd
-fi
-exit 0
 
 %preun
 if [ $1 -eq 0 ]; then
-%if %{systemd}
-	if [ -x /bin/systemctl ]; then
-		/bin/systemctl disable saslauthd.service >/dev/null 2>&1 || :
-		/bin/systemctl stop saslauthd.service >/dev/null 2>&1 || :
-	fi
-%endif
-	if [ -x /sbin/service ]; then
-        	/sbin/service saslauthd stop >/dev/null 2>&1 || :
-	fi
-	if [ -x /sbin/chkconfig ]; then
-        	/sbin/chkconfig --del saslauthd
-	fi
+	/bin/systemctl --no-reload disable saslauthd.service >/dev/null 2>&1 || :
+	/bin/systemctl stop saslauthd.service >/dev/null 2>&1 || :
+fi
+
+%postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ]; then
+	/bin/systemctl try-restart saslauthd.service >/dev/null 2>&1 || :
 fi
 exit 0
 
-%postun
-%if %{systemd}
-if [ -x /bin/systemctl ]; then
-	/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-	if [ $1 -ge 1 ]; then
-		/bin/systemctl try-restart saslauthd.service >/dev/null 2>&1 || :
-	fi
-fi
-%endif
-if [ -x /sbin/service ];then
-	if [ $1 -ne 0 ]; then
-        	/sbin/service saslauthd condrestart 2>&1 > /dev/null
-	fi
-fi
-exit 0
+%triggerun -n cyrus-sasl -- cyrus-sasl < 2.1.23-32
+/usr/bin/systemd-sysv-convert --save saslauthd >/dev/null 2>&1 || :
+/sbin/chkconfig --del saslauthd >/dev/null 2>&1 || :
+/bin/systemctl try-restart saslauthd.service >/dev/null 2>&1 || :
 
 %post lib -p /sbin/ldconfig
 %postun lib -p /sbin/ldconfig
@@ -384,12 +380,9 @@ exit 0
 %{_sbindir}/saslauthd
 %{_sbindir}/testsaslauthd
 %config(noreplace) /etc/sysconfig/saslauthd
-/etc/rc.d/init.d/saslauthd
-%if %{systemd}
-%{_unitdir}/saslauthd
-%endif
+%{_unitdir}/saslauthd.service
 /etc/tmpfiles.d/saslauthd.conf
-%ghost /var/run/saslauthd
+%dir /run/saslauthd
 
 %files lib
 %defattr(-,root,root)
@@ -440,7 +433,41 @@ exit 0
 %{_mandir}/man3/*
 %{_sbindir}/sasl2-shared-mechlist
 
+%files sysvinit
+/etc/rc.d/init.d/saslauthd
+
 %changelog
+* Wed Feb 08 2012 Petr Lautrbach <plautrba@redhat.com> 2.1.23-29
+- Change saslauth user homedir to /run/saslauthd (#752889)
+- Change all /var/run/ to /run/
+- DAEMONOPTS are not supported any more in systemd units
+
+* Mon Jan 09 2012 Jeroen van Meeuwen <vanmeeuwen@kolabsys.com> - 2.1.23-28
+- Ship with sasl_pwcheck_method: alwaystrue
+
+* Mon Dec 12 2011 Petr Lautrbach <plautrba@redhat.com> 2.1.23-27
+- remove support for logging of the remote host via PAM (#759334)
+- fix systemd files (#750436)
+
+* Wed Aug 10 2011 Jan F. Chadima <jchadima@redhat.com> - 2.1.23-26
+- Add partial relro support for libraries
+
+* Mon Jul 25 2011 Jan F. Chadima <jchadima@redhat.com> - 2.1.23-25
+- Add support for berkeley db 5
+
+* Wed Jun 29 2011 Jan F. Chadima <jchadima@redhat.com> - 2.1.23-23
+- Migrate the package to full native systemd unit files, according to the Fedora
+  packaging guidelines.
+
+* Wed Jun  1 2011 Jan F. Chadima <jchadima@redhat.com> - 2.1.23-22
+- repair rimap support (more packets in response)
+
+* Wed May 25 2011 Jan F. Chadima <jchadima@redhat.com> - 2.1.23-21
+- repair ntlm support
+
+* Mon May 23 2011 Jan F. Chadima <jchadima@redhat.com> - 2.1.23-20
+- add logging of the remote host via PAM
+
 * Thu Apr 28 2011 Jan F. Chadima <jchadima@redhat.com> - 2.1.23-19
 - temporarilly revert systemd units
 
