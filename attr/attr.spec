@@ -1,7 +1,7 @@
 Summary: Utilities for managing filesystem extended attributes
 Name: attr
 Version: 2.4.46
-Release: 5%{?dist}
+Release: 6%{?dist}
 Conflicts: xfsdump < 2.0.0
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Source: http://download.savannah.gnu.org/releases-noredirect/attr/attr-%{version}.src.tar.gz
@@ -146,6 +146,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libattr.so.*
 
 %changelog
+* Thu Mar 08 2012 Liu Di <liudidi@gmail.com> - 2.4.46-6
+- 为 Magic 3.0 重建
+
 * Wed Jan 25 2012 Harald Hoyer <harald@redhat.com> 2.4.46-5
 - add filesystem guard
 
