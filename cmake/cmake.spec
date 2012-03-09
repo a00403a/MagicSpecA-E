@@ -7,8 +7,8 @@
 %define rcver %{nil}
 
 Name:           cmake
-Version:        2.8.6
-Release:        2%{?dist}
+Version:        2.8.7
+Release:        6%{?dist}
 Summary:        Cross-platform make system
 
 Group:          Development/Tools
@@ -160,8 +160,32 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 
 %changelog
-* Wed Jan 04 2012 Liu Di <liudidi@gmail.com> - 2.8.6-2
-- 为 Magic 3.0 重建
+* Tue Feb 21 2012 Orion Poplawski <orion@cora.nwra.com> - 2.8.7-6
+- Just strip CMAKE_INSTALL_LIBDIR from %%cmake macro
+
+* Tue Feb 21 2012 Orion Poplawski <orion@cora.nwra.com> - 2.8.7-5
+- Strip CMAKE_INSTALL_LIBDIR and others from %%cmake macro (bug 795542)
+
+* Thu Jan 26 2012 Tomas Bzatek <tbzatek@redhat.com> - 2.8.7-4
+- Rebuilt for new libarchive
+
+* Wed Jan 17 2012 Jaroslav Reznik <jreznik@redhat.com> - 2.8.7-3
+- Rebuild for libarchive
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.8.7-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Sun Jan 1 2012 Orion Poplawski <orion@cora.nwra.com> - 2.8.7-1
+- Update to 2.8.7 final
+
+* Tue Dec 27 2011 Orion Poplawski <orion@cora.nwra.com> - 2.8.7-0.2.rc2
+- Update to 2.8.7 RC 2
+
+* Tue Dec 13 2011 Orion Poplawski <orion@cora.nwra.com> - 2.8.7-0.1.rc1
+- Update to 2.8.7 RC 1
+
+* Tue Nov 15 2011 Daniel Drake <dsd@laptop.org> - 2.8.6-2
+- Rebuild for libarchive.so.11
 
 * Wed Oct 5 2011 Orion Poplawski <orion@cora.nwra.com> - 2.8.6-1
 - Update to 2.8.6 final
