@@ -2,10 +2,9 @@
 %define apuver 1
 
 Summary: Apache Portable Runtime Utility library
-Summary(zh_CN.UTF-8): Apache 可移植运行时工具库
 Name: apr-util
-Version: 1.3.12
-Release: 1%{?dist}
+Version: 1.4.1
+Release: 2%{?dist}
 License: ASL 2.0
 Group: System Environment/Libraries
 URL: http://apr.apache.org/
@@ -14,7 +13,7 @@ Patch1: apr-util-1.2.7-pkgconf.patch
 Patch2: apr-util-1.3.7-nodbmdso.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires: autoconf, apr-devel >= 1.3.0
-BuildRequires: db4-devel, expat-devel, libuuid-devel
+BuildRequires: libdb-devel, expat-devel, libuuid-devel
 
 %description
 The mission of the Apache Portable Runtime (APR) is to provide a
@@ -26,7 +25,7 @@ for XML, LDAP, database interfaces, URI parsing and more.
 Group: Development/Libraries
 Summary: APR utility library development kit
 Requires: apr-util = %{version}-%{release}, apr-devel, pkgconfig
-Requires: db4-devel, expat-devel, openldap-devel
+Requires: libdb-devel, expat-devel, openldap-devel
 
 %description devel
 This package provides the support files which can be used to 
@@ -93,6 +92,24 @@ Requires: apr-util = %{version}-%{release}
 %description ldap
 This package provides the LDAP support for the apr-util.
 
+%package openssl
+Group: Development/Libraries
+Summary: APR utility library OpenSSL crytpo support
+BuildRequires: openssl-devel
+Requires: apr-util = %{version}-%{release}
+
+%description openssl
+This package provides the OpenSSL crypto support for the apr-util.
+
+%package nss
+Group: Development/Libraries
+Summary: APR utility library NSS crytpo support
+BuildRequires: nss-devel
+Requires: apr-util = %{version}-%{release}
+
+%description nss
+This package provides the NSS crypto support for the apr-util.
+
 %prep
 %setup -q
 %patch1 -p1 -b .pkgconf
@@ -108,7 +125,8 @@ export ac_cv_ldap_set_rebind_proc_style=three
         --with-ldap --without-gdbm \
         --with-sqlite3 --with-pgsql --with-mysql --with-freetds --with-odbc \
         --with-berkeley-db \
-        --without-sqlite2
+        --without-sqlite2 \
+        --with-crypto --with-openssl --with-nss
 make %{?_smp_mflags}
 
 %install
@@ -182,6 +200,14 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %{_libdir}/apr-util-%{apuver}/apr_ldap*
 
+%files openssl
+%defattr(-,root,root,-)
+%{_libdir}/apr-util-%{apuver}/apr_crypto_openssl*
+
+%files nss
+%defattr(-,root,root,-)
+%{_libdir}/apr-util-%{apuver}/apr_crypto_nss*
+
 %files devel
 %defattr(-,root,root,-)
 %{_bindir}/apu-%{apuver}-config
@@ -192,6 +218,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*.m4
 
 %changelog
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.4.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Thu Dec 15 2011 Bojan Smojver <bojan@rexursive.com> - 1.4.1-1
+- bump up to 1.4.1
+
 * Fri May 20 2011 Bojan Smojver <bojan@rexursive.com> - 1.3.12-1
 - bump up to 1.3.12
 
