@@ -1,5 +1,11 @@
 %global php_extdir %(php-config --extension-dir 2>/dev/null || echo %{_libdir}/php4)
-%global php_apiver %((echo 0; php -i 2>/dev/null | sed -n 's/^PHP API => //p') | tail -1)
+
+# Fix private-shared-object-provides
+# RPM 4.8
+%{?filter_provides_in: %filter_provides_in %{php_extdir}/.*\.so$}
+%{?filter_setup}
+# RPM 4.9
+%global __provides_exclude_from %{?__provides_exclude_from:%__provides_exclude_from|}%{php_extdir}/.*\\.so$
 
 %global use_alternatives 1
 %global lspp 0
@@ -12,8 +18,8 @@
 
 Summary: Common Unix Printing System
 Name: cups
-Version: 1.5.0
-Release: 20%{?dist}
+Version: 1.5.2
+Release: 5%{?dist}
 License: GPLv2
 Group: System Environment/Daemons
 Source: http://ftp.easysw.com/pub/cups/%{version}/cups-%{version}-source.tar.bz2
@@ -56,7 +62,6 @@ Patch20: cups-filter-debug.patch
 Patch21: cups-uri-compat.patch
 Patch22: cups-cups-get-classes.patch
 Patch23: cups-str3382.patch
-Patch24: cups-str3947.patch
 Patch25: cups-0755.patch
 Patch26: cups-snmp-quirks.patch
 Patch27: cups-hp-deviceid-oid.patch
@@ -71,9 +76,9 @@ Patch34: cups-avahi-5-services.patch
 
 Patch35: cups-icc.patch
 Patch36: cups-systemd-socket.patch
-Patch37: cups-CVE-2011-2896.patch
-Patch38: cups-str3921.patch
-Patch39: cups-ps-command-filter.patch
+Patch37: cups-str4014.patch
+Patch38: cups-polld-reconnect.patch
+Patch39: cups-translation.patch
 
 Patch100: cups-lspp.patch
 
@@ -146,9 +151,6 @@ Requires: acl
 
 # Make sure we have some filters for converting to raster format.
 Requires: ghostscript-cups
-
-# Make sure we register devices and profiles with colord.
-Requires: colord
 
 %package devel
 Summary: Common Unix Printing System - development environment
@@ -246,7 +248,7 @@ Sends IPP requests to the specified URI and tests and/or displays the results.
 %patch12 -p1 -b .eggcups
 # More sophisticated implementation of cupsGetPassword than getpass.
 %patch13 -p1 -b .getpass
-# Increase driverd timeout to 70s to accommodate foomatic.
+# Increase driverd timeout to 70s to accommodate foomatic (bug #744715).
 %patch14 -p1 -b .driverd-timeout
 # Only enforce maximum PPD line length when in strict mode.
 %patch15 -p1 -b .strict-ppd-line-length
@@ -266,8 +268,6 @@ Sends IPP requests to the specified URI and tests and/or displays the results.
 %patch22 -p1 -b .cups-get-classes
 # Fix temporary filename creation.
 %patch23 -p1 -b .str3382
-# Fixed string manipulation in the dbus notifier (STR #3947, bug #741833).
-%patch24 -p1 -b .str3947
 # Use mode 0755 for binaries and libraries where appropriate.
 %patch25 -p1 -b .0755
 # Handle SNMP supply level quirks (bug #581825).
@@ -295,15 +295,15 @@ Sends IPP requests to the specified URI and tests and/or displays the results.
 # Poettering).
 %patch36 -p1 -b .systemd-socket
 
-# Avoid GIF reader loop (CVE-2011-2896, STR #3914, bug #727800).
-%patch37 -p1 -b .CVE-2011-2896
+# Synthesize notify-printer-uri for job-completed events where the job
+# never started processing (bug #784786, STR #4014).
+%patch37 -p1 -b .str4014
 
-# Work around PPDs cache handling issue (bug #742989).
-%patch38 -p1 -b .str3921
+# cups-polld: restart polling on error (bug #769292, STR #4031).
+%patch38 -p1 -b .polld-reconnect
 
-# Set the correct PostScript command filter for e.g. foomatic queues
-# (STR #3973).
-%patch39 -p1 -b .ps-command-filter
+# If the translated message is empty return the original message (bug #797570, STR #4033).
+%patch39 -p1 -b .translation
 
 %if %lspp
 # LSPP support.
@@ -434,6 +434,15 @@ s:.*\('%{_datadir}'/\)\([^/_]\+\)\(.*\.po$\):%lang(\2) \1\2\3:
 /^\([^%].*\)/d
 ' > %{name}.lang
 
+%check
+# Minimal load test of php extension
+LD_LIBRARY_PATH=${RPM_BUILD_ROOT}%{_libdir} \
+php --no-php-ini \
+    --define extension_dir=${RPM_BUILD_ROOT}%{php_extdir} \
+    --define extension=phpcups.so \
+    --modules | grep phpcups
+
+
 %post
 if [ $1 -eq 1 ] ; then
 	# Initial installation
@@ -485,14 +494,20 @@ if [ $1 -ge 1 ]; then
 fi
 exit 0
 
-%triggerun -- %{name} < 1.5-0.9
+%triggerun -- %{name} < 1:1.5.0-22
+# This package is allowed to autostart; however, the upgrade trigger
+# in Fedora 16 final failed to actually do this.  Do it now as a
+# one-off fix for bug #748841.
+/bin/systemctl --no-reload enable %{name}.{service,socket,path} >/dev/null 2>&1 || :
+
+%triggerun -- %{name} < 1:1.5-0.9
 # Save the current service runlevel info
 # User must manually run systemd-sysv-convert --apply cups
 # to migrate them to systemd targets
 %{_bindir}/systemd-sysv-convert --save %{name} >/dev/null 2>&1 || :
 
 # This package is allowed to autostart:
-/bin/systemctl --no-reload enable %{name}.{service,socket,path} || :
+/bin/systemctl --no-reload enable %{name}.{service,socket,path} >/dev/null 2>&1 || :
 
 # Run these because the SysV package being removed won't do them
 /sbin/chkconfig --del cups >/dev/null 2>&1 || :
@@ -547,6 +562,8 @@ rm -rf $RPM_BUILD_ROOT
 %doc %{_datadir}/%{name}/www/de/index.html
 %doc %{_datadir}/%{name}/www/es/index.html
 %doc %{_datadir}/%{name}/www/eu/index.html
+%doc %{_datadir}/%{name}/www/fr/index.html
+%doc %{_datadir}/%{name}/www/hu/index.html
 %doc %{_datadir}/%{name}/www/id/index.html
 %doc %{_datadir}/%{name}/www/it/index.html
 %doc %{_datadir}/%{name}/www/ja/index.html
@@ -590,6 +607,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/cups/templates/de/*.tmpl
 %{_datadir}/cups/templates/es/*.tmpl
 %{_datadir}/cups/templates/eu/*.tmpl
+%{_datadir}/cups/templates/fr/*.tmpl
+%{_datadir}/cups/templates/hu/*.tmpl
 %{_datadir}/cups/templates/id/*.tmpl
 %{_datadir}/cups/templates/it/*.tmpl
 %{_datadir}/cups/templates/ja/*.tmpl
@@ -641,19 +660,61 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_bindir}/ipptool
 %dir %{_datadir}/cups/ipptool
-%{_datadir}/cups/ipptool/create-printer-subscription.test
-%{_datadir}/cups/ipptool/get-completed-jobs.test
-%{_datadir}/cups/ipptool/get-jobs.test
-%{_datadir}/cups/ipptool/ipp-1.1.test
-%{_datadir}/cups/ipptool/ipp-2.0.test
-%{_datadir}/cups/ipptool/ipp-2.1.test
-%{_datadir}/cups/ipptool/testfile.jpg
-%{_datadir}/cups/ipptool/testfile.pdf
-%{_datadir}/cups/ipptool/testfile.ps
-%{_datadir}/cups/ipptool/testfile.txt
+%{_datadir}/cups/ipptool/*
 %{_mandir}/man1/ipptool.1.gz
 
 %changelog
+* Tue Feb 28 2012 Jiri Popelka <jpopelka@redhat.com> 1:1.5.2-5
+- If the translated message is empty return the original message
+  (bug #797570, STR #4033).
+
+* Thu Feb 23 2012 Tim Waugh <twaugh@redhat.com> 1:1.5.2-4
+- cups-polld: restart polling on error (bug #769292, STR #4031).
+
+* Thu Feb 16 2012 Tim Waugh <twaugh@redhat.com> 1:1.5.2-3
+- Removed hard requirement on colord as it is optional.
+
+* Wed Feb 15 2012 Tim Waugh <twaugh@redhat.com> 1:1.5.2-2
+- Synthesize notify-printer-uri for job-completed events where the job
+  never started processing (bug #784786, STR #4014).
+- Removed banners from LSPP patch on Dan Walsh's advice.
+
+* Mon Feb 06 2012 Jiri Popelka <jpopelka@redhat.com> 1:1.5.2-1
+- 1.5.2
+- Updated FSF address in pstopdf and textonly filters
+
+* Wed Jan 18 2012 Remi Collet <remi@fedoraproject.org> 1:1.5.0-28
+- build against php 5.4.0, patch for STR #3999
+- add filter to fix private-shared-object-provides
+- add %%check for php extension
+
+* Tue Jan 17 2012 Tim Waugh <twaugh@redhat.com> 1:1.5.0-27
+- Use PrivateTmp=true in the service file (bug #782495).
+
+* Tue Jan 17 2012 Tim Waugh <twaugh@redhat.com> 1:1.5.0-26
+- Replace newline characters with spaces in reported Device IDs
+  (bug #782129, STR #4005).
+- Don't accept Device URIs of '\0' from SNMP devices
+  (bug #770646, STR #4004).
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:1.5.0-25
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Wed Dec 21 2011 Tim Waugh <twaugh@redhat.com> 1:1.5.0-24
+- Fixed textonly filter to work with single copies (bug #738412).
+
+* Fri Dec  9 2011 Tim Waugh <twaugh@redhat.com> 1:1.5.0-23
+- Detangle cups-serverbin-compat.patch from cups-lspp.patch.
+- Bind to datagram socket as well in systemd cups.socket unit file, to
+  prevent that port being stolen by another service (bug #760070).
+
+* Fri Nov 11 2011 Tim Waugh <twaugh@redhat.com> 1:1.5.0-22
+- Fixed trigger (bug #748841).
+
+* Wed Nov  9 2011 Tim Waugh <twaugh@redhat.com> 1:1.5.0-21
+- Set correct systemd service default on upgrade, once updates are
+  applied (bug #748841).
+
 * Fri Nov  4 2011 Tim Waugh <twaugh@redhat.com> 1:1.5.0-20
 - Set the correct PostScript command filter for e.g. foomatic queues
   (STR #3973).
