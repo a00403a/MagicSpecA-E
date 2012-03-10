@@ -1,6 +1,6 @@
 Summary:   Color daemon
 Name:      colord
-Version:   0.1.14
+Version:   0.1.17
 Release:   1%{?dist}
 License:   GPLv2+ and LGPLv2+
 URL:       http://www.freedesktop.org/software/colord/
@@ -13,13 +13,17 @@ BuildRequires: glib2-devel
 BuildRequires: intltool
 BuildRequires: lcms2-devel
 BuildRequires: libgudev1-devel
-BuildRequires: libusb1-devel
-BuildRequires: polkit-devel
+BuildRequires: polkit-devel >= 0.103
 BuildRequires: sane-backends-devel
 BuildRequires: sqlite-devel
 BuildRequires: gobject-introspection-devel
 BuildRequires: vala-tools
+BuildRequires: libgusb-devel
+
 Requires: shared-color-profiles
+Requires: color-filesystem
+Requires: systemd-units
+Requires(pre): shadow-utils
 
 %description
 colord is a low level system activated daemon that maps color devices
@@ -37,6 +41,7 @@ Files for development with %{name}.
 
 %build
 %configure \
+        --with-daemon-user=colord \
         --disable-static \
         --disable-rpath \
         --disable-examples \
@@ -57,6 +62,13 @@ touch $RPM_BUILD_ROOT%{_localstatedir}/lib/colord/storage.db
 
 %find_lang %{name}
 
+%pre
+getent group colord >/dev/null || groupadd -r colord
+getent passwd colord >/dev/null || \
+    useradd -r -g colord -d /var/lib/colord -s /sbin/nologin \
+    -c "User for colord" colord
+exit 0
+
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
@@ -65,7 +77,7 @@ touch $RPM_BUILD_ROOT%{_localstatedir}/lib/colord/storage.db
 %defattr(-,root,root,-)
 %doc README AUTHORS NEWS COPYING
 %{_libexecdir}/colord
-%dir %{_localstatedir}/lib/colord
+%attr(755,colord,colord) %dir %{_localstatedir}/lib/colord
 %{_bindir}/*
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.ColorManager.conf
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ColorManager*.xml
@@ -80,6 +92,7 @@ touch $RPM_BUILD_ROOT%{_localstatedir}/lib/colord/storage.db
 %{_libdir}/colord-sensors
 %{_libdir}/girepository-1.0/*.typelib
 %ghost %{_localstatedir}/lib/colord/*.db
+/usr/lib/systemd/system/*.service
 
 %files devel
 %defattr(-,root,root,-)
@@ -90,6 +103,31 @@ touch $RPM_BUILD_ROOT%{_localstatedir}/lib/colord/storage.db
 %{_datadir}/vala/vapi/*.vapi
 
 %changelog
+* Wed Feb 22 2012 Richard Hughes <richard@hughsie.com> 0.1.17-1
+- New upstream version
+- Add an LED sample type
+- Add PrivateNetwork and PrivateTmp to the systemd service file
+- Fix InstallSystemWide() when running as the colord user
+
+* Fri Jan 20 2012 Matthias Clasen <mclasen@redha.com> - 0.1.16-4
+- Fix some obvious bugs
+
+* Tue Jan 17 2012 Richard Hughes <richard@hughsie.com> 0.1.16-1
+- New upstream version
+- Now runs as a colord user rather than as root.
+- Support more ICC metadata keys
+- Install a systemd service file
+- Support 2nd generation Huey hardware
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.1.15-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Sat Nov 26 2011 Richard Hughes <richard@hughsie.com> 0.1.15-1
+- New upstream version
+- This release fixes an important security bug: CVE-2011-4349.
+- Do not crash the daemon if adding the device to the db failed
+- Fix a memory leak when getting properties from a device
+
 * Tue Nov 01 2011 Richard Hughes <richard@hughsie.com> 0.1.14-1
 - New upstream version
 - Remove upstreamed patches
