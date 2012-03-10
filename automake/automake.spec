@@ -3,12 +3,12 @@
 Summary:    A GNU tool for automatically creating Makefiles
 Summary(zh_CN.UTF-8): 一套自动建立 Makefile 的 GNU 工具
 Name:       automake
-Version:    %{api_version}.1
+Version:    %{api_version}.3
 Release:    6%{?dist}
 License:    GPLv2+ and GFDL
 Group:      Development/Tools
 Group(zh_CN.UTF-8): 开发/工具
-Source:     http://ftp.gnu.org/gnu/automake/automake-%{version}.tar.bz2
+Source:     http://ftp.gnu.org/gnu/automake/automake-%{version}.tar.xz
 Source1:    filter-provides-automake.sh
 Source2:    filter-requires-automake.sh
 URL:        http://sourceware.org/automake/
