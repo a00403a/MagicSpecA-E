@@ -1,11 +1,11 @@
 Summary: Text file format converters
 Name: dos2unix
-Version: 5.3.1
+Version: 5.3.2
 Release: 1%{?dist}
 Group: Applications/Text
 License: BSD
-URL: http://www.xs4all.nl/~waterlan/dos2unix.html
-Source: http://www.xs4all.nl/~waterlan/dos2unix/%{name}-%{version}.tar.gz
+URL: http://waterlan.home.xs4all.nl/dos2unix.html
+Source: http://waterlan.home.xs4all.nl/dos2unix/%{name}-%{version}.tar.gz
 BuildRequires: gettext
 BuildRequires: perl
 Provides: unix2dos = %{version}-%{release}
@@ -43,6 +43,12 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Mon Jan 30 2012 Tim Waugh <twaugh@redhat.com> 5.3.2-1
+- 5.3.2.
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.3.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Wed Aug 20 2011 Tim Waugh <twaugh@redhat.com> 5.3.1-1
 - 5.3.1.
 
