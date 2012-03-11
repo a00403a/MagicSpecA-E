@@ -2,19 +2,19 @@
 Summary: GNU Emacs text editor
 Name: emacs
 Epoch: 1
-Version: 23.3
-Release: 5%{?dist}
+Version: 24.0.94
+Release: 2%{?dist}
 License: GPLv3+
 URL: http://www.gnu.org/software/emacs/
 Group: Applications/Editors
-Source0: ftp://ftp.gnu.org/gnu/emacs/emacs-%{version}.tar.bz2
+#Source0: ftp://ftp.gnu.org/gnu/emacs/emacs-%{version}.tar.bz2
+Source0: http://alpha.gnu.org/gnu/emacs/pretest/emacs-%{version}.tar.gz
 Source1: emacs.desktop
 Source2: emacsclient.desktop
 Source3: dotemacs.el
 Source4: site-start.el
-Source7: http://php-mode.svn.sourceforge.net/svnroot/php-mode/tags/php-mode-1.4.0/php-mode.el
+Source7: http://php-mode.svn.sourceforge.net/svnroot/php-mode/tags/php-mode-1.5.0/php-mode.el
 Source8: php-mode-init.el
-Source9: ssl.el
 # rpm-spec-mode from XEmacs
 Source10: rpm-spec-mode.el
 Source11: rpm-spec-mode-init.el
@@ -25,18 +25,17 @@ Source19: emacs-terminal.desktop
 Source20: emacs-terminal.sh
 Patch0: glibc-open-macro.patch
 Patch1: rpm-spec-mode.patch
-Patch3: rpm-spec-mode-utc.patch
-# Upstream implemented the change in revno. 101105
-Patch4: emacs-23.1-xdg.patch
-# Fix rhbz#595546
-# Upstream: http://emacsbugs.donarmstrong.com/cgi/bugreport.cgi?bug=6158
-Patch6: emacs-23.2-hideshow-comment.patch
+Patch2: rpm-spec-mode-utc.patch
+Patch3: rpm-spec-mode-changelog.patch
+# rhbz#713600
+Patch7: emacs-spellchecker.patch
+
 BuildRequires: atk-devel, cairo-devel, freetype-devel, fontconfig-devel, dbus-devel, giflib-devel, glibc-devel, gtk2-devel, libpng-devel
-BuildRequires: libjpeg-devel, libtiff-devel, libX11-devel, libXau-devel, libXdmcp-devel, libXrender-devel, libXt-devel
-BuildRequires: libXpm-devel, ncurses-devel, xorg-x11-proto-devel, zlib-devel
-BuildRequires: librsvg2-devel, m17n-lib-devel, libotf-devel
+BuildRequires: libjpeg-turbo-devel, libtiff-devel, libX11-devel, libXau-devel, libXdmcp-devel, libXrender-devel, libXt-devel
+BuildRequires: libXpm-devel, ncurses-devel, xorg-x11-proto-devel, zlib-devel, gnutls-devel
+BuildRequires: librsvg2-devel, m17n-lib-devel, libotf-devel, ImageMagick-devel
+BuildRequires: GConf2-devel, alsa-lib-devel, gpm-devel, liblockfile-devel, libxml2-devel
 BuildRequires: autoconf, automake, bzip2, cairo, texinfo, gzip
-BuildRequires: GConf2-devel, alsa-lib-devel
 # Desktop integration
 BuildRequires: desktop-file-utils
 # Buildrequire both python2 and python3 since below we turn off the
@@ -46,6 +45,8 @@ BuildRequires: python2-devel python3-devel
 BuildRequires: util-linux
 %endif
 Requires: desktop-file-utils
+# Emacs doesn't run without these fonts, rhbz#732422
+Requires: xorg-x11-fonts-misc
 Requires(preun): %{_sbindir}/alternatives
 Requires(posttrans): %{_sbindir}/alternatives
 Requires: emacs-common = %{epoch}:%{version}-%{release}
@@ -97,10 +98,10 @@ on a terminal.
 %package common
 Summary: Emacs common files
 Group: Applications/Editors
-Requires(preun): /sbin/install-info, dev
+Requires(preun): /sbin/install-info
 Requires(preun): %{_sbindir}/alternatives
 Requires(posttrans): %{_sbindir}/alternatives
-Requires(post): /sbin/install-info, dev
+Requires(post): /sbin/install-info
 Requires: %{name}-filesystem
 
 %description common
@@ -148,13 +149,13 @@ packages that add functionality to Emacs.
 %setup -q
 
 %patch0 -p1 -b .glibc-open-macro
-%patch4 -p1 -b .xdg
-%patch6 -p0 -b .hideshow-comment
+%patch7 -p1 -b .spellchecker
 
 # Install site-lisp files
-cp %SOURCE7 %SOURCE9 %SOURCE10 site-lisp
+cp %SOURCE7 %SOURCE10 site-lisp
 pushd site-lisp
 %patch1 -p0
+%patch2 -p0
 %patch3 -p0
 popd
 
@@ -173,7 +174,7 @@ rm -f lisp/play/tetris.el lisp/play/tetris.elc
 rm -f etc/sex.6 etc/condom.1 etc/celibacy.1 etc/COOKIES etc/future-bug etc/JOKES
 %endif
 
-%define info_files ada-mode auth autotype calc ccmode cl dbus dired-x ebrowse ede ediff edt eieio efaq eintr elisp emacs emacs-mime epa erc eshell eudc flymake forms gnus idlwave info mairix-el message mh-e newsticker nxml-mode org pcl-cvs pgg rcirc reftex remember sasl sc semantic ses sieve smtpmail speedbar tramp url vip viper widget woman
+%define info_files ada-mode auth autotype calc ccmode cl dbus dired-x ebrowse ede ediff edt eieio efaq eintr elisp emacs emacs-mime epa erc ert eshell eudc flymake forms gnus idlwave info mairix-el message mh-e newsticker nxml-mode org pcl-cvs pgg rcirc reftex remember sasl sc semantic ses sieve smtpmail speedbar tramp url vip viper widget woman
 
 if test "$(perl -e 'while (<>) { if (/^INFO_FILES/) { s/.*=//; while (s/\\$//) { s/\\//; $_ .= <>; }; s/\s+/ /g; s/^ //; s/ $//; print; exit; } }' Makefile.in)" != "%info_files"; then
   echo Please update info_files >&2
@@ -186,7 +187,15 @@ fi
 %define setarch %{nil}
 %endif
 
+# Avoid duplicating doc files in the common subpackage
+ln -s ../../%{name}/%{version}/etc/COPYING doc
+ln -s ../../%{name}/%{version}/etc/NEWS doc
+
 %build
+# Remove unpatched files as all files in the lisp directory are
+# installed.
+rm lisp/textmodes/ispell.el.spellchecker
+
 export CFLAGS="-DMAIL_USE_LOCKF $RPM_OPT_FLAGS"
 
 # We patch configure.in so we have to do this
@@ -197,7 +206,8 @@ mkdir build-gtk && cd build-gtk
 ln -s ../configure .
 
 %configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg \
-           --with-tiff --with-xft --with-xpm --with-x-toolkit=gtk
+           --with-tiff --with-xft --with-xpm --with-x-toolkit=gtk --with-gpm=no \
+	   --with-wide-int
 make bootstrap
 %{setarch} make %{?_smp_mflags}
 cd ..
@@ -264,8 +274,8 @@ echo "(setq source-directory \"%{_datadir}/emacs/%{version}/\")" \
  >> %{buildroot}%{site_lisp}/site-start.el
 
 mv %{buildroot}%{_bindir}/{etags,etags.emacs}
-mv %{buildroot}%{_mandir}/man1/{ctags.1,gctags.1}
-mv %{buildroot}%{_mandir}/man1/{etags.1,etags.emacs.1}
+mv %{buildroot}%{_mandir}/man1/{ctags.1.gz,gctags.1.gz}
+mv %{buildroot}%{_mandir}/man1/{etags.1.gz,etags.emacs.1.gz}
 mv %{buildroot}%{_bindir}/{ctags,gctags}
 
 # Install site-lisp files
@@ -377,12 +387,8 @@ update-desktop-database &> /dev/null || :
 update-desktop-database &> /dev/null || :
 
 %files
-%defattr(-,root,root)
 %{_bindir}/emacs-%{version}
 %attr(0755,-,-) %ghost %{_bindir}/emacs
-%dir %{_libexecdir}/emacs
-%dir %{_libexecdir}/emacs/%{version}
-%dir %{emacs_libexecdir}
 %{_datadir}/applications/emacs.desktop
 %{_datadir}/applications/emacsclient.desktop
 %{_datadir}/icons/hicolor/*/apps/emacs.png
@@ -391,25 +397,22 @@ update-desktop-database &> /dev/null || :
 %{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document.svg
 
 %files nox
-%defattr(-,root,root)
 %{_bindir}/emacs-%{version}-nox
 %attr(0755,-,-) %ghost %{_bindir}/emacs
-%dir %{_libexecdir}/emacs
-%dir %{_libexecdir}/emacs/%{version}
-%dir %{emacs_libexecdir}
 
 %files -f common-filelist common
-%defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/skel/.emacs
 %config(noreplace) %{_sysconfdir}/rpm/macros.emacs
-%doc etc/NEWS BUGS README etc/COPYING
-%exclude %{_bindir}/emacs-*
-%{_bindir}/*
-%exclude %{_bindir}/emacs
+%doc doc/NEWS BUGS README doc/COPYING
+%{_bindir}/ebrowse
+%{_bindir}/emacsclient
+%{_bindir}/etags.emacs
+%{_bindir}/gctags
+%{_bindir}/grep-changelog
+%{_bindir}/rcs-checkin
 %{_mandir}/*/*
 %{_infodir}/*
 %dir %{_datadir}/emacs/%{version}
-%exclude %{_datadir}/emacs/%{version}/etc/COPYING
 %{_datadir}/emacs/%{version}/etc
 %{_datadir}/emacs/%{version}/site-lisp
 %{_libexecdir}/emacs
@@ -417,23 +420,100 @@ update-desktop-database &> /dev/null || :
 %attr(0644,root,root) %config %{_datadir}/emacs/site-lisp/site-start.el
 
 %files -f el-filelist el
-%defattr(-,root,root)
 %{pkgconfig}/emacs.pc
 %doc etc/COPYING
 %dir %{_datadir}/emacs/%{version}
 
 %files terminal
-%defattr(-,root,root)
 %{_bindir}/emacs-terminal
 %{_datadir}/applications/emacs-terminal.desktop
 
 %files filesystem
-%defattr(-,root,root)
 %dir %{_datadir}/emacs
 %dir %{_datadir}/emacs/site-lisp
 %dir %{_datadir}/emacs/site-lisp/site-start.d
 
 %changelog
+* Fri Mar  2 2012 Karel Klíč <kklic@redhat.com> - 1:24.0.94-2
+- Rebuild for ImageMagick update
+
+* Mon Feb 27 2012 Karel Klíč <kklic@redhat.com> - 1:24.0.94-1
+- Update to the newest prerelease
+- Remove unpatched files in the lisp directory, where all files are
+  installed
+
+* Tue Feb 21 2012 Dan Horák <dan[at]danny.cz> - 1:24.0.93-4
+- add upstream fix for emacs bug 10780, revert the workaround
+
+* Mon Feb 13 2012 Dan Horák <dan[at]danny.cz> - 1:24.0.93-3
+- workaround build failure on ppc and s390
+  (http://debbugs.gnu.org/cgi/bugreport.cgi?bug=10780)
+
+* Wed Feb  8 2012 Kay Sievers <kay@redhat.com> - 1:24.0.93-2
+- Drop dependency on 'dev' package; it is gone since many years
+
+* Mon Feb  6 2012 Karel Klíč <kklic@redhat.com> - 1:24.0.93-1
+- Update to newer pre-release version
+
+* Thu Jan 19 2012 Karel Klíč <kklic@redhat.com> - 1:24.0.92-1
+- Upstream pre-release
+
+* Thu Jan 12 2012 Karel Klíč <kklic@redhat.com> - 1:23.3-19
+- Added patch to handle CVE-2012-0035: CEDET global-ede-mode file loading vulnerability (rhbz#773024)
+
+* Sun Nov 27 2011 Ville Skyttä <ville.skytta@iki.fi> - 1:23.3-18
+- Apply upstream Subversion >= 1.7 dir structure fix for vc-svn.el.
+
+* Fri Nov 25 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-17
+- Add a new command rpm-goto-add-change-log-entry (C-c C-w) to
+  rpm-spec mode (Jaroslav Skarvada)
+
+* Fri Nov 25 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-16
+- Initialize xgselect in function xg_select when
+  gfds_size == 0 (rhbz#751154)
+
+* Wed Nov 23 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-15
+- Check for _NET_WM_STATE_HIDDEN (rhbz#711739)
+
+* Tue Nov 22 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-14
+- Build Gtk+ version without gpm
+
+* Wed Nov 16 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-13
+- Check the presence of hunspell before checking for aspell (rhbz#713600)
+
+* Mon Nov 14 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-12
+- Rebuild (rhbz#751154, rhbz#752936)
+
+* Sat Oct 22 2011 Ville Skyttä <ville.skytta@iki.fi> - 1:23.3-11
+- Build with gpm and liblockfile support.
+- Drop ssl.el (superseded by tls.el).
+- Update php-mode to 1.5.0.
+
+* Tue Sep 27 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-10
+- Keep COPYING and NEWS in the etc subdir, and symlinks in the docs (rhbz#714212)
+  Author: fedora.dm0@gmail.com
+
+* Tue Sep 27 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-9
+- Added dependency on xorg-x11-fonts-misc (rhbz#732422)
+
+* Mon Aug  8 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-8
+- Updated release archive to 23.3a, which includes grammar files that are
+  necessary to modify Semantic parsers
+
+* Thu Jun 30 2011 Ville Skyttä <ville.skytta@iki.fi> - 1:23.3-7
+- Use custom-set-variables for customizable variables in .emacs (#716440).
+- Move frame-title-format default from .emacs to default.el (#716443).
+
+* Thu May 26 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-6
+- Enumerate binaries in emacs-common to avoid packaging single binary
+  multiple times by accident
+
+* Mon May 23 2011 Karel Klíč <kklic@redhat.com> - 1:23.3-5
+- Removed %%defattr from %%files sections, as RPM no longer needs it
+- Removed %%dir %%{_libexecdir}/emacs and similar from emacs and
+  emacs-nox packages, as the directories are used and present only in
+  emacs-common (rhbz#704067)
+
 * Tue Mar 22 2011 Karel Klic <kklic@redhat.com> - 1:23.3-4
 - Rebuild to fix an RPM issue (rhbz689182)
 
