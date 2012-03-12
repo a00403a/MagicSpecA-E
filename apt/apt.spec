@@ -2,19 +2,16 @@
 # Authority: axel
 # Upstream: Gustavo Niemeyer <niemeyer$conectiva,com>
 
-%{?dist: %{expand: %%define %dist mgc25}}
+%{?dist: %{expand: %%define %dist mgc30}}
 %define LIBVER 3.3
-%define git 20111030
+%define git 1
+%define gitdate 20120312
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(zh_CN.UTF-8): 使用RPM支持的 Debian 高级包工具
 Name: apt
 Version: 0.5.15lorg3.95
-%if 0%{git}
-Release: 0.git%{git}.%{?dist}
-%else
-Release: 1%{?dist}
-%endif
+Release: 5%{?dist}
 License: GPL
 Group: System Environment/Base
 Group(zh_CN.UTF-8): 系统环境/基本
@@ -24,7 +21,7 @@ Packager: Liu Di <liudidi@gmail.com>
 Vendor: MagicGroup
 %if 0%{git}
 #git clone http://apt-rpm.org/scm/apt.git
-Source: %{name}-git%{git}.tar.xz
+Source: %{name}-git%{gitdate}.tar.xz
 %else
 Source: http://apt-rpm.org/testing/apt-0.5.15lorg3.94a.tar.bz2
 %endif
@@ -69,7 +66,7 @@ you will need to install %{name}-devel.
 
 %prep
 %if 0%{git}
-%setup -q -n %{name}-git%{git}
+%setup -q -n %{name}-git%{gitdate}
 %else
 %setup
 %endif
