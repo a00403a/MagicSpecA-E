@@ -1,11 +1,11 @@
 Summary:	Library for easy parsing of XMP metadata
 Name:		exempi
-Version:	2.1.1
-Release:	3%{?dist}
+Version:	2.2.0
+Release:	1%{?dist}
 License:	BSD
 Group:		System Environment/Libraries
 URL:		http://libopenraw.freedesktop.org/wiki/Exempi
-Source0:	http://libopenraw.freedesktop.org/download/%{name}-%{version}.tar.gz
+Source0:	http://libopenraw.freedesktop.org/download/%{name}-%{version}.tar.bz2
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	boost-devel expat-devel zlib-devel pkgconfig
 
@@ -55,6 +55,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-, root, root, -)
 %doc AUTHORS ChangeLog COPYING README
+%{_bindir}/exempi
 %{_libdir}/*.so.*
 
 %files devel
@@ -64,8 +65,11 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
-* Sat Nov 19 2011 Liu Di <liudidi@gmail.com> - 2.1.1-3
-- 为 Magic 3.0 重建
+* Wed Feb 22 2012 Deji Akingunola <dakingun@gmail.com> - 2.2.0-1
+- Update to version 2.2.0
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.1.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.1.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
