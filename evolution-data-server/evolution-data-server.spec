@@ -24,7 +24,7 @@
 ### Abstract ###
 
 Name: evolution-data-server
-Version: 3.3.5
+Version: 3.3.91
 Release: 1%{?dist}
 Group: System Environment/Libraries
 Summary: Backend data server for Evolution
@@ -45,7 +45,7 @@ Patch01: evolution-data-server-1.11.5-fix-64bit-acinclude.patch
 
 BuildRequires: GConf2-devel
 BuildRequires: bison
-BuildRequires: db4-devel
+BuildRequires: libdb-devel
 BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gnome-common
@@ -70,7 +70,7 @@ BuildRequires: vala-tools
 
 %if %{ldap_support}
 %if %{static_ldap}
-BuildRequires: openldap-evolution-devel
+BuildRequires: openldap-evolution-devel%{?_isa}
 BuildRequires: openssl-devel
 %else
 BuildRequires: openldap-devel >= 2.0.11 
@@ -232,7 +232,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %post -p /sbin/ldconfig
 
-%postun -p /sbin/ldconfig
+%postun
+/sbin/ldconfig
+if [ $1 -eq 0 ] ; then
+    glib-compile-schemas %{_datadir}/glib-2.0/schemas
+fi
+
+%posttrans
+glib-compile-schemas %{_datadir}/glib-2.0/schemas
 
 %files -f %{name}-%{eds_base_version}.lang
 %defattr(-,root,root,-)
@@ -254,6 +261,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libexecdir}/camel-lock-helper-1.2
 %{_libexecdir}/evolution-addressbook-factory
 %{_libexecdir}/evolution-calendar-factory
+
+# GSettings schemas:
+%{_datadir}/GConf/gsettings/libedataserver.convert
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.eds-shell.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.shell.network-config.gschema.xml
 
 %{_datadir}/evolution-data-server-%{eds_base_version}
 %{_datadir}/dbus-1/services/org.gnome.evolution.dataserver.AddressBook.service
@@ -340,6 +352,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/gtk-doc/html/libedataserverui
 
 %changelog
+* Tue Mar 06 2012 Milan Crha <mcrha@redhat.com> - 3.3.91-1
+- Update to 3.3.91
+
+* Mon Feb 20 2012 Milan Crha <mcrha@redhat.com> - 3.3.90-1
+- Update to 3.3.90
+
 * Mon Feb 06 2012 Milan Crha <mcrha@redhat.com> - 3.3.5-1
 - Update to 3.3.5
 
