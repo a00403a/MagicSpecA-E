@@ -1,19 +1,19 @@
 Name:           clutter-gst
-Version:        1.4.4
-Release:        1%{?dist}
+Version:        1.5.4
+Release:        2%{?dist}
 Summary:        ClutterMedia interface to GStreamer
 
 Group:          Development/Languages
 License:        LGPLv2+
 URL:            http://www.clutter-project.org
-Source0:        http://ftp.gnome.org/pub/GNOME/sources/%{name}/1.4/%{name}-%{version}.tar.xz
+Source0:        http://ftp.gnome.org/pub/GNOME/sources/%{name}/1.5/%{name}-%{version}.tar.xz
 # http://cgit.freedesktop.org/dolt/commit/?id=b6a7ccd13501ee2099c9819af4b36587f21ca1e0
 # Support Linux on any architecture, and assume -fPIC
 Patch0:         %{name}-1.3.12-dolt.patch
 
-BuildRequires:  clutter-devel
+BuildRequires:  clutter-devel >= 1.9.14
 BuildRequires:  gobject-introspection-devel
-BuildRequires:  gstreamer-devel 
+BuildRequires:  gstreamer-devel
 BuildRequires:  gstreamer-plugins-base-devel
 
 %description
@@ -55,6 +55,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %doc AUTHORS COPYING README
 %{_libdir}/libclutter-gst-*.so.0
 %{_libdir}/libclutter-gst-*.so.0.*
+%{_libdir}/gstreamer-0.10/libgstclutter.so
 %{_libdir}/girepository-1.0/ClutterGst-1.0.typelib
 
 %files devel
@@ -66,6 +67,22 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/gir-1.0/ClutterGst-1.0.gir
 
 %changelog
+* Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 1.5.4-2
+- Rebuild against new cogl
+
+* Sun Feb 26 2012 Matthias Clasen <mclasen@redhat.com> - 1.5.4-1
+- Update to 1.5.4
+
+* Thu Jan 19 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.4.6-1
+- New stable 1.4.6
+- ftp://ftp.gnome.org/pub/gnome/sources/clutter-gst/1.4/clutter-gst-1.4.6.news
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.4.4-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Wed Nov 23 2011 Matthias Clasen <mclasen@redhat.com> - 1.4.4-2
+- Rebuild against new clutter
+
 * Fri Oct 28 2011 Peter Robinson <pbrobinson@fedoraproject.org> - 1.4.4-1
 - New stable 1.4.4
 - ftp://ftp.gnome.org/pub/gnome/sources/clutter-gst/1.4/clutter-gst-1.4.4.news
