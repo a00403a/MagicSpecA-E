@@ -1,7 +1,7 @@
-From 3c2e6dab927acfa3dfbeb7b9bc910d6a9780b095 Mon Sep 17 00:00:00 2001
+From 2977a39aad96cb3f2be90c6291169a25c9965fc9 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
-Date: Tue, 1 Sep 2009 17:32:48 +0100
-Subject: [PATCH 1/2] Add sixaxis cable-pairing plugin
+Date: Fri, 30 Dec 2011 12:34:29 +0100
+Subject: [PATCH] Add sixaxis cable-pairing plugin
 
 Implement the old "sixpair" using libudev and libusb-1.0.
 
@@ -19,10 +19,10 @@ address, and added to the database of the current default adapter.
  create mode 100644 plugins/cable.c
 
 diff --git a/Makefile.am b/Makefile.am
-index 7eadf82..aecc8f2 100644
+index cafb4cc..4ccf4f0 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -223,6 +223,11 @@ builtin_sources += thermometer/main.c \
+@@ -244,6 +244,11 @@ builtin_sources += thermometer/main.c \
  			thermometer/thermometer.h thermometer/thermometer.c
  endif
  
@@ -34,29 +34,29 @@ index 7eadf82..aecc8f2 100644
  builtin_modules += hciops mgmtops
  builtin_sources += plugins/hciops.c plugins/mgmtops.c
  
-@@ -282,7 +287,7 @@ src_bluetoothd_SOURCES = $(gdbus_sources) $(builtin_sources) \
+@@ -311,7 +316,7 @@ src_bluetoothd_SOURCES = $(gdbus_sources) $(builtin_sources) \
  			src/event.h src/event.c \
  			src/oob.h src/oob.c src/eir.h src/eir.c
- src_bluetoothd_LDADD = lib/libbluetooth.la @GLIB_LIBS@ @DBUS_LIBS@ \
+ src_bluetoothd_LDADD = lib/libbluetooth-private.la @GLIB_LIBS@ @DBUS_LIBS@ \
 -							@CAPNG_LIBS@ -ldl -lrt
 +							@CAPNG_LIBS@ @CABLE_LIBS@ -ldl -lrt
  src_bluetoothd_LDFLAGS = -Wl,--export-dynamic \
  				-Wl,--version-script=$(srcdir)/src/bluetooth.ver
  
-@@ -397,7 +402,7 @@ EXTRA_DIST += doc/manager-api.txt \
+@@ -447,7 +452,7 @@ EXTRA_DIST += doc/manager-api.txt \
  
  AM_YFLAGS = -d
  
--AM_CFLAGS = @DBUS_CFLAGS@ @GLIB_CFLAGS@ @CAPNG_CFLAGS@ \
-+AM_CFLAGS = @DBUS_CFLAGS@ @GLIB_CFLAGS@ @CAPNG_CFLAGS@ @CABLE_CFLAGS@ \
- 		-DBLUETOOTH_PLUGIN_BUILTIN -DPLUGINDIR=\""$(plugindir)"\"
+-AM_CFLAGS = @DBUS_CFLAGS@ @GLIB_CFLAGS@ @CAPNG_CFLAGS@
++AM_CFLAGS = @DBUS_CFLAGS@ @GLIB_CFLAGS@ @CAPNG_CFLAGS@ @CABLE_CFLAGS@
  
  INCLUDES = -I$(builddir)/lib -I$(builddir)/src -I$(srcdir)/src \
+ 			-I$(srcdir)/audio -I$(srcdir)/sbc -I$(srcdir)/gdbus \
 diff --git a/acinclude.m4 b/acinclude.m4
-index 3cb9459..c23368b 100644
+index b0f790c..20a930c 100644
 --- a/acinclude.m4
 +++ b/acinclude.m4
-@@ -155,6 +155,12 @@ AC_DEFUN([AC_PATH_UDEV], [
+@@ -152,6 +152,12 @@ AC_DEFUN([AC_PATH_UDEV], [
  	AC_SUBST(UDEV_LIBS)
  ])
  
@@ -69,7 +69,7 @@ index 3cb9459..c23368b 100644
  AC_DEFUN([AC_PATH_SNDFILE], [
  	PKG_CHECK_MODULES(SNDFILE, sndfile, sndfile_found=yes, sndfile_found=no)
  	AC_SUBST(SNDFILE_CFLAGS)
-@@ -186,6 +192,7 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+@@ -189,6 +195,7 @@ AC_DEFUN([AC_ARG_BLUEZ], [
  	sndfile_enable=${sndfile_found}
  	hal_enable=no
  	usb_enable=${usb_found}
@@ -77,7 +77,7 @@ index 3cb9459..c23368b 100644
  	alsa_enable=${alsa_found}
  	gstreamer_enable=${gstreamer_found}
  	audio_enable=yes
-@@ -286,6 +293,10 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+@@ -298,6 +305,10 @@ AC_DEFUN([AC_ARG_BLUEZ], [
  		usb_enable=${enableval}
  	])
  
@@ -85,10 +85,10 @@ index 3cb9459..c23368b 100644
 +		cable_enable=${enableval}
 +	])
 +
- 	AC_ARG_ENABLE(tracer, AC_HELP_STRING([--enable-tracer], [install Tracing daemon]), [
- 		tracer_enable=${enableval}
+ 	AC_ARG_ENABLE(tools, AC_HELP_STRING([--enable-tools], [install Bluetooth utilities]), [
+ 		tools_enable=${enableval}
  	])
-@@ -385,6 +396,10 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+@@ -393,6 +404,10 @@ AC_DEFUN([AC_ARG_BLUEZ], [
  		AC_DEFINE(HAVE_LIBUSB, 1, [Define to 1 if you have USB library.])
  	fi
  
@@ -99,14 +99,14 @@ index 3cb9459..c23368b 100644
  	AM_CONDITIONAL(SNDFILE, test "${sndfile_enable}" = "yes" && test "${sndfile_found}" = "yes")
  	AM_CONDITIONAL(USB, test "${usb_enable}" = "yes" && test "${usb_found}" = "yes")
  	AM_CONDITIONAL(SBC, test "${alsa_enable}" = "yes" || test "${gstreamer_enable}" = "yes" ||
-@@ -421,4 +436,5 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+@@ -429,4 +444,5 @@ AC_DEFUN([AC_ARG_BLUEZ], [
  	AM_CONDITIONAL(DBUSOOBPLUGIN, test "${dbusoob_enable}" = "yes")
  	AM_CONDITIONAL(WIIMOTEPLUGIN, test "${wiimote_enable}" = "yes")
  	AM_CONDITIONAL(THERMOMETERPLUGIN, test "${thermometer_enable}" = "yes")
 +	AM_CONDITIONAL(CABLE, test "${cable_enable}" = "yes" && test "${cable_found}" = "yes")
  ])
 diff --git a/configure.ac b/configure.ac
-index 908ad55..bc2658c 100644
+index cd0f1cf..c61f230 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -46,6 +46,7 @@ AC_PATH_GSTREAMER
@@ -116,10 +116,10 @@ index 908ad55..bc2658c 100644
 +AC_PATH_CABLE
  AC_PATH_OUI
  AC_PATH_READLINE
- 
+ AC_PATH_CHECK
 diff --git a/plugins/cable.c b/plugins/cable.c
 new file mode 100644
-index 0000000..e8cff76
+index 0000000..b974b4c
 --- /dev/null
 +++ b/plugins/cable.c
 @@ -0,0 +1,382 @@
@@ -189,7 +189,7 @@ index 0000000..e8cff76
 +
 +	device = adapter_find_device(adapter, address);
 +	if (device == NULL) {
-+		device = device_create(conn, adapter, address, DEVICE_TYPE_UNKNOWN);
++		device = device_create(conn, adapter, address, ADDR_TYPE_BREDR);
 +		if (device != NULL)
 +			adapter_create_device_for_device(conn, adapter, device);
 +	}
@@ -506,10 +506,10 @@ index 0000000..e8cff76
 +BLUETOOTH_PLUGIN_DEFINE(cable, VERSION,
 +			BLUETOOTH_PLUGIN_PRIORITY_DEFAULT, cable_init, cable_exit)
 diff --git a/src/adapter.c b/src/adapter.c
-index 4c88a0e..09d8392 100644
+index acb845e..478a8fb 100644
 --- a/src/adapter.c
 +++ b/src/adapter.c
-@@ -1092,6 +1092,25 @@ static struct btd_device *adapter_create_device(DBusConnection *conn,
+@@ -952,6 +952,25 @@ static struct btd_device *adapter_create_device(DBusConnection *conn,
  	return device;
  }
  
@@ -536,19 +536,19 @@ index 4c88a0e..09d8392 100644
  						struct btd_device *device,
  						gboolean remove_storage)
 diff --git a/src/adapter.h b/src/adapter.h
-index 687275a..7f7cb55 100644
+index ceebb97..b0a0461 100644
 --- a/src/adapter.h
 +++ b/src/adapter.h
-@@ -116,6 +116,9 @@ void adapter_update_found_devices(struct btd_adapter *adapter, bdaddr_t *bdaddr,
- int adapter_remove_found_device(struct btd_adapter *adapter, bdaddr_t *bdaddr);
+@@ -123,6 +123,9 @@ void adapter_update_found_devices(struct btd_adapter *adapter,
+ 					uint8_t *data, uint8_t data_len);
  void adapter_emit_device_found(struct btd_adapter *adapter,
  						struct remote_dev_info *dev);
 +void adapter_create_device_for_device(DBusConnection *conn,
 +				      struct btd_adapter *adapter,
 +				      struct btd_device *device);
  void adapter_mode_changed(struct btd_adapter *adapter, uint8_t scan_mode);
- int adapter_update_local_name(struct btd_adapter *adapter, const char *name);
- void adapter_service_insert(struct btd_adapter *adapter, void *rec);
+ int adapter_set_name(struct btd_adapter *adapter, const char *name);
+ void adapter_name_changed(struct btd_adapter *adapter, const char *name);
 -- 
-1.7.6
+1.7.7.6
 
