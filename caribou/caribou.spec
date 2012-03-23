@@ -1,20 +1,18 @@
 Name:           caribou
 Version:        0.4.1
-Release:        1%{?dist}
+Release:        5%{?dist}
 Summary:        A simplified in-place on-screen keyboard
 
 Group:          User Interface/Desktops
 License:        LGPLv2+
 URL:            http://live.gnome.org/Caribou
 Source0:        http://download.gnome.org/sources/caribou/0.4/caribou-%{version}.tar.xz
+Patch0:         caribou-0.4.1-multilib.patch
 
 BuildRequires:  python-devel
 BuildRequires:  gtk2-devel
 BuildRequires:  gtk3-devel
 BuildRequires:  pygobject3-devel
-BuildRequires:  pyclutter-devel
-BuildRequires:  pyatspi
-BuildRequires:  python-virtkey
 BuildRequires:  intltool
 BuildRequires:  gnome-doc-utils
 BuildRequires:  desktop-file-utils
@@ -23,15 +21,14 @@ BuildRequires:  clutter-devel
 BuildRequires:  vala-devel
 BuildRequires:  libXtst-devel
 BuildRequires:  libxklavier-devel
-BuildRequires:  json-glib-devel
 BuildRequires:  libgee06-devel
 BuildRequires:  gobject-introspection-devel
 
-Requires:       pygtk2
-Requires:       gnome-python2-gconf
+Requires:       pygobject3
 Requires:       pyatspi
-Requires:       pyclutter
-Requires:       python-virtkey
+
+#Following is needed as package moved from noarch to arch
+Obsoletes:      caribou < 0.4.1-3
 
 %description
 Caribou is a text entry application that currently manifests itself as
@@ -46,9 +43,46 @@ Requires:       %{name} = %{version}-%{release}
 The %{name}-devel package contains libraries and header files for
 developing applications that use %{name}.
 
+%package     -n python-caribou
+Summary:        Keyboard UI for %{name}
+Group:          System Environment/Libraries
+Requires:       %{name} = %{version}-%{release}
+Obsoletes:      caribou < 0.4.1-3
+BuildArch:      noarch
+
+%description  -n python-caribou
+This package contains caribou python GUI
+
+%package        gtk2-module
+Summary:        Gtk2 im module for %{name}
+Group:          System Environment/Libraries
+Requires:       %{name} = %{version}-%{release}
+Obsoletes:      caribou < 0.4.1-3
+
+%description    gtk2-module
+This package contains caribou im module for gtk2
+
+%package        gtk3-module
+Summary:        Gtk3 im module for %{name}
+Group:          System Environment/Libraries
+Requires:       %{name} = %{version}-%{release}
+Obsoletes:      caribou < 0.4.1-3
+
+%description    gtk3-module
+This package contains caribou im module for gtk3
+
+%package        antler
+Summary:        Keyboard implementation for %{name}
+Group:          User Interface/Desktops
+Requires:       %{name} = %{version}-%{release}
+Obsoletes:      caribou < 0.4.1-3
+
+%description    antler
+This package contains caribou keyboard implementation
+
 %prep
 %setup -q
-
+%patch0 -p1 -b .multilib
 
 %build
 %configure --disable-static
@@ -59,7 +93,6 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 echo "NoDisplay=true" >> $RPM_BUILD_ROOT%{_datadir}/applications/caribou.desktop
-echo "OnlyShowIn=GNOME;" >> $RPM_BUILD_ROOT%{_sysconfdir}/xdg/autostart/caribou-autostart.desktop
 desktop-file-validate $RPM_BUILD_ROOT%{_datadir}/applications/caribou.desktop
 desktop-file-validate $RPM_BUILD_ROOT%{_sysconfdir}/xdg/autostart/caribou-autostart.desktop || :
 desktop-file-validate $RPM_BUILD_ROOT%{_libdir}/gnome-settings-daemon-3.0/gtk-modules/caribou-gtk-module.desktop || :
@@ -79,29 +112,50 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 
 %files -f caribou.lang
 %doc NEWS COPYING README
-%{python_sitelib}/caribou
 %{_bindir}/caribou
 %{_bindir}/caribou-preferences
 %{_datadir}/caribou
-%{_datadir}/antler
-%{_datadir}/dbus-1/services/org.gnome.Caribou.Antler.service
-%{_libexecdir}/antler-keyboard
 %{_libdir}/girepository-1.0/Caribou-1.0.typelib
 %{_datadir}/applications/caribou.desktop
 %{_sysconfdir}/xdg/autostart/caribou-autostart.desktop
-%{_datadir}/glib-2.0/schemas/*
-%{_libdir}/*.so.*
-%{_libdir}/gtk-2.0/modules/libcaribou-gtk-module.so
-%{_libdir}/gtk-3.0/modules/libcaribou-gtk-module.so
+%{_datadir}/glib-2.0/schemas/org.gnome.caribou.gschema.xml
+%{_libdir}/libcaribou.so.0*
 %{_libdir}/gnome-settings-daemon-3.0/gtk-modules/caribou-gtk-module.desktop
+
+%files -n python-caribou
+%{python_sitelib}/caribou
 
 %files devel
 %{_includedir}/*
 %{_libdir}/*.so
 %{_datadir}/gir-1.0/Caribou-1.0.gir
 
+%files gtk2-module
+%{_libdir}/gtk-2.0/modules/libcaribou-gtk-module.so
+
+%files gtk3-module
+%{_libdir}/gtk-3.0/modules/libcaribou-gtk-module.so
+
+%files antler
+%{_datadir}/antler
+%{_datadir}/dbus-1/services/org.gnome.Caribou.Antler.service
+%{_libexecdir}/antler-keyboard
+%{_datadir}/glib-2.0/schemas/org.gnome.antler.gschema.xml
+
 
 %changelog
+* Tue Feb 07 2012 Parag Nemade <pnemade AT redhat.com> - 0.4.1-5
+- Resolves:rh#768033 - Update Requires for caribou
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.4.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Fri Dec 09 2011 Parag Nemade <pnemade AT redhat.com> - 0.4.1-3
+- split package to subpackages -gtk2-module, -gtk3-module, -antler and python-caribou
+
+* Thu Nov 17 2011 Parag Nemade <pnemade AT redhat.com> - 0.4.1-2
+- Resolves:rh#753149 - Upgraded F15 -> F16 gnome fails - wrong version of caribou
+
 * Tue Oct 18 2011 Parag Nemade <pnemade AT redhat.com> - 0.4.1-1
 - upstream release 0.4.1
 
@@ -111,17 +165,14 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 * Tue Sep 20 2011 Parag Nemade <pnemade AT redhat.com> - 0.3.92-1
 - upstream release 0.3.92
 
-* Sun Sep 11 2011 Parag Nemade <pnemade AT redhat.com> - 0.3.91-2
-- Rebuild against libgee06
-
 * Tue Sep 06 2011 Parag Nemade <pnemade AT redhat.com> - 0.3.91-1
 - Update to new upstream release 0.3.91
 
 * Wed Aug 31 2011 Matthias Clasen <mclasen@redhat.com> - 0.3.5-2
 - Rebuild with pygobject3
 
-* Wed Aug 17 2011 Parag Nemade <pnemade AT redhat.com> - 0.3.5-1
-- Update to new upstream release 0.3.5
+* Thu Aug 18 2011 Matthias Clasen <mclasen@redhat.com> - 0.3.5-1
+- Update to 0.3.5
 
 * Tue Jul 05 2011 Parag Nemade <pnemade AT redhat.com> - 0.3.3-1
 - Update to new upstream release 0.3.3
