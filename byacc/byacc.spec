@@ -1,4 +1,4 @@
-%define byaccdate 20110908
+%define byaccdate 20120115
 
 Summary: Berkeley Yacc, a parser generator
 Name: byacc
@@ -23,6 +23,11 @@ this package.
 %prep
 %setup -q -n byacc-%{byaccdate}
 
+# Revert default stack size back to 10000
+# https://bugzilla.redhat.com/show_bug.cgi?id=743343
+find . -type f -name \*.c -print0 |
+  xargs -0 sed -i 's/YYSTACKSIZE 500/YYSTACKSIZE 10000/g'
+
 %build
 %configure --disable-dependency-tracking
 make %{?_smp_mflags}
@@ -32,6 +37,11 @@ rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 ln -s yacc $RPM_BUILD_ROOT/%{_bindir}/byacc
 ln -s yacc.1 $RPM_BUILD_ROOT/%{_mandir}/man1/byacc.1
+
+%check
+echo ====================TESTING=========================
+make check
+echo ====================TESTING END=====================
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -45,6 +55,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/byacc.1*
 
 %changelog
+* Thu Mar 15 2012 Petr Machata <pmachata@redhat.com> - 1.9.20120115-1
+- Rebase to 20120115
+- Resolves: #782010
+
+* Mon Jan  9 2012 Petr Machata <pmachata@redhat.com> - 1.9.20111219-1
+- Rebase to 20111219
+  - add "-s" option
+  - Resolves: #769237
+- Revert default stack size to 10000
+  - Related: #743343
+
 * Thu Sep 29 2011 Petr Machata <pmachata@redhat.com> - 1.9.20110908-1
 - Rebase to 20110908
   - add "-i" option.
