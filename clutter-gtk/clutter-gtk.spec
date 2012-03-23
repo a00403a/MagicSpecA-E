@@ -1,24 +1,24 @@
 %define         clutter_version 1.0
 
 Name:           clutter-gtk
-Version:        1.0.4
-Release:        1%{?dist}
+Version:        1.1.2
+Release:        5%{?dist}
 Summary:        A basic GTK clutter widget
 
 Group:          Development/Languages
 License:        LGPLv2+
 URL:            http://www.clutter-project.org
-Source0:        http://www.clutter-project.org/sources/%{name}/1.0/%{name}-%{version}.tar.xz
+Source0:        http://www.clutter-project.org/sources/%{name}/1.1/%{name}-%{version}.tar.xz
 Patch0:         clutter-gtk-fixdso.patch
 
 BuildRequires:  gtk3-devel >= 3.0.0
-BuildRequires:  clutter-devel
+BuildRequires:  clutter-devel >= 1.9
 BuildRequires:  gobject-introspection-devel
 
 %description
-This allows clutter to be embedded in GTK applications.
-We hope with further work in the future clutter-gtk will
-also allow the reverse, namely embedding GTK in Clutter
+clutter-gtk is a library which allows the embedding of a Clutter
+canvas (or "stage") into a GTK+ application, as well as embedding
+GTK+ widgets inside the stage.
 
 %package devel
 Summary:        Clutter-gtk development environment
@@ -28,12 +28,11 @@ Requires:       gtk3-devel clutter-devel
 
 %description devel
 Header files and libraries for building a extension library for the
-clutter-gtk
+clutter-gtk.
 
 
 %prep
 %setup -q
-#%patch0 -p1 -b .fixdso
 
 
 %build
@@ -65,6 +64,21 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/gtk-doc/html/clutter-gtk-1.0
 
 %changelog
+* Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 1.1.2-5
+- Rebuild against new cogl
+
+* Sat Feb 25 2012 Matthias Clasen <mclasen@redhat.com> - 1.1.2-4
+- Rebuild against new cogl
+
+* Thu Jan 19 2012 Matthias Clasen <mclasen@redhat.com> - 1.1.2-3
+- Rebuild against new cogl
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Thu Nov 24 2011 Matthias Clasen <mclasen@redhat.com> - 1.1.2-1
+- Update to 1.1.2
+
 * Tue Sep 27 2011 Ray <rstrode@redhat.com> - 1.0.4-1
 - Update to 1.0.4
 
