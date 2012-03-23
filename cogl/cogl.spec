@@ -1,12 +1,12 @@
 Name:          cogl
-Version:       1.8.2
-Release:       4%{?dist}
+Version:       1.9.8
+Release:       1%{?dist}
 Summary:       A library for using 3D graphics hardware to draw pretty pictures
 
 Group:         Development/Libraries
 License:       LGPLv2+
 URL:           http://www.clutter-project.org/
-Source0:       http://www.clutter-project.org/sources/%{name}/1.8/%{name}-%{version}.tar.xz
+Source0:       http://www.clutter-project.org/sources/%{name}/1.9/%{name}-%{version}.tar.xz
 
 BuildRequires: cairo-devel
 BuildRequires: gdk-pixbuf2-devel
@@ -21,7 +21,6 @@ BuildRequires: mesa-libGL-devel
 BuildRequires: pango-devel
 BuildRequires: pkgconfig
 
-Patch0: cogl-1.8.2-no-drm-hax.patch
 Patch1: cogl-1.8.2-lp-no-framebuffer-blit.patch
 
 %description
@@ -63,7 +62,6 @@ This package contains documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .drm
 %patch1 -p1 -b .llvmpipe
 
 %build
@@ -78,6 +76,9 @@ make install DESTDIR=%{buildroot} INSTALL='install -p'
 
 #Remove libtool archives.
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
+
+# This gets installed by mistake
+rm %{buildroot}%{_datadir}/cogl/examples-data/crate.jpg
 
 %find_lang %{name}
 
@@ -101,6 +102,22 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/gtk-doc/html/cogl-2.0-experimental
 
 %changelog
+* Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 1.9.8-1
+- Update to 1.9.8
+
+* Sat Feb 25 2012 Matthias Clasen <mclasen@redhat.com> - 1.9.6-1
+- Update to 1.9.6
+
+* Tue Jan 17 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.9.4-1
+- Update to 1.9.4
+- http://ftp.gnome.org/pub/GNOME/sources/cogl/1.9/cogl-1.9.4.news
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.9.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Wed Nov 23 2011 Matthias Clasen <mclasen@redhat.com> 1.9.2-1
+- Update to 1.9.2
+
 * Thu Nov 03 2011 Adam Jackson <ajax@redhat.com> 1.8.2-4
 - cogl-1.8.2-lp-no-framebuffer-blit.patch: Disable the subbuffer blit code
   when running on llvmpipe until it's unbroken.
