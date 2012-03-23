@@ -1,12 +1,12 @@
 Name:          cogl
-Version:       1.9.8
+Version:       1.10.0
 Release:       1%{?dist}
 Summary:       A library for using 3D graphics hardware to draw pretty pictures
 
 Group:         Development/Libraries
 License:       LGPLv2+
 URL:           http://www.clutter-project.org/
-Source0:       http://www.clutter-project.org/sources/%{name}/1.9/%{name}-%{version}.tar.xz
+Source0:       http://www.clutter-project.org/sources/%{name}/1.10/%{name}-%{version}.tar.xz
 
 BuildRequires: cairo-devel
 BuildRequires: gdk-pixbuf2-devel
@@ -102,6 +102,9 @@ rm %{buildroot}%{_datadir}/cogl/examples-data/crate.jpg
 %{_datadir}/gtk-doc/html/cogl-2.0-experimental
 
 %changelog
+* Tue Mar 20 2012 Kalev Lember <kalevlember@gmail.com> - 1.10.0-1
+- Update to 1.10.0
+
 * Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 1.9.8-1
 - Update to 1.9.8
 
