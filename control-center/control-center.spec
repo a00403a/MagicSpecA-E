@@ -16,7 +16,7 @@
 
 Summary: Utilities to configure the GNOME desktop
 Name: control-center
-Version: 3.3.2
+Version: 3.3.91
 Release: 1%{?dist}
 Epoch: 1
 License: GPLv2+ and GFDL
@@ -26,7 +26,7 @@ Source: http://download.gnome.org/sources/gnome-control-center/3.3/gnome-control
 URL: http://www.gnome.org
 
 Requires: gnome-settings-daemon >= 2.21.91-3
-Requires: redhat-menus >= %{redhat_menus_version}
+Requires: magic-menus >= %{redhat_menus_version}
 Requires: gnome-icon-theme
 Requires: alsa-lib
 Requires: gnome-menus >= %{gnome_menus_version}
@@ -74,17 +74,20 @@ BuildRequires: gsettings-desktop-schemas-devel
 BuildRequires: pulseaudio-libs-devel libcanberra-devel
 BuildRequires: upower-devel
 BuildRequires: NetworkManager-glib-devel >= 0.9
-BuildRequires: NetworkManager-gtk-devel >= 0.9
+#BuildRequires: NetworkManager-gtk-devel >= 0.9
 BuildRequires: polkit-devel
 BuildRequires: gnome-common
 BuildRequires: cups-devel
 BuildRequires: libgtop2-devel
 BuildRequires: iso-codes-devel
-BuildRequires: cheese-libs-devel >= 1:3.0.1
+BuildRequires: cheese-libs-devel >= 1:3.0.1 clutter-gst-devel clutter-gtk-devel
 BuildRequires: gnome-online-accounts-devel
 BuildRequires: colord-devel
 BuildRequires: libnotify-devel
 BuildRequires: gnome-doc-utils
+BuildRequires: libwacom-devel
+BuildRequires: systemd-devel
+BuildRequires: gnome-bluetooth-devel >= 3.3.4
 
 Requires(post): desktop-file-utils >= %{desktop_file_utils_version}
 Requires(post): shared-mime-info
@@ -128,6 +131,7 @@ utilities.
         --disable-scrollkeeper \
         --disable-update-mimedb \
         --with-libsocialweb=no \
+        --enable-systemd \
         CFLAGS="$RPM_OPT_FLAGS -Wno-error"
 
 # drop unneeded direct library deps with --as-needed
@@ -141,10 +145,10 @@ export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 make install DESTDIR=$RPM_BUILD_ROOT
 unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 
-#desktop-file-install --delete-original			\
-#  --dir $RPM_BUILD_ROOT%{_datadir}/applications				\
-#  --add-only-show-in GNOME						\
-#  $RPM_BUILD_ROOT%{_datadir}/applications/*.desktop
+desktop-file-install --delete-original			\
+  --dir $RPM_BUILD_ROOT%{_datadir}/applications				\
+  --add-only-show-in GNOME						\
+  $RPM_BUILD_ROOT%{_datadir}/applications/*.desktop
 
 # we do want this
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/gnome/wm-properties
@@ -187,10 +191,12 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_datadir}/gnome-control-center/pixmaps
 %{_datadir}/gnome-control-center/datetime/
 %{_datadir}/gnome-control-center/sounds/gnome-sounds-default.xml
+%{_datadir}/gnome-control-center/bluetooth.ui
 %{_datadir}/applications/*.desktop
 %{_datadir}/desktop-directories/*
 %{_datadir}/icons/hicolor/*/*/*
 %{_datadir}/gnome-control-center/icons/
+%{_datadir}/polkit-1/actions/org.gnome.controlcenter.datetime.policy
 %{_datadir}/pkgconfig/gnome-keybindings.pc
 %{_datadir}/sounds/gnome/default/*/*.ogg
 # list all binaries explicitly, so we notice if one goes missing
@@ -200,13 +206,15 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_sysconfdir}/xdg/menus/gnomecc.menu
 %dir %{_libdir}/control-center-1
 %{_libdir}/control-center-1/panels/libbackground.so
+%{_libdir}/control-center-1/panels/libbluetooth.so
 %{_libdir}/control-center-1/panels/libcolor.so
 %{_libdir}/control-center-1/panels/libdate_time.so
 %{_libdir}/control-center-1/panels/libdisplay.so
 %{_libdir}/control-center-1/panels/libinfo.so
 %{_libdir}/control-center-1/panels/libkeyboard.so
 %{_libdir}/control-center-1/panels/libmouse-properties.so
-%{_libdir}/control-center-1/panels/libnetwork.so
+#?networkmanager-gtk?
+#%{_libdir}/control-center-1/panels/libnetwork.so
 %{_libdir}/control-center-1/panels/libonline-accounts.so
 %{_libdir}/control-center-1/panels/libpower.so
 %{_libdir}/control-center-1/panels/libprinters.so
@@ -217,8 +225,6 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_libdir}/control-center-1/panels/libuser-accounts.so
 %{_libdir}/control-center-1/panels/libwacom-properties.so
 %{_datadir}/pixmaps/faces
-%{_libdir}/control-center-1/panels/libbluetooth.so
-%{_datadir}/gnome-control-center/bluetooth.ui
 
 %files filesystem
 %dir %{_datadir}/gnome/wm-properties
@@ -227,6 +233,30 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 
 
 %changelog
+* Mon Mar 05 2012 Bastien Nocera <bnocera@redhat.com> 3.3.91-1
+- Update to 3.3.91
+
+* Wed Feb 22 2012 Bastien Nocera <bnocera@redhat.com> 3.3.90-1
+- Update to 3.3.90
+
+* Tue Feb  7 2012 Matthias Clasen <mclasen@redhat.com> 3.3.5-1
+- Update to 3.3.5
+
+* Wed Jan 18 2012 Bastien Nocera <bnocera@redhat.com> 3.3.4.1-1
+- Update to 3.3.4.1
+
+* Tue Jan 17 2012 Matthias Clasen <mclasen@redhat.com> 3.3.4-2
+- Use systemd for session tracking
+
+* Tue Jan 17 2012 Bastien Nocera <bnocera@redhat.com> 3.3.4-1
+- Update to 3.3.4
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.3.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Wed Dec 21 2011 Matthias Clasen <mclasen@redhat.com> 3.3.3-1
+- Update to 3.3.3
+
 * Wed Nov 23 2011 Matthias Clasen <mclasen@redhat.com> 3.3.2-1
 - Update to 3.3.2
 
