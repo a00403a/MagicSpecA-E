@@ -1,16 +1,16 @@
 Name:          clutter
-Version:       1.8.2
+Version:       1.9.16
 Release:       1%{?dist}
 Summary:       Open Source software library for creating rich graphical user interfaces
 
 Group:         Development/Libraries
 License:       LGPLv2+
 URL:           http://www.clutter-project.org/
-Source0:       http://www.clutter-project.org/sources/%{name}/1.8/%{name}-%{version}.tar.xz
+Source0:       http://www.clutter-project.org/sources/%{name}/1.9/%{name}-%{version}.tar.xz
 
 BuildRequires: glib2-devel mesa-libGL-devel pkgconfig pango-devel
 BuildRequires: cairo-gobject-devel gdk-pixbuf2-devel atk-devel
-BuildRequires: cogl-devel
+BuildRequires: cogl-devel >= 1.9.8
 BuildRequires: gobject-introspection-devel >= 0.9.6
 BuildRequires: json-glib-devel >= 0.12.0
 BuildRequires: libXdamage-devel libXcomposite-devel
@@ -93,6 +93,44 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/gtk-doc/html/cally
 
 %changelog
+* Tue Mar 20 2012 Kalev Lember <kalevlember@gmail.com> - 1.9.16-1
+- Update to 1.9.16
+
+* Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 1.9.14-1
+- Update to 1.9.14
+
+* Sat Feb 25 2012 Matthias Clasen <mclasen@redhat.com> - 1.9.12-1
+- Update to 1.9.12
+
+* Mon Feb  6 2012 Matthias Clasen <mclasen@redhat.com> - 1.9.10-1
+- Update to 1.9.10
+
+* Wed Jan 25 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.9.8-1
+- 1.9.8 release
+- http://ftp.gnome.org/pub/GNOME/sources/clutter/1.9/clutter-1.9.8.news
+- Back to tar file releases
+
+* Sat Jan 21 2012 Matthias Clasen <mclasen@redhat.com> - 1.9.7-0.1.20120121
+- A snapshot that may now really work with gnome-shell
+
+* Thu Jan 19 2012 Matthias Clasen <mclasen@redhat.com> - 1.9.6-1
+- 1.9.6 release
+- http://ftp.gnome.org/pub/GNOME/sources/clutter/1.9/clutter-1.9.6.news
+- Should work with gnome-shell again
+
+* Wed Jan 18 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.9.4-1
+- 1.9.4 release
+- http://ftp.gnome.org/pub/GNOME/sources/clutter/1.9/clutter-1.9.4.news
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.9.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Nov 22 2011 Tomas Bzatek <tbzatek@redhat.com> - 1.9.2-1
+- Update to 1.9.2
+
+* Wed Oct 26 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.8.2-2
+- Rebuilt for glibc bug#747377
+
 * Mon Oct 17 2011 Peter Robinson <pbrobinson@fedoraproject.org> - 1.8.2-1
 - 1.8.2 stable release
 - http://ftp.gnome.org/pub/GNOME/sources/clutter/1.8/clutter-1.8.2.news
