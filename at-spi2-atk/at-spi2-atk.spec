@@ -1,5 +1,5 @@
 Name:           at-spi2-atk
-Version:        2.3.2
+Version:        2.3.91
 Release:        1%{?dist}
 Summary:        A GTK+ module that bridges ATK to D-Bus at-spi
 
@@ -74,6 +74,24 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 
 
 %changelog
+* Mon Mar  5 2012 Matthias Clasen <mclasen@redhat.com> - 2.3.91-1
+- Update to 2.3.91
+
+* Sat Feb 25 2012 Matthias Clasen <mclasen@redhat.com> - 2.3.90-1
+- Update to 2.3.90
+
+* Tue Feb  7 2012 Matthias Clasen <mclasen@redhat.com> - 2.3.5-1
+- Update to 2.3.5
+
+* Tue Jan 17 2012 Matthias Clasen <mclasen@redhat.com> - 2.3.4-1
+- Update to 2.3.4
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Dec 20 2011 Matthias Clasen <mclasen@redhat.com> - 2.3.3-1
+- Update to 2.3.3
+
 * Mon Nov 21 2011 Matthias Clasen <mclasen@redhat.com> - 2.3.2-1
 - Update to 2.3.2
 
