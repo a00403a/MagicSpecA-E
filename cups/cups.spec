@@ -19,7 +19,7 @@
 Summary: Common Unix Printing System
 Name: cups
 Version: 1.5.2
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPLv2
 Group: System Environment/Daemons
 Source: http://ftp.easysw.com/pub/cups/%{version}/cups-%{version}-source.tar.bz2
@@ -664,6 +664,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/ipptool.1.gz
 
 %changelog
+* Tue Mar 27 2012 Liu Di <liudidi@gmail.com> - 1:1.5.2-6
+- 为 Magic 3.0 重建
+
 * Tue Feb 28 2012 Jiri Popelka <jpopelka@redhat.com> 1:1.5.2-5
 - If the translated message is empty return the original message
   (bug #797570, STR #4033).
