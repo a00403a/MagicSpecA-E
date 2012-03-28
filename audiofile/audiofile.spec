@@ -1,7 +1,7 @@
 Summary: A library for accessing various audio file formats
 Summary(zh_CN.UTF-8): 访问多种音频文件格式的库
 Name: audiofile
-Version: 0.3.1
+Version: 0.3.3
 Release: 1%{?dist}
 Epoch: 1
 License: LGPLv2+
