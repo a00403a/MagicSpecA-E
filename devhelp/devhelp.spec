@@ -5,15 +5,15 @@
 ### Abstract ###
 
 Name: devhelp
-Version: 3.2.0
-Release: 2%{?dist}
+Version: 3.3.91
+Release: 1%{?dist}
 Epoch: 1
 License: GPLv2+
 Group: Development/Tools
 Summary: API documention browser
 URL: http://developer.imendio.com/projects/devhelp
 #VCS: git:git://git.gnome.org/devhelp
-Source: http://download.gnome.org/sources/devhelp/3.0/devhelp-%{version}.tar.xz
+Source: http://download.gnome.org/sources/devhelp/3.3/devhelp-%{version}.tar.xz
 
 ### Dependencies ###
 
@@ -80,7 +80,9 @@ desktop-file-install --vendor gnome			\
 find ${RPM_BUILD_ROOT} -type f -name "*.la" -exec rm -f {} ';'
 
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/devhelp/books
+rm -f %{buildroot}%{_datadir}/icons/hicolor/icon-theme.cache
 
+magic_rpm_clean.sh
 %find_lang devhelp
 
 %pre
@@ -127,7 +129,6 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_datadir}/icons/hicolor/32x32/apps/devhelp.png
 %{_datadir}/icons/hicolor/48x48/apps/devhelp.png
 %{_datadir}/icons/hicolor/256x256/apps/devhelp.png
-%{_datadir}/icons/hicolor/icon-theme.cache
 
 %dir %{_libdir}/gedit
 %dir %{_libdir}/gedit/plugins
@@ -140,6 +141,15 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_libdir}/pkgconfig/*
 
 %changelog
+* Tue Mar  6 2012 Matthias Clasen <mclasen@redhat.com> - 1:3.3.91-1
+- Update to 3.3.91
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.3.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Wed Dec 21 2011 Matthias Clasen <mclasen@redhat.com> - 1:3.3.3-1
+- Update to 3.3.3
+
 * Tue Oct 11 2011 Matthew Barnes <mbarnes@redhat.com> - 1:3.2.0-2
 - Own /usr/lib/gedit and /usr/lib/gedit/plugins (RH bug #744884).
 
