@@ -1,18 +1,15 @@
 %global major_ver 1.5
 %global minor_ver .3
 
-%define _with_sdl 1
-#编译会出错，和kernel有关
-#define _with_fusion 0
-
 Summary: Graphics abstraction library for the Linux Framebuffer Device
 Name: directfb
 Version: %{major_ver}%{minor_ver}
-Release: 1%{?dist}
+Release: 4%{?dist}
 Group: System Environment/Libraries
 License: LGPLv2+
 URL: http://www.directfb.org/
 Source0: http://www.directfb.org/downloads/Core/DirectFB-%{major_ver}/DirectFB-%{version}.tar.gz
+Patch0: http://sources.gentoo.org/cgi-bin/viewvc.cgi/gentoo-x86/dev-libs/DirectFB/files/DirectFB-1.4.9-libpng-1.5.patch
 Patch1: DirectFB-1.2.8-tweak.patch
 Patch2: DirectFB-1.5.3-fix_v4l1.patch
 Patch3: DirectFB-1.5.3-lm.patch
@@ -71,6 +68,7 @@ Development files for DirectFB.
 
 %prep
 %setup -q -n DirectFB-%{version}
+%patch0 -p1 -b .libpng15
 %patch1 -p1 -b .tweak
 %patch2 -p1 -b .fix_v4l1
 %patch3 -p1 -b .lm
@@ -215,6 +213,15 @@ make check
 
 
 %changelog
+* Sat Jan 14 2012 Ville Skyttä <ville.skytta@iki.fi> - 1.5.3-4
+- Fix build with libpng 1.5 (patch from Gentoo).
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.3-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Dec 06 2011 Adam Jackson <ajax@redhat.com> - 1.5.3-2
+- Rebuild for new libpng
+
 * Fri Aug 19 2011 Nicolas Chauvet <kwizart@gmail.com> - 1.5.3-1
 - Update to 1.5.3
 - Add BR libvdpau-devel
