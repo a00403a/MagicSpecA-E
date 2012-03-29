@@ -1,6 +1,6 @@
 #已切换到 git
 %define git 1
-%define git_date 20111227
+%define git_date 20120328
 %define _prefix /usr
 %define ver 1.5.14
 
@@ -49,6 +49,7 @@ BuildRequires: glib2-devel
 BuildRequires: libvorbis-devel
 BuildRequires: audiofile-devel
 BuildRequires: tqtinterface-devel
+BuildRequires: libmad-devel
 
 ## workaround for gcc bug on ia64
 %ifarch ia64
@@ -131,11 +132,11 @@ make %{?_smp_mflags}
 %{__rm} -rf %{buildroot}
 cd build
 make install DESTDIR=%{buildroot}
-mkdir %{buildroot}%{_includedir}/arts/
-cd %{buildroot}%{_includedir}/arts/
-ln -s ../*.h .
-ln -s ../*.idl .
-cd ..
+#mkdir %{buildroot}%{_includedir}/arts/
+#cd %{buildroot}%{_includedir}/arts/
+#ln -s ../*.h .
+#ln -s ../*.idl .
+#cd ..
 
 #install -m 0644 ../artsc/artsc.h %{buildroot}%{_includedir}
 magic_rpm_clean.sh
