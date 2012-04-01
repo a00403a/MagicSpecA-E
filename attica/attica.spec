@@ -1,7 +1,7 @@
 
 Name:           attica
-Version:        0.2.0
-Release:        2%{?dist}
+Version:        0.3.0
+Release:        1%{?dist}
 Summary:        Implementation of the Open Collaboration Services API
 Summary(zh_CN.UTF-8): 开放式协作服务 API 的实现 
 
