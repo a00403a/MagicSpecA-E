@@ -6,8 +6,8 @@
 Name:    eigen2
 Summary: A lightweight C++ template library for vector and matrix math
 Epoch:   1
-Version: 2.0.15
-Release: 3%{?dist}
+Version: 2.0.17
+Release: 1%{?dist}
 Group:   System Environment/Libraries
 License: GPLv2+ or LGPLv3+
 URL:     http://eigen.tuxfamily.org/
@@ -24,19 +24,13 @@ BuildRequires: cmake
 BuildRequires: doxygen graphviz
 
 #BuildRequires: %{_bindir}/latex
-%if 0%{?fedora} > 8
 BuildRequires: tex(latex)
-%else
-BuildRequires: tetex-latex
-%endif
 
 %if 0%{?_with_check:1}
 BuildRequires: blas-devel
 BuildRequires: gsl-devel
 # can't use until undefined symbols are fixed: http://bugzilla.redhat.com/475411
-%if 0%{?fedora} > 11
 BuildRequires: suitesparse-devel
-%endif
 BuildRequires: qt4-devel
 #-- Could NOT find TAUCS  (missing:  TAUCS_INCLUDES TAUCS_LIBRARIES)
 #-- Could NOT find SUPERLU  (missing:  SUPERLU_INCLUDES SUPERLU_LIBRARIES)
@@ -58,7 +52,7 @@ Provides: %{name}-static = %{version}-%{release}
 
 
 %prep
-%setup -q -n eigen
+%setup -q -n eigen-eigen-b23437e61a07
 
 
 %build
