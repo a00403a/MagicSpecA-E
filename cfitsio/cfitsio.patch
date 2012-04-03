@@ -1,7 +1,7 @@
-diff -u cfitsio/configure cfitsio-fixed/configure
---- cfitsio/configure	2007-11-05 15:52:57.000000000 -0500
-+++ cfitsio-fixed/configure	2008-09-19 18:50:51.000000000 -0400
-@@ -3397,7 +3397,8 @@
+diff -ur cfitsio/configure cfitsio-fixed/configure
+--- cfitsio/configure	2011-01-10 12:03:51.000000000 -0500
++++ cfitsio-fixed/configure	2011-04-11 11:33:54.384980620 -0400
+@@ -3778,7 +3778,8 @@
      SHLIB_SUFFIX=".sl"
      ;;
    lnx)
@@ -11,7 +11,7 @@ diff -u cfitsio/configure cfitsio-fixed/configure
      ;;
    osf)
      SHLIB_LD="ld -shared -expect_unresolved '*'"
-@@ -3418,7 +3419,7 @@
+@@ -3799,7 +3800,7 @@
  # Darwin uses gcc (=cc), but needs different flags (see above)
  # if test "x$GCC" = xyes; then
  if test "x$GCC" = xyes && test "x$EXT" != xdarwin && test "x$EXT" != xcygwin; then
@@ -20,17 +20,3 @@ diff -u cfitsio/configure cfitsio-fixed/configure
    lhea_shlib_cflags='-fPIC'
  fi
  if test "x$lhea_shlib_cflags" != x; then
-diff -u cfitsio/Makefile.in cfitsio-fixed/Makefile.in
---- cfitsio/Makefile.in	2008-01-14 13:30:51.000000000 -0500
-+++ cfitsio-fixed/Makefile.in	2008-09-19 18:51:41.000000000 -0400
-@@ -22,8 +22,8 @@
- exec_prefix	= @exec_prefix@
- DESTDIR		= 
- CFITSIO_PREFIX	= $(prefix)
--CFITSIO_LIB	= $(DESTDIR)$(exec_prefix)/lib
--CFITSIO_INCLUDE	= $(DESTDIR)$(prefix)/include
-+CFITSIO_LIB	= $(DESTDIR)$(exec_prefix)/$(LIBDIR)
-+CFITSIO_INCLUDE	= $(DESTDIR)$(prefix)/$(INCLUDEDIR)
- INSTALL_DIRS	= $(DESTDIR)@INSTALL_ROOT@ ${CFITSIO_LIB} ${CFITSIO_LIB}/pkgconfig ${CFITSIO_INCLUDE}
- 
- 
