@@ -1,6 +1,6 @@
 Name: elfutils
 Summary: A collection of utilities and DSOs to handle compiled objects
-Version: 0.152
+Version: 0.153
 %global baserelease 2
 URL: https://fedorahosted.org/elfutils/
 %global source_url http://fedorahosted.org/releases/e/l/elfutils/%{version}/
@@ -45,6 +45,8 @@ Group: Development/Tools
 Source: %{?source_url}%{name}-%{version}.tar.bz2
 Patch1: %{?source_url}elfutils-robustify.patch
 Patch2: %{?source_url}elfutils-portability.patch
+
+Patch3: elfutils-0.153-dwfl_segment_report_module.patch
 
 %if !%{compat}
 Release: %{baserelease}%{?dist}
@@ -205,6 +207,8 @@ sed -i.scanf-m -e 's/%m/%a/g' src/addr2line.c tests/line2addr.c
 
 find . -name \*.sh ! -perm -0100 -print | xargs chmod +x
 
+%patch3 -p1 -b .dwfl_segment_report_module
+
 %build
 # Remove -Wall from default flags.  The makefiles enable enough warnings
 # themselves, and they use -Werror.  Appending -Wall defeats the cases where
@@ -215,9 +219,12 @@ RPM_OPT_FLAGS=${RPM_OPT_FLAGS/-Wall/}
 # Some older glibc headers can run afoul of -Werror all by themselves.
 # Disabling the fancy inlines avoids those problems.
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -D__NO_INLINE__"
+COMPAT_CONFIG_FLAGS="--disable-werror"
+%else
+COMPAT_CONFIG_FLAGS=""
 %endif
 
-%configure CFLAGS="$RPM_OPT_FLAGS -fexceptions" || {
+%configure $COMPAT_CONFIG_FLAGS CFLAGS="$RPM_OPT_FLAGS -fexceptions" || {
   cat config.log
   exit 2
 }
@@ -315,6 +322,24 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_libdir}/libelf.a
 
 %changelog
+* Mon Apr 02 2012 Mark Wielaard <mark@klomp.org> - 0.153-2
+- Fix for eu-unstrip emits garbage for librt.so.1 (#805447)
+
+* Thu Feb 23 2012 Mark Wielaard <mjw@redhat.com> - 0.153-1
+- Update to 0.153
+  - New --disable-werror for portability.
+  - Support for .zdebug sections (#679777)
+  - type_units and DW_AT_GNU_odr_signature support (#679815)
+  - low level support DW_OP_GNU_entry_value and DW_TAG_GNU_call_site (#688090)
+  - FTBFS on rawhide with gcc 4.7 (#783506)
+    - Remove gcc-4.7 patch
+
+* Fri Jan 20 2012 Mark Wielaard <mjw@redhat.com> - 0.152-3
+- Fixes for gcc-4.7 based on upstream commit 32899a (#783506).
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.152-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Tue Feb 15 2011 Roland McGrath <roland@redhat.com> - 0.152-1
 - Update to 0.152
   - Various build and warning nits fixed for newest GCC and Autoconf.
