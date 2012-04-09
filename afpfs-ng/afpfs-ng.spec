@@ -5,7 +5,7 @@
 
 Name:           afpfs-ng
 Version:        0.8.1
-Release:        9%{?dist}.3
+Release:        10%{?dist}.3
 Summary:        Apple Filing Protocol client
 
 Group:          System Environment/Base
@@ -14,10 +14,12 @@ URL:            http://alexthepuffin.googlepages.com/home
 Source0:        http://downloads.sourceforge.net/afpfs-ng/%{name}-%{version}.tar.bz2
 Patch0:         afpfs-ng-0.8.1-overflows.patch
 Patch1:         afpfs-ng-0.8.1-pointer.patch
+Patch2:		afpfs-ng-0.8.1-headers.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %{?!_without_fuse:BuildRequires: fuse-devel}
 BuildRequires: libgcrypt-devel gmp-devel readline-devel
+
 
 %description
 A command line client to access files exported from Mac OS system via
@@ -50,7 +52,7 @@ Library for dynamic linking and header files of afpfs-ng.
 %setup -q
 %patch0 -p1 -b .overflows
 %patch1 -p1 -b .pointer
-
+%patch2 -p1
 
 %build
 # make would rebuild the autoconf infrastructure due to the following:
@@ -112,6 +114,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Apr 09 2012 Liu Di <liudidi@gmail.com> - 0.8.1-10.3
+- 为 Magic 3.0 重建
+
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.1-9.3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
