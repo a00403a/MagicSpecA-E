@@ -19,7 +19,7 @@
 Summary: Common Unix Printing System
 Name: cups
 Version: 1.5.2
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: GPLv2
 Group: System Environment/Daemons
 Source: http://ftp.easysw.com/pub/cups/%{version}/cups-%{version}-source.tar.bz2
@@ -102,7 +102,7 @@ Obsoletes: cupsddk-drivers < 1.2.3-7
 Provides: cupsddk-drivers = 1.2.3-7
 
 # kdelibs conflict for bug #192585.
-Conflicts: kdelibs < 6:3.5.2-6
+Conflicts: kdelibs < 3.5.2-6
 
 BuildRequires: pam-devel pkgconfig
 BuildRequires: gnutls-devel libacl-devel
@@ -664,6 +664,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/ipptool.1.gz
 
 %changelog
+* Tue Apr 10 2012 Liu Di <liudidi@gmail.com> - 1:1.5.2-7
+- 为 Magic 3.0 重建
+
 * Tue Mar 27 2012 Liu Di <liudidi@gmail.com> - 1:1.5.2-6
 - 为 Magic 3.0 重建
 
