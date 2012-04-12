@@ -5,7 +5,7 @@
 Summary: The Advanced Linux Sound Architecture (ALSA) library
 Name:    alsa-lib
 Version: 1.0.25
-Release: 3%{?prever_dot}%{?dist}
+Release: 4%{?prever_dot}%{?dist}
 License: LGPLv2+
 Group:   System Environment/Libraries
 Source:  ftp://ftp.alsa-project.org/pub/lib/%{name}-%{version}%{?prever}%{?postver}.tar.bz2
@@ -57,11 +57,6 @@ make doc
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
 
-# We need the library to be available even before /usr might be mounted
-mkdir -p %{buildroot}/%{_lib}
-mv %{buildroot}%{_libdir}/libasound.so.* %{buildroot}/%{_lib}
-ln -snf ../../%{_lib}/libasound.so.2 %{buildroot}%{_libdir}/libasound.so
-
 # Install global configuration files
 mkdir -p -m 755 %{buildroot}/etc
 install -p -m 644 %{SOURCE10} %{buildroot}/etc
@@ -77,7 +72,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc COPYING ChangeLog TODO doc/asoundrc.txt
 %config %{_sysconfdir}/asound.conf
-/%{_lib}/libasound.so.*
+%{_libdir}/libasound.so.*
 %{_bindir}/aserver
 %{_libdir}/alsa-lib/
 %{_datadir}/alsa/
@@ -93,6 +88,9 @@ rm -rf %{buildroot}
 %{_datadir}/aclocal/alsa.m4
 
 %changelog
+* Thu Apr 12 2012 Liu Di <liudidi@gmail.com> - 1.0.25-4
+- 为 Magic 3.0 重建
+
 * Wed Feb  1 2012 Jaroslav Kysela <jkysela@redhat.com> - 1.0.25-3
 - Remove the pulse audio configuration from /etc/asound.conf
 
