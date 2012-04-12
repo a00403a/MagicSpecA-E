@@ -1,7 +1,7 @@
 Summary: Bluetooth utilities
 Name: bluez
 Version: 4.99
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPLv2+
 Group: Applications/System
 URL: http://www.bluez.org/
@@ -48,8 +48,8 @@ Requires: hwdata >= 0.215
 Requires: dbus-bluez-pin-helper
 %endif
 Requires: udev >= 143-2
-Requires(preun): /sbin/chkconfig, /sbin/service
-Requires(post): /sbin/chkconfig, /sbin/service
+Requires(preun): /usr/sbin/chkconfig, /usr/sbin/service
+Requires(post): /usr/sbin/chkconfig, /usr/sbin/service
 
 %description
 Utilities for use in Bluetooth applications:
@@ -312,6 +312,9 @@ fi
 %exclude %{_libdir}/udev/rules.d/97-bluetooth-hid2hci.rules
 
 %changelog
+* Thu Apr 12 2012 Liu Di <liudidi@gmail.com> - 4.99-3
+- 为 Magic 3.0 重建
+
 * Thu Apr 12 2012 Liu Di <liudidi@gmail.com> - 4.99-2
 - 为 Magic 3.0 重建
 
