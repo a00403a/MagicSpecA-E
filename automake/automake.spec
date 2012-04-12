@@ -3,8 +3,8 @@
 Summary:    A GNU tool for automatically creating Makefiles
 Summary(zh_CN.UTF-8): 一套自动建立 Makefile 的 GNU 工具
 Name:       automake
-Version:    %{api_version}.3
-Release:    6%{?dist}
+Version:    %{api_version}.4
+Release:    4%{?dist}
 License:    GPLv2+ and GFDL
 Group:      Development/Tools
 Group(zh_CN.UTF-8): 开发/工具
