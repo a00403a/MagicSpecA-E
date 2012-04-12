@@ -1,7 +1,7 @@
 Summary: Bluetooth utilities
 Name: bluez
 Version: 4.99
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2+
 Group: Applications/System
 URL: http://www.bluez.org/
@@ -151,7 +151,7 @@ and mouse.
 %build
 libtoolize -f -c
 autoreconf
-%configure --enable-cups --enable-dfutool --enable-tools --enable-bccmd --enable-gstreamer --enable-hidd --enable-pand --enable-dund --enable-hid2hci --with-ouifile=/usr/share/hwdata/oui.txt --with-systemdsystemunitdir=/lib/systemd/system
+%configure --enable-cups --enable-dfutool --enable-tools --enable-bccmd --enable-gstreamer --enable-hidd --enable-pand --enable-dund --enable-hid2hci --with-ouifile=/usr/share/hwdata/oui.txt --with-systemdsystemunitdir=%{_libdir}/systemd/system
 make
 
 %install
@@ -176,10 +176,11 @@ if test -d ${RPM_BUILD_ROOT}/usr/lib64/cups ; then
 	rm -rf ${RPM_BUILD_ROOT}%{_libdir}/cups
 fi
 
-rm -f ${RPM_BUILD_ROOT}/%{_sysconfdir}/udev/*.rules ${RPM_BUILD_ROOT}/lib/udev/rules.d/*.rules
-install -D -p -m0644 scripts/bluetooth-serial.rules ${RPM_BUILD_ROOT}/lib/udev/rules.d/97-bluetooth-serial.rules
-install -D -p -m0644 scripts/bluetooth-hid2hci.rules ${RPM_BUILD_ROOT}/lib/udev/rules.d/97-bluetooth-hid2hci.rules
-install -D -m0755 scripts/bluetooth_serial ${RPM_BUILD_ROOT}/lib/udev/bluetooth_serial
+rm -f ${RPM_BUILD_ROOT}/%{_sysconfdir}/udev/*.rules 
+#${RPM_BUILD_ROOT}%{_libdir}/udev/rules.d/*.rules
+install -D -p -m0644 scripts/bluetooth-serial.rules ${RPM_BUILD_ROOT}%{_libdir}/udev/rules.d/97-bluetooth-serial.rules
+install -D -p -m0644 scripts/bluetooth-hid2hci.rules ${RPM_BUILD_ROOT}%{_libdir}/udev/rules.d/97-bluetooth-hid2hci.rules
+install -D -m0755 scripts/bluetooth_serial ${RPM_BUILD_ROOT}%{_libdir}/udev/bluetooth_serial
 
 install -D -m0755 %{SOURCE8} $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/modules/bluez-uinput.modules
 
@@ -254,13 +255,13 @@ fi
 %config(noreplace) %{_sysconfdir}/bluetooth/main.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/modules/bluez-uinput.modules
 %config %{_sysconfdir}/dbus-1/system.d/bluetooth.conf
-%{_libdir}/bluetooth/
-/lib/udev/bluetooth_serial
-/lib/udev/rules.d/97-bluetooth-serial.rules
-/usr/lib/udev/rules.d/97-bluetooth.rules
+#%{_libdir}/bluetooth/
+%{_libdir}/udev/bluetooth_serial
+%{_libdir}/udev/rules.d/97-bluetooth-serial.rules
+%{_libdir}/udev/rules.d/97-bluetooth.rules
 %{_localstatedir}/lib/bluetooth
 %{_datadir}/dbus-1/system-services/org.bluez.service
-/lib/systemd/system/bluetooth.service
+%{_libdir}/systemd/system/bluetooth.service
 %exclude /usr/lib/systemd/system/bluetooth.service
 
 %files libs
@@ -277,7 +278,7 @@ fi
 
 %files cups
 %defattr(-,root,root,-)
-/usr/lib/cups/backend/bluetooth
+%{_libdir}/cups/backend/bluetooth
 
 %files gstreamer
 %defattr(-,root,root,-)
@@ -305,12 +306,15 @@ fi
 
 %files hid2hci
 %defattr(-,root,root,-)
-/usr/lib/udev/hid2hci
+%{_libdir}/udev/hid2hci
 %{_mandir}/man8/hid2hci.8*
-/lib/udev/rules.d/97-bluetooth-hid2hci.rules
-%exclude /usr/lib/udev/rules.d/97-bluetooth-hid2hci.rules
+%{_libdir}/udev/rules.d/97-bluetooth-hid2hci.rules
+%exclude %{_libdir}/udev/rules.d/97-bluetooth-hid2hci.rules
 
 %changelog
+* Thu Apr 12 2012 Liu Di <liudidi@gmail.com> - 4.99-2
+- 为 Magic 3.0 重建
+
 * Tue Mar 06 2012 Bastien Nocera <bnocera@redhat.com> 4.99-1
 - Update to 4.99
 
