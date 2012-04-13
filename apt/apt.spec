@@ -11,7 +11,7 @@ Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(zh_CN.UTF-8): 使用RPM支持的 Debian 高级包工具
 Name: apt
 Version: 0.5.15lorg3.95
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPL
 Group: System Environment/Base
 Group(zh_CN.UTF-8): 系统环境/基本
@@ -100,15 +100,17 @@ magic_rpm_clean.sh
 touch %{buildroot}%{_sysconfdir}/apt/preferences \
 	%{buildroot}%{_sysconfdir}/apt/vendors.list
 
+magic_rpm_clean.sh
+
 #%{__ln_s} -f %{_libdir}libapt-pkg-libc6.3-5.so.0 %{buildroot}%{_libdir}libapt-pkg-libc6.3-5.so.%{LIBVER}
 mkdir -p %{buildroot}/var/lib/apt/lists/partial
 touch %{buildroot}/var/lib/apt/lists/lock
 
 %post
-/sbin/ldconfig 2>/dev/null
+/usr/sbin/ldconfig 2>/dev/null
 
 %postun
-/sbin/ldconfig 2>/dev/null
+/usr/sbin/ldconfig 2>/dev/null
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -148,6 +150,9 @@ touch %{buildroot}/var/lib/apt/lists/lock
 #exclude %{_libdir}/*.la
 
 %changelog
+* Fri Apr 13 2012 Liu Di <liudidi@gmail.com> - 0.5.15lorg3.95-6
+- 为 Magic 3.0 重建
+
 * Thu Apr 30 2009 Liu Di <liudidi@gmail.com> - 0.5.15lorg3.94a-4
 - 在 rpm 4.7.0 上重建
 
