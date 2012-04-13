@@ -4,7 +4,7 @@ Summary:    A GNU tool for automatically creating Makefiles
 Summary(zh_CN.UTF-8): 一套自动建立 Makefile 的 GNU 工具
 Name:       automake
 Version:    %{api_version}.4
-Release:    4%{?dist}
+Release:    5%{?dist}
 License:    GPLv2+ and GFDL
 Group:      Development/Tools
 Group(zh_CN.UTF-8): 开发/工具
@@ -70,6 +70,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/man1
 
 rm -f ${RPM_BUILD_ROOT}%{_infodir}/dir
 
+magic_rpm_clean.sh
+
 %check
 # make check
 
@@ -77,11 +79,11 @@ rm -f ${RPM_BUILD_ROOT}%{_infodir}/dir
 rm -rf ${RPM_BUILD_ROOT}
 
 %post
-/sbin/install-info %{_infodir}/automake.info.gz %{_infodir}/dir || :
+/usr/sbin/install-info %{_infodir}/automake.info.gz %{_infodir}/dir || :
 
 %preun
 if [ $1 = 0 ]; then
-    /sbin/install-info --delete %{_infodir}/automake.info.gz %{_infodir}/dir || :
+    /usr/sbin/install-info --delete %{_infodir}/automake.info.gz %{_infodir}/dir || :
 fi
 
 %files
@@ -94,6 +96,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Fri Apr 13 2012 Liu Di <liudidi@gmail.com> - 1.11.4-5
+- 为 Magic 3.0 重建
+
 * Tue Nov 01 2011 Liu Di <liudidi@gmail.com> - 1.11.1-6
 - 更新到 1.11.1
 
