@@ -1,17 +1,19 @@
 Summary:   Color daemon
 Name:      colord
-Version:   0.1.17
-Release:   1%{?dist}
+Version:   0.1.18
+Release:   2%{?dist}
 License:   GPLv2+ and LGPLv2+
 URL:       http://www.freedesktop.org/software/colord/
 Source0:   http://www.freedesktop.org/software/colord/releases/%{name}-%{version}.tar.xz
+Patch0:    0001-Do-not-enable-PrivateNetwork-yes-as-it-breaks-hotplu.patch
+Patch1:	   colord-0.1.18-udevdir.patch
 
 BuildRequires: dbus-devel
 BuildRequires: docbook-utils
 BuildRequires: gettext
 BuildRequires: glib2-devel
 BuildRequires: intltool
-BuildRequires: lcms2-devel
+BuildRequires: lcms2-devel >= 2.2
 BuildRequires: libgudev1-devel
 BuildRequires: polkit-devel >= 0.103
 BuildRequires: sane-backends-devel
@@ -38,6 +40,8 @@ Files for development with %{name}.
 
 %prep
 %setup -q
+%patch0 -p1 -b .fix-device-hotplug
+%patch1 -p1
 
 %build
 %configure \
@@ -60,7 +64,8 @@ find %{buildroot} -name '*.a' -exec rm -f {} ';'
 touch $RPM_BUILD_ROOT%{_localstatedir}/lib/colord/mapping.db
 touch $RPM_BUILD_ROOT%{_localstatedir}/lib/colord/storage.db
 
-%find_lang %{name}
+magic_rpm_clean.sh
+%find_lang %{name} || touch %{name}.lang
 
 %pre
 getent group colord >/dev/null || groupadd -r colord
@@ -78,6 +83,7 @@ exit 0
 %doc README AUTHORS NEWS COPYING
 %{_libexecdir}/colord
 %attr(755,colord,colord) %dir %{_localstatedir}/lib/colord
+%attr(755,colord,colord) %dir %{_localstatedir}/lib/colord/icc
 %{_bindir}/*
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.ColorManager.conf
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ColorManager*.xml
@@ -86,13 +92,20 @@ exit 0
 %{_datadir}/man/man1/*.1.gz
 %{_libdir}/libcolord.so.*
 %config %{_sysconfdir}/colord.conf
-/lib/udev/rules.d/*.rules
+%{_libdir}/udev/rules.d/*.rules
 %dir %{_datadir}/color/icc/colord
 %{_datadir}/color/icc/colord/*.ic?
 %{_libdir}/colord-sensors
 %{_libdir}/girepository-1.0/*.typelib
 %ghost %{_localstatedir}/lib/colord/*.db
-/usr/lib/systemd/system/*.service
+
+# TODO: split this out into a subpackage?
+/usr/lib/systemd/system/colord.service
+%{_datadir}/dbus-1/interfaces/org.freedesktop.colord.sane.xml
+%{_datadir}/dbus-1/system-services/org.freedesktop.colord-sane.service
+/usr/lib/systemd/system/colord-sane.service
+%{_libexecdir}/colord-sane
+%{_sysconfdir}/dbus-1/system.d/org.freedesktop.colord-sane.conf
 
 %files devel
 %defattr(-,root,root,-)
@@ -103,6 +116,17 @@ exit 0
 %{_datadir}/vala/vapi/*.vapi
 
 %changelog
+* Thu Mar 29 2012 Richard Hughes <richard@hughsie.com> 0.1.18-2
+- Disable PrivateNetwork=1 as it breaks sensor hotplug.
+
+* Thu Mar 15 2012 Richard Hughes <richard@hughsie.com> 0.1.18-1
+- New upstream version
+- Add a Manager.CreateProfileWithFd() method for QtDBus
+- Split out the SANE support into it's own process
+- Fix a small leak when creating devices and profiles in clients
+- Fix cd-fix-profile to add and remove metadata entries
+- Install per-machine profiles in /var/lib/colord/icc
+
 * Wed Feb 22 2012 Richard Hughes <richard@hughsie.com> 0.1.17-1
 - New upstream version
 - Add an LED sample type
