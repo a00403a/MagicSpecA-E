@@ -10,7 +10,7 @@
 
 Name:           avahi
 Version:        0.6.30
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Local network service discovery
 Group:          System Environment/Base
 License:        LGPLv2
@@ -376,16 +376,16 @@ getent passwd avahi >/dev/null 2>&1 || useradd \
         -u 70 \
         -g avahi \
         -d %{_localstatedir}/run/avahi-daemon \
-        -s /sbin/nologin \
+        -s /usr/sbin/nologin \
         -c "Avahi mDNS/DNS-SD Stack" \
         avahi
 :;
 
 %post
-/sbin/ldconfig >/dev/null 2>&1 || :
+/usr/sbin/ldconfig >/dev/null 2>&1 || :
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig >/dev/null 2>&1 || :
 if [ "$1" -eq 1 ]; then
-        /bin/systemctl enable avahi-daemon.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl enable avahi-daemon.service >/dev/null 2>&1 || :
         if [ -s /etc/localtime ]; then
                 cp -cfp /etc/localtime /etc/avahi/etc/localtime >/dev/null 2>&1 || :
         fi
@@ -393,21 +393,21 @@ fi
 
 %preun
 if [ "$1" -eq 0 ]; then
-        /bin/systemctl --no-reload disable avahi-daemon.service >/dev/null 2>&1 || :
-        /bin/systemctl stop avahi-daemon.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl --no-reload disable avahi-daemon.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl stop avahi-daemon.service >/dev/null 2>&1 || :
 fi
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
-        /bin/systemctl try-restart avahi-daemon.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl try-restart avahi-daemon.service >/dev/null 2>&1 || :
 fi
-/sbin/ldconfig >/dev/null 2>&1 || :
+/usr/sbin/ldconfig >/dev/null 2>&1 || :
 
 %triggerun -- avahi < 0.6.28-1
 %{_bindir}/systemd-sysv-convert --save avahi-daemon
-/bin/systemctl --no-reload enable avahi-daemon.service >/dev/null 2>&1 || :
-/bin/systemctl try-restart avahi-daemon.service >/dev/null 2>&1 || :
+/usr/bin/systemctl --no-reload enable avahi-daemon.service >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart avahi-daemon.service >/dev/null 2>&1 || :
 
 %pre autoipd
 getent group avahi-autoipd >/dev/null 2>&1 || groupadd \
@@ -419,59 +419,59 @@ getent passwd avahi-autoipd >/dev/null 2>&1 || useradd \
         -u 170 \
         -g avahi-autoipd \
         -d %{_localstatedir}/lib/avahi-autoipd \
-        -s /sbin/nologin \
+        -s /usr/sbin/nologin \
         -c "Avahi IPv4LL Stack" \
         avahi-autoipd
 :;
 
 %post dnsconfd
 if [ "$1" -eq 1 ]; then
-        /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+        /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
 %preun dnsconfd
 if [ "$1" -eq 0 ]; then
-        /bin/systemctl --no-reload disable avahi-dnsconfd.service >/dev/null 2>&1 || :
-        /bin/systemctl stop avahi-dnsconfd.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl --no-reload disable avahi-dnsconfd.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl stop avahi-dnsconfd.service >/dev/null 2>&1 || :
 fi
 
 %postun dnsconfd
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
-        /bin/systemctl try-restart avahi-dnsconfd.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl try-restart avahi-dnsconfd.service >/dev/null 2>&1 || :
 fi
 
 %triggerun dnsconfd -- avahi-dnsconfd < 0.6.28-1
 %{_bindir}/systemd-sysv-convert --save avahi-dnsconfd
-/bin/systemctl --no-reload enable avahi-dnsconfd.service >/dev/null 2>&1 || :
-/bin/systemctl try-restart avahi-dnsconfd.service >/dev/null 2>&1 || :
+/usr/bin/systemctl --no-reload enable avahi-dnsconfd.service >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart avahi-dnsconfd.service >/dev/null 2>&1 || :
 
-%post glib -p /sbin/ldconfig
-%postun glib -p /sbin/ldconfig
+%post glib -p /usr/sbin/ldconfig
+%postun glib -p /usr/sbin/ldconfig
 
-%post compat-howl -p /sbin/ldconfig
-%postun compat-howl -p /sbin/ldconfig
+%post compat-howl -p /usr/sbin/ldconfig
+%postun compat-howl -p /usr/sbin/ldconfig
 
-%post compat-libdns_sd -p /sbin/ldconfig
-%postun compat-libdns_sd -p /sbin/ldconfig
+%post compat-libdns_sd -p /usr/sbin/ldconfig
+%postun compat-libdns_sd -p /usr/sbin/ldconfig
 
-%post libs -p /sbin/ldconfig
-%postun libs -p /sbin/ldconfig
+%post libs -p /usr/sbin/ldconfig
+%postun libs -p /usr/sbin/ldconfig
 
-%post qt3 -p /sbin/ldconfig
-%postun qt3 -p /sbin/ldconfig
+%post qt3 -p /usr/sbin/ldconfig
+%postun qt3 -p /usr/sbin/ldconfig
 
-%post qt4 -p /sbin/ldconfig
-%postun qt4 -p /sbin/ldconfig
+%post qt4 -p /usr/sbin/ldconfig
+%postun qt4 -p /usr/sbin/ldconfig
 
-%post ui -p /sbin/ldconfig
-%postun ui -p /sbin/ldconfig
+%post ui -p /usr/sbin/ldconfig
+%postun ui -p /usr/sbin/ldconfig
 
-%post ui-gtk3 -p /sbin/ldconfig
-%postun ui-gtk3 -p /sbin/ldconfig
+%post ui-gtk3 -p /usr/sbin/ldconfig
+%postun ui-gtk3 -p /usr/sbin/ldconfig
 
-%post gobject -p /sbin/ldconfig
-%postun gobject -p /sbin/ldconfig
+%post gobject -p /usr/sbin/ldconfig
+%postun gobject -p /usr/sbin/ldconfig
 
 %files -f %{name}.lang
 %defattr(0644,root,root,0755)
@@ -658,6 +658,9 @@ fi
 %endif
 
 %changelog
+* Fri Apr 13 2012 Liu Di <liudidi@gmail.com> - 0.6.30-8
+- 为 Magic 3.0 重建
+
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.6.30-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
