@@ -1,7 +1,7 @@
 Summary: A library for editing typed command lines
 Name: compat-readline5
 Version: 5.2
-Release: 19%{?dist}
+Release: 20%{?dist}
 License: GPLv2+
 Group: System Environment/Libraries
 URL: http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
@@ -84,11 +84,10 @@ rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
 mkdir -p $RPM_BUILD_ROOT{/%{_lib},%{_libdir}/readline5}
-mv $RPM_BUILD_ROOT%{_libdir}/libreadline.so.* $RPM_BUILD_ROOT/%{_lib}
 mv $RPM_BUILD_ROOT%{_libdir}/lib*.a $RPM_BUILD_ROOT%{_libdir}/readline5
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/lib*.so
-ln -sf ../../../%{_lib}/libreadline.so.5 $RPM_BUILD_ROOT%{_libdir}/readline5/libreadline.so
+ln -sf ../libreadline.so.5 $RPM_BUILD_ROOT%{_libdir}/readline5/libreadline.so
 ln -sf ../libhistory.so.5 $RPM_BUILD_ROOT%{_libdir}/readline5/libhistory.so
 
 mkdir $RPM_BUILD_ROOT%{_includedir}/readline5
@@ -96,6 +95,8 @@ mv $RPM_BUILD_ROOT%{_includedir}/readline{,5}
 
 rm -rf $RPM_BUILD_ROOT%{_infodir}
 rm -rf $RPM_BUILD_ROOT%{_mandir}
+
+magic_rpm_clean.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -107,7 +108,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %doc CHANGES COPYING NEWS README USAGE
-/%{_lib}/libreadline*.so.*
+%{_libdir}/libreadline*.so.*
 %{_libdir}/libhistory*.so.*
 
 %files devel
@@ -121,3 +122,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/readline5/lib*.a
 
 %changelog
+* Sun Apr 15 2012 Liu Di <liudidi@gmail.com> - 5.2-20
+- 为 Magic 3.0 重建
+
