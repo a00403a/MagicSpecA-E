@@ -1,9 +1,7 @@
-%define _bindir /bin
-
 Summary: A GNU archiving program
 Name: cpio
 Version: 2.11
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPLv3+
 Group: Applications/Archiving
 URL: http://www.gnu.org/software/cpio/
@@ -72,7 +70,8 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/*.1*
 install -c -p -m 0644 %{SOURCE1} ${RPM_BUILD_ROOT}%{_mandir}/man1
 
-%find_lang %{name}
+magic_rpm_clean.sh
+%find_lang %{name} || touch %{name}.lang
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -102,6 +101,9 @@ fi
 %{_infodir}/*.info*
 
 %changelog
+* Sun Apr 15 2012 Liu Di <liudidi@gmail.com> - 2.11-6
+- 为 Magic 3.0 重建
+
 * Mon Mar 07 2011 Ondrej Vasik <ovasik@redhat.com> 2.11-4
 - fix several typos and manpage syntax(Ville Skyttä, #682470)
 
