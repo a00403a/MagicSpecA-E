@@ -7,7 +7,7 @@
 Summary: Create deltas between rpms
 Name: deltarpm
 Version: 3.6
-Release: 0.6.20110223git%{?dist}
+Release: 0.7.20110223git%{?dist}
 License: BSD
 Group: System Environment/Base
 URL: http://gitorious.org/deltarpm/deltarpm
@@ -93,6 +93,7 @@ This package contains python bindings for deltarpm.
 rm -rf %{buildroot}%{_libdir}/python3*
 %endif
 
+magic_rpm_clean.sh
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -138,6 +139,9 @@ rm -rf %{buildroot}%{_libdir}/python3*
 %endif
 
 %changelog
+* Sun Apr 15 2012 Liu Di <liudidi@gmail.com> - 3.6-0.7.20110223git
+- 为 Magic 3.0 重建
+
 * Wed Feb 23 2011 - Jonathan Dieter <jdieter@lesbg.com> - 3.6-0.6.20110223git
 - Fix makedeltaiso so it (partially) works when compression formats change
 - Fix fix for makedeltaiso so it gets checksums right
