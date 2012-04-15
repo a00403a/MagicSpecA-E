@@ -1,5 +1,3 @@
-%define _sbindir /sbin
-
 %define PREVER b44
 %define VERSION 0.4%{PREVER}
 
@@ -9,7 +7,7 @@ Summary: Programs for backing up and restoring ext2/ext3 filesystems
 Name: dump
 Epoch: 1
 Version: 0.4
-Release: 0.11.%{PREVER}%{?dist}
+Release: 0.12.%{PREVER}%{?dist}
 License: BSD
 Group: Applications/Archiving
 URL: http://dump.sourceforge.net/
@@ -109,6 +107,8 @@ pushd %{buildroot}
     ln -sf ..%{_sbindir}/rmt .%{_sysconfdir}/rmt
 popd
 
+magic_rpm_clean.sh
+
 %clean
 rm -rf %{buildroot}
 
@@ -134,6 +134,9 @@ rm -rf %{buildroot}
 %{_mandir}/man8/rmt.8*
 
 %changelog
+* Sun Apr 15 2012 Liu Di <liudidi@gmail.com> - 1:0.4-0.12.b44
+- 为 Magic 3.0 重建
+
 * Tue Jun 14 2011 Adam Tkac <atkac redhat com> 0.4-0.11.b44
 - update to 0.4b44
 - patches merged
