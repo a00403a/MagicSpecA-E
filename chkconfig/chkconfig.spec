@@ -1,13 +1,14 @@
 Summary: A system tool for maintaining the /etc/rc*.d hierarchy
 Name: chkconfig
-Version: 1.3.56
-Release: 1%{?dist}
+Version: 1.3.59
+Release: 2%{?dist}
 License: GPLv2
 Group: System Environment/Base
 Source: http://fedorahosted.org/releases/c/h/chkconfig/%{name}-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: newt-devel gettext popt-devel
 Conflicts: initscripts <= 5.30-1
+Provides: /sbin/chkconfig
 
 %description
 Chkconfig is a basic system utility.  It updates and queries runlevel
@@ -46,7 +47,12 @@ for n in 0 1 2 3 4 5 6; do
 done
 mkdir -p $RPM_BUILD_ROOT/etc/chkconfig.d
 
-%find_lang %{name}
+#mv /sbin to /usr/sbin
+mv %{buildroot}/sbin/* %{buildroot}%{_sbindir}/
+rm -rf %{buildroot}/sbin/
+
+magic_rpm_clean.sh
+%find_lang %{name} || touch %{name}.lang
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -55,7 +61,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc COPYING
 %dir /etc/alternatives
-/sbin/chkconfig
+%{_sbindir}/chkconfig
 %{_sbindir}/update-alternatives
 %{_sbindir}/alternatives
 /etc/chkconfig.d
@@ -74,6 +80,22 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/ntsysv.8*
 
 %changelog
+* Sun Apr 15 2012 Liu Di <liudidi@gmail.com> - 1.3.59-2
+- 为 Magic 3.0 重建
+
+* Wed Mar  7 2012 Bill Nottingham <notting@redhat.com> 1.3.59-1
+- translation updates
+- xinetd may be a systemd service. Make sure we can still reload it (#800490)
+
+* Fri Feb 10 2012 Bill Nottingham <notting@redhat.com> 1.3.58-1
+- fix forwarding to systemctl with systemd >= 41 (#789256)
+- assorted regression fixes from 1.3.57 (#782152, etc.)
+
+* Wed Jan 04 2012 Bill Nottingham <notting@redhat.com> 1.3.57-1
+- assorted cleanups to LSB dependency support (#693202 fixed properly, #701573)
+- fix kill values for LSB-only scripts (#696305, <jbastian@redhat.com>)
+- don't apply start deps for services that aren't starting anywhere (#750446)
+
 * Tue Oct 11 2011 Bill Nottingham <notting@redhat.com> 1.3.56-1
 - add the systemd warning when no arguments are passed (<harald@redhat.com>)
 
