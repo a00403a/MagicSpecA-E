@@ -6,7 +6,7 @@
 Summary: System daemon for tracking users, sessions and seats
 Name: ConsoleKit
 Version: 0.4.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2+
 Group: System Environment/Libraries
 URL: http://www.freedesktop.org/wiki/Software/ConsoleKit
@@ -86,7 +86,7 @@ This package contains developer documentation for ConsoleKit.
 %patch0 -p1 -b .upstart06
 
 %build
-%configure --with-pid-file=%{_localstatedir}/run/console-kit-daemon.pid --enable-pam-module --with-pam-module-dir=/%{_lib}/security --enable-docbook-docs --docdir=%{_datadir}/doc/%{name}-%{version}
+%configure --with-pid-file=%{_localstatedir}/run/console-kit-daemon.pid --enable-pam-module --with-pam-module-dir=%{_libdir}/security --enable-docbook-docs --docdir=%{_datadir}/doc/%{name}-%{version}
 
 make
 
@@ -96,8 +96,8 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
-rm -f $RPM_BUILD_ROOT/%{_lib}/security/*.a
-rm -f $RPM_BUILD_ROOT/%{_lib}/security/*.la
+rm -f $RPM_BUILD_ROOT/%{_libdir}/security/*.a
+rm -f $RPM_BUILD_ROOT/%{_libdir}/security/*.la
 
 # make sure we don't package a history log
 rm -f $RPM_BUILD_ROOT/%{_var}/log/ConsoleKit/history
@@ -108,6 +108,8 @@ cp data/ck-log-system-{start,stop,restart}.conf $RPM_BUILD_ROOT%{_sysconfdir}/in
 
 cp README AUTHORS NEWS COPYING $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
 
+magic_rpm_clean.sh
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -116,16 +118,16 @@ if [ -f /var/log/ConsoleKit/history ]; then
        chmod a+r /var/log/ConsoleKit/history
 fi
 if [ $1 -eq 1 ]; then
-        /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+        /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
-        /bin/systemctl stop console-kit-daemon.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl stop console-kit-daemon.service >/dev/null 2>&1 || :
 fi
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %files
 %defattr(-,root,root,-)
@@ -158,15 +160,15 @@ fi
 %{_bindir}/ck-launch-session
 %{_bindir}/ck-list-sessions
 %{_prefix}/lib/ConsoleKit/scripts/*
-/lib/systemd/system/console-kit-daemon.service
-/lib/systemd/system/console-kit-log-system-start.service
-/lib/systemd/system/console-kit-log-system-stop.service
-/lib/systemd/system/console-kit-log-system-restart.service
-/lib/systemd/system/basic.target.wants/console-kit-log-system-start.service
-/lib/systemd/system/halt.target.wants/console-kit-log-system-stop.service
-/lib/systemd/system/poweroff.target.wants/console-kit-log-system-stop.service
-/lib/systemd/system/reboot.target.wants/console-kit-log-system-restart.service
-/lib/systemd/system/kexec.target.wants/console-kit-log-system-restart.service
+%{_libdir}/systemd/system/console-kit-daemon.service
+%{_libdir}/systemd/system/console-kit-log-system-start.service
+%{_libdir}/systemd/system/console-kit-log-system-stop.service
+%{_libdir}/systemd/system/console-kit-log-system-restart.service
+%{_libdir}/systemd/system/basic.target.wants/console-kit-log-system-start.service
+%{_libdir}/systemd/system/halt.target.wants/console-kit-log-system-stop.service
+%{_libdir}/systemd/system/poweroff.target.wants/console-kit-log-system-stop.service
+%{_libdir}/systemd/system/reboot.target.wants/console-kit-log-system-restart.service
+%{_libdir}/systemd/system/kexec.target.wants/console-kit-log-system-restart.service
 
 %files x11
 %defattr(-,root,root,-)
@@ -175,7 +177,7 @@ fi
 %files libs
 %defattr(-,root,root,-)
 %{_libdir}/lib*.so.*
-/%{_lib}/security/*.so
+%{_libdir}/security/*.so
 %{_mandir}/man8/pam_ck_connector.8.gz
 
 %files devel
@@ -192,6 +194,9 @@ fi
 %doc %{_datadir}/doc/%{name}-%{version}/spec/*
 
 %changelog
+* Sun Apr 15 2012 Liu Di <liudidi@gmail.com> - 0.4.5-2
+- 为 Magic 3.0 重建
+
 * Tue May  3 2011 Lennart Poettering <lpoetter@redhat.com> - 0.4.5-1
 - New upstream release
 
