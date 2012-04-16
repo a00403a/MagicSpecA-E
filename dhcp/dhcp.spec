@@ -2,7 +2,7 @@
 %{!?sdt:%global sdt 1}
 
 # vendor string (e.g., Fedora, EL)
-%global vvendor Fedora
+%global vvendor Magic
 
 #http://lists.fedoraproject.org/pipermail/devel/2011-August/155358.html
 %global _hardened_build 1
@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  5%{?dist}
+Release:  7%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -397,9 +397,9 @@ CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
 %{__rm} -f %{buildroot}%{_sysconfdir}/dhcpd.conf
 
 # Install correct dhclient-script
-%{__mkdir} -p %{buildroot}/sbin
-%{__mv} %{buildroot}%{_sbindir}/dhclient %{buildroot}/sbin/dhclient
-%{__install} -p -m 0755 client/scripts/linux %{buildroot}/sbin/dhclient-script
+#%{__mkdir} -p %{buildroot}/sbin
+#%{__mv} %{buildroot}%{_sbindir}/dhclient %{buildroot}/sbin/dhclient
+%{__install} -p -m 0755 client/scripts/linux %{buildroot}%{_sbindir}/dhclient-script
 
 # Install legacy SysV initscripts
 %{__mkdir} -p %{buildroot}%{_initddir}
@@ -485,6 +485,8 @@ EOF
 # Don't package libtool *.la files
 find ${RPM_BUILD_ROOT}/%{_libdir} -name '*.la' -exec '/bin/rm' '-f' '{}' ';';
 
+magic_rpm_clean.sh
+
 %pre
 # /usr/share/doc/setup/uidgid
 %global gid_uid 177
@@ -520,7 +522,7 @@ fi
 
 # Initial installation 
 if [ $1 -eq 1 ] ; then 
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+    /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
 # Update
@@ -530,7 +532,7 @@ fi
 
 
 %post -n dhclient
-/bin/ls -1 %{_sysconfdir}/dhclient* >/dev/null 2>&1
+/usr/bin/ls -1 %{_sysconfdir}/dhclient* >/dev/null 2>&1
 if [ $? = 0 ]; then
     /bin/ls -1 %{_sysconfdir}/dhclient* | \
     /bin/grep -v "\.rpmsave$" 2>/dev/null | \
@@ -549,22 +551,22 @@ fi || :
 %preun
 # Package removal, not upgrade
 if [ $1 -eq 0 ] ; then
-    /bin/systemctl --no-reload disable dhcpd.service > /dev/null 2>&1 || :
-    /bin/systemctl --no-reload disable dhcpd6.service > /dev/null 2>&1 || :
-    /bin/systemctl --no-reload disable dhcrelay.service > /dev/null 2>&1 || :
-    /bin/systemctl stop dhcpd.service > /dev/null 2>&1 || :
-    /bin/systemctl stop dhcpd6.service > /dev/null 2>&1 || :
-    /bin/systemctl stop dhcrelay.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl --no-reload disable dhcpd.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl --no-reload disable dhcpd6.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl --no-reload disable dhcrelay.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl stop dhcpd.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl stop dhcpd6.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl stop dhcrelay.service > /dev/null 2>&1 || :
 fi
 
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 # Package upgrade, not uninstall
 if [ $1 -ge 1 ]; then
-    /bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
-    /bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
-    /bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
 fi
 
 
@@ -582,18 +584,18 @@ fi
 /usr/bin/systemd-sysv-convert --save dhcpd6 >/dev/null 2>&1 ||:
 /usr/bin/systemd-sysv-convert --save dhcrelay >/dev/null 2>&1 ||:
 # Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del dhcpd >/dev/null 2>&1 || :
-/sbin/chkconfig --del dhcpd6 >/dev/null 2>&1 || :
-/sbin/chkconfig --del dhcrelay >/dev/null 2>&1 || :
-/bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
-/bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
-/bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del dhcpd >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del dhcpd6 >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del dhcrelay >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
 
 %triggerpostun -n dhcp-sysvinit -- dhcp < 12:4.2.0-21.P1
 # https://fedoraproject.org/wiki/Packaging:SysVInitScript#Initscripts_in_addition_to_systemd_unit_files
-/sbin/chkconfig --add dhcpd >/dev/null 2>&1 || :
-/sbin/chkconfig --add dhcpd6 >/dev/null 2>&1 || :
-/sbin/chkconfig --add dhcrelay >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --add dhcpd >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --add dhcpd6 >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --add dhcrelay >/dev/null 2>&1 || :
 
 %files
 %doc dhcpd.conf.sample dhcpd6.conf.sample
@@ -634,8 +636,8 @@ fi
 %dir %{_sysconfdir}/NetworkManager
 %dir %{_sysconfdir}/NetworkManager/dispatcher.d
 %{_sysconfdir}/NetworkManager/dispatcher.d/11-dhclient
-/sbin/dhclient
-/sbin/dhclient-script
+%{_sbindir}/dhclient
+%{_sbindir}/dhclient-script
 %attr(0755,root,root) %{_libdir}/pm-utils/sleep.d/56dhclient
 %attr(0644,root,root) %{_mandir}/man5/dhclient.conf.5.gz
 %attr(0644,root,root) %{_mandir}/man5/dhclient.leases.5.gz
@@ -669,6 +671,12 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Mon Apr 16 2012 Liu Di <liudidi@gmail.com> - 12:4.2.3-7
+- 为 Magic 3.0 重建
+
+* Mon Apr 16 2012 Liu Di <liudidi@gmail.com> - 12:4.2.3-6
+- 为 Magic 3.0 重建
+
 * Fri Nov 11 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-5
 - dhclient-script: arping address in BOUND|RENEW|REBIND|REBOOT (#752116)
 
