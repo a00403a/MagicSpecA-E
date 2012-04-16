@@ -1,7 +1,7 @@
 Summary: The GNU line editor
 Name: ed
-Version: 1.5
-Release: 3%{?dist}
+Version: 1.6
+Release: 1%{?dist}
 License: GPLv3+
 Group:  Applications/Text
 Source: ftp://ftp.gnu.org/gnu/ed/%{name}-%{version}.tar.gz
@@ -9,6 +9,8 @@ URL:    http://www.gnu.org/software/ed/
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+Provides: /bin/ed, /bin/red
 
 %description
 Ed is a line-oriented text editor, used to create, display, and modify
@@ -25,24 +27,26 @@ won't use it.
 rm -f stamp-h.in
 
 %build
-%configure --exec-prefix=/
+%configure --exec-prefix=%{_prefix}
 make %{?_smp_mflags} CFLAGS="$RPM_OPT_FLAGS" 
 
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 make install DESTDIR=$RPM_BUILD_ROOT \
-    bindir=/bin mandir=%{_mandir}
+    bindir=%{_bindir} mandir=%{_mandir}
 
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir*
 gzip -9qnf  $RPM_BUILD_ROOT%{_infodir}/*
 
+magic_rpm_clean.sh
+
 %post
-/sbin/install-info %{_infodir}/ed.info.gz %{_infodir}/dir --entry="* ed: (ed).                  The GNU Line Editor." || :
+/usr/sbin/install-info %{_infodir}/ed.info.gz %{_infodir}/dir --entry="* ed: (ed).                  The GNU Line Editor." || :
 
 %preun
 if [ $1 = 0 ] ; then
-  /sbin/install-info --delete %{_infodir}/ed.info.gz %{_infodir}/dir --entry="* ed: (ed).                  The GNU Line Editor." || :
+  /usr/sbin/install-info --delete %{_infodir}/ed.info.gz %{_infodir}/dir --entry="* ed: (ed).                  The GNU Line Editor." || :
 fi
 
 %clean
@@ -51,11 +55,17 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc ChangeLog NEWS README TODO AUTHORS COPYING
-/bin/*
+%{_bindir}/*
 %{_infodir}/ed.info.gz
 %{_mandir}/*/*
 
 %changelog
+* Thu Mar 15 2012 Karsten Hopp <karsten@redhat.com> 1.6-1
+- ed-1.6
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
