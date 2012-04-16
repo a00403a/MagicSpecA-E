@@ -19,7 +19,7 @@
 Summary: Common Unix Printing System
 Name: cups
 Version: 1.5.2
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: GPLv2
 Group: System Environment/Daemons
 Source: http://ftp.easysw.com/pub/cups/%{version}/cups-%{version}-source.tar.bz2
@@ -85,7 +85,7 @@ Patch100: cups-lspp.patch
 Epoch: 1
 Url: http://www.cups.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires: /sbin/chkconfig /sbin/service
+Requires: /usr/sbin/chkconfig /sbin/service
 Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 %if %use_alternatives
 Provides: /usr/bin/lpq /usr/bin/lpr /usr/bin/lp /usr/bin/cancel /usr/bin/lprm /usr/bin/lpstat
@@ -428,6 +428,8 @@ d %{_localstatedir}/run/cups 0755 root lp -
 d %{_localstatedir}/run/cups/certs 0511 lp sys -
 EOF
 
+magic_rpm_clean.sh
+
 find %{buildroot} -type f -o -type l | sed '
 s:.*\('%{_datadir}'/\)\([^/_]\+\)\(.*\.po$\):%lang(\2) \1\2\3:
 /^%lang(C)/d
@@ -446,12 +448,12 @@ php --no-php-ini \
 %post
 if [ $1 -eq 1 ] ; then
 	# Initial installation
-	/bin/systemctl enable cups.{service,socket,path} >/dev/null 2>&1 || :
+	/usr/bin/systemctl enable cups.{service,socket,path} >/dev/null 2>&1 || :
 fi
 
 # Remove old-style certs directory; new-style is /var/run
 # (see bug #194581 for why this is necessary).
-/bin/rm -rf %{_sysconfdir}/cups/certs
+/usr/bin/rm -rf %{_sysconfdir}/cups/certs
 %if %use_alternatives
 /usr/sbin/alternatives --install %{_bindir}/lpr print %{_bindir}/lpr.cups 40 \
 	 --slave %{_bindir}/lp print-lp %{_bindir}/lp.cups \
@@ -478,8 +480,8 @@ exit 0
 %preun
 if [ $1 -eq 0 ] ; then
 	# Package removal, not upgrade
-	/bin/systemctl --no-reload disable %{name}.path %{name}.socket %{name}.service >/dev/null 2>&1 || :
-	/bin/systemctl stop %{name}.path %{name}.socket %{name}.service >/dev/null 2>&1 || :
+	/usr/bin/systemctl --no-reload disable %{name}.path %{name}.socket %{name}.service >/dev/null 2>&1 || :
+	/usr/bin/systemctl stop %{name}.path %{name}.socket %{name}.service >/dev/null 2>&1 || :
 %if %use_alternatives
 	/usr/sbin/alternatives --remove print %{_bindir}/lpr.cups
 %endif
@@ -487,10 +489,10 @@ fi
 exit 0
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ]; then
 	# Package upgrade, not uninstall
-	/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
+	/usr/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
 fi
 exit 0
 
@@ -498,7 +500,7 @@ exit 0
 # This package is allowed to autostart; however, the upgrade trigger
 # in Fedora 16 final failed to actually do this.  Do it now as a
 # one-off fix for bug #748841.
-/bin/systemctl --no-reload enable %{name}.{service,socket,path} >/dev/null 2>&1 || :
+/usr/bin/systemctl --no-reload enable %{name}.{service,socket,path} >/dev/null 2>&1 || :
 
 %triggerun -- %{name} < 1:1.5-0.9
 # Save the current service runlevel info
@@ -507,11 +509,11 @@ exit 0
 %{_bindir}/systemd-sysv-convert --save %{name} >/dev/null 2>&1 || :
 
 # This package is allowed to autostart:
-/bin/systemctl --no-reload enable %{name}.{service,socket,path} >/dev/null 2>&1 || :
+/usr/bin/systemctl --no-reload enable %{name}.{service,socket,path} >/dev/null 2>&1 || :
 
 # Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del cups >/dev/null 2>&1 || :
-/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del cups >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
 
 %triggerin -- samba-client
 ln -sf ../../../bin/smbspool %{cups_serverbin}/backend/smb || :
@@ -527,10 +529,10 @@ rm -rf $RPM_BUILD_ROOT
 %files -f %{name}.lang
 %defattr(-,root,root)
 %doc README.txt CREDITS.txt CHANGES.txt
-%attr(0660,root,lp) %dev(char,6,0) /lib/udev/devices/lp0
-%attr(0660,root,lp) %dev(char,6,1) /lib/udev/devices/lp1
-%attr(0660,root,lp) %dev(char,6,2) /lib/udev/devices/lp2
-%attr(0660,root,lp) %dev(char,6,3) /lib/udev/devices/lp3
+%attr(0660,root,lp) %dev(char,6,0) %{_libdir}/udev/devices/lp0
+%attr(0660,root,lp) %dev(char,6,1) %{_libdir}/udev/devices/lp1
+%attr(0660,root,lp) %dev(char,6,2) %{_libdir}/udev/devices/lp2
+%attr(0660,root,lp) %dev(char,6,3) %{_libdir}/udev/devices/lp3
 %dir %attr(0755,root,lp) %{_sysconfdir}/cups
 %dir %attr(0755,root,lp) /var/run/cups
 %dir %attr(0511,lp,sys) /var/run/cups/certs
@@ -664,6 +666,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/ipptool.1.gz
 
 %changelog
+* Mon Apr 16 2012 Liu Di <liudidi@gmail.com> - 1:1.5.2-8
+- 为 Magic 3.0 重建
+
 * Tue Apr 10 2012 Liu Di <liudidi@gmail.com> - 1:1.5.2-7
 - 为 Magic 3.0 重建
 
