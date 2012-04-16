@@ -12,7 +12,7 @@ Summary: D-BUS message bus
 Name: dbus
 Epoch: 1
 Version: 1.4.10
-Release: 3%{?dist}
+Release: 6%{?dist}
 URL: http://www.freedesktop.org/software/dbus/
 #VCS: git:git://git.freedesktop.org/git/dbus/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
@@ -42,6 +42,8 @@ Requires: libselinux >= %{libselinux_version}
 %endif
 Requires: dbus-libs = %{epoch}:%{version}-%{release}
 Requires(pre): /usr/sbin/useradd
+
+Provides: /bin/dbus-send
 
 # Conflict with cups prior to configuration file change, so that the
 # %postun service condrestart works.
@@ -97,7 +99,7 @@ in this separate package so server systems need not install X.
 
 # For some reason upstream ships these files as executable
 # Make sure they are not
-/bin/chmod 0644 COPYING ChangeLog NEWS
+/usr/bin/chmod 0644 COPYING ChangeLog NEWS
 
 %patch0 -p1 -b .bindir
 
@@ -107,12 +109,12 @@ autoreconf -f -i
 %if %{WITH_SELINUX}
 COMMON_ARGS="--enable-libaudit --enable-selinux=yes --with-init-scripts=redhat --with-system-pid-file=%{_localstatedir}/run/messagebus.pid --with-dbus-user=dbus --libdir=/%{_lib} --bindir=/bin --sysconfdir=/etc --exec-prefix=/ --libexecdir=/%{_lib}/dbus-1"
 %else
-COMMON_ARGS="--disable-libaudit --enable-selinux=no --with-init-scripts=redhat --with-system-pid-file=%{_localstatedir}/run/messagebus.pid --with-dbus-user=dbus --libdir=/%{_lib} --bindir=/bin --sysconfdir=/etc --exec-prefix=/ --libexecdir=/%{_lib}/dbus-1"
+COMMON_ARGS="--disable-libaudit --enable-selinux=no --with-init-scripts=redhat --with-system-pid-file=%{_localstatedir}/run/messagebus.pid --with-dbus-user=dbus --libdir=%{_libdir} --bindir=%{_bindir} --sysconfdir=/etc --exec-prefix=%{_prefix} --libexecdir=%{_libdir}/dbus-1"
 %endif
 
 # leave verbose mode so people can debug their apps but make sure toaaiia
 # turn it off on stable releases with --disable-verbose-mode
-%configure $COMMON_ARGS --disable-tests --disable-asserts --enable-doxygen-docs --enable-xml-docs --with-systemdsystemunitdir=/lib/systemd/system/
+%configure $COMMON_ARGS --disable-tests --disable-asserts --enable-doxygen-docs --enable-xml-docs --with-systemdsystemunitdir=%{_libdir}/systemd/system/
 make
 
 %install
@@ -120,20 +122,22 @@ rm -rf %{buildroot}
 
 make install DESTDIR=%{buildroot}
 
-mkdir -p %{buildroot}/%{_libdir}/pkgconfig
+mkdir -p %{buildroot}%{_localstatedir}/lib/dbus
+
+#mkdir -p %{buildroot}/%{_libdir}/pkgconfig
 
 #change the arch-deps.h include directory to /usr/lib[64] instead of /lib[64]
-sed -e 's@-I${libdir}@-I${prefix}/%{_lib}@' %{buildroot}/%{_lib}/pkgconfig/dbus-1.pc > %{buildroot}/%{_libdir}/pkgconfig/dbus-1.pc
-rm -f %{buildroot}/%{_lib}/pkgconfig/dbus-1.pc
+#sed -e 's@-I${libdir}@-I${prefix}/%{_lib}@' %{buildroot}/%{_lib}/pkgconfig/dbus-1.pc > %{buildroot}/%{_libdir}/pkgconfig/dbus-1.pc
+#rm -f %{buildroot}/%{_lib}/pkgconfig/dbus-1.pc
 
-mkdir -p %{buildroot}/%{_bindir}
-mv -f %{buildroot}/bin/dbus-launch %{buildroot}/%{_bindir}
-mkdir -p %{buildroot}/%{_libdir}/dbus-1.0/include/
-mv -f %{buildroot}/%{_lib}/dbus-1.0/include/* %{buildroot}/%{_libdir}/dbus-1.0/include/
-rm -rf %{buildroot}/%{_lib}/dbus-1.0
+#mkdir -p %{buildroot}/%{_bindir}
+#mv -f %{buildroot}/bin/dbus-launch %{buildroot}/%{_bindir}
+#mkdir -p %{buildroot}/%{_libdir}/dbus-1.0/include/
+#mv -f %{buildroot}/%{_lib}/dbus-1.0/include/* %{buildroot}/%{_libdir}/dbus-1.0/include/
+#rm -rf %{buildroot}/%{_lib}/dbus-1.0
 
-rm -f %{buildroot}/%{_lib}/*.a
-rm -f %{buildroot}/%{_lib}/*.la
+rm -f %{buildroot}%{_libdir}/*.a
+rm -f %{buildroot}%{_libdir}/*.la
 
 install -D -m755 %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
 
@@ -142,7 +146,9 @@ mkdir -p %{buildroot}%{_datadir}/dbus-1/interfaces
 # Make sure that when somebody asks for D-Bus under the name of the
 # old SysV script, that he ends up with the standard dbus.service name
 # now.
-ln -s dbus.service %{buildroot}/lib/systemd/system/messagebus.service
+ln -s dbus.service %{buildroot}%{_libdir}/systemd/system/messagebus.service
+
+magic_rpm_clean.sh
 
 ## %find_lang %{gettext_package}
 # Delete the old legacy sysv init script
@@ -162,17 +168,17 @@ rm -rf %{buildroot}
 
 %preun
 if [ $1 = 0 ]; then
-  /bin/systemctl stop dbus.service dbus.socket > /dev/null 2>&1 || :
+  /usr/bin/systemctl stop dbus.service dbus.socket > /dev/null 2>&1 || :
 fi
 
 %postun libs -p /sbin/ldconfig
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %triggerun -- dbus < 1.4.10-2
 %{_bindir}/systemd-sysv-convert --save messagebus >/dev/null 2>&1 ||:
-/sbin/chkconfig --del messagebus >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del messagebus >/dev/null 2>&1 || :
 
 %files
 %defattr(-,root,root)
@@ -185,11 +191,11 @@ fi
 %dir %{_sysconfdir}/dbus-1/session.d
 %ghost %dir %{_localstatedir}/run/dbus
 %dir %{_localstatedir}/lib/dbus/
-/bin/dbus-daemon
-/bin/dbus-send
-/bin/dbus-cleanup-sockets
-/bin/dbus-monitor
-/bin/dbus-uuidgen
+%{_bindir}/dbus-daemon
+%{_bindir}/dbus-send
+%{_bindir}/dbus-cleanup-sockets
+%{_bindir}/dbus-monitor
+%{_bindir}/dbus-uuidgen
 %{_mandir}/man*/dbus-cleanup-sockets.1.gz
 %{_mandir}/man*/dbus-daemon.1.gz
 %{_mandir}/man*/dbus-monitor.1.gz
@@ -199,20 +205,20 @@ fi
 %{_datadir}/dbus-1/services
 %{_datadir}/dbus-1/system-services
 %{_datadir}/dbus-1/interfaces
-%dir /%{_lib}/dbus-1
+%dir %{_libdir}/dbus-1
 # See doc/system-activation.txt in source tarball for the rationale
 # behind these permissions
-%attr(4750,root,dbus) /%{_lib}/dbus-1/dbus-daemon-launch-helper
-/lib/systemd/system/dbus.service
-/lib/systemd/system/dbus.socket
-/lib/systemd/system/dbus.target.wants/dbus.socket
-/lib/systemd/system/messagebus.service
-/lib/systemd/system/multi-user.target.wants/dbus.service
-/lib/systemd/system/sockets.target.wants/dbus.socket
+%attr(4750,root,dbus) %{_libdir}/dbus-1/dbus-daemon-launch-helper
+%{_libdir}/systemd/system/dbus.service
+%{_libdir}/systemd/system/dbus.socket
+%{_libdir}/systemd/system/dbus.target.wants/dbus.socket
+%{_libdir}/systemd/system/messagebus.service
+%{_libdir}/systemd/system/multi-user.target.wants/dbus.service
+%{_libdir}/systemd/system/sockets.target.wants/dbus.socket
 
 %files libs
 %defattr(-,root,root,-)
-/%{_lib}/*dbus-1*.so.*
+%{_libdir}/*dbus-1*.so.*
 
 %files x11
 %defattr(-,root,root)
@@ -229,13 +235,22 @@ fi
 %files devel
 %defattr(-,root,root)
 
-/%{_lib}/lib*.so
+%{_libdir}/lib*.so
 %dir %{_libdir}/dbus-1.0
 %{_libdir}/dbus-1.0/include/
 %{_libdir}/pkgconfig/dbus-1.pc
 %{_includedir}/*
 
 %changelog
+* Mon Apr 16 2012 Liu Di <liudidi@gmail.com> - 1:1.4.10-6
+- 为 Magic 3.0 重建
+
+* Mon Apr 16 2012 Liu Di <liudidi@gmail.com> - 1:1.4.10-5
+- 为 Magic 3.0 重建
+
+* Mon Apr 16 2012 Liu Di <liudidi@gmail.com>
+- 为 Magic 3.0 重建
+
 * Mon Aug 22 2011 Lennart Poettering <lpoetter@redhat.com> - 1:1.4.10-3
 - Don't restart D-Bus on upgrades, dont' enable D-Bus, since it is statically enabled.
 - https://bugzilla.redhat.com/show_bug.cgi?id=732426
