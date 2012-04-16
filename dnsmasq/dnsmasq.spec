@@ -11,7 +11,7 @@
 
 Name:           dnsmasq
 Version:        2.59
-Release:        2%{?extraversion}%{?dist}
+Release:        5%{?extraversion}%{?dist}
 Summary:        A lightweight DHCP/caching DNS server
 
 Group:          System Environment/Daemons
@@ -25,20 +25,28 @@ BuildRequires:  dbus-devel
 BuildRequires:  pkgconfig
 
 BuildRequires:  systemd-units
-Requires(post): systemd-units systemd-sysv chkconfig 
+Requires(post): systemd-units systemd-sysv chkconfig
 Requires(preun): systemd-units
-Requires(postun): systemd-units 
+Requires(postun): systemd-units
 
 
 %description
-Dnsmasq is lightweight, easy to configure DNS forwarder and DHCP server. 
-It is designed to provide DNS and, optionally, DHCP, to a small network. 
-It can serve the names of local machines which are not in the global 
-DNS. The DHCP server integrates with the DNS server and allows machines 
-with DHCP-allocated addresses to appear in the DNS with names configured 
-either in each host or in a central configuration file. Dnsmasq supports 
-static and dynamic DHCP leases and BOOTP for network booting of diskless 
+Dnsmasq is lightweight, easy to configure DNS forwarder and DHCP server.
+It is designed to provide DNS and, optionally, DHCP, to a small network.
+It can serve the names of local machines which are not in the global
+DNS. The DHCP server integrates with the DNS server and allows machines
+with DHCP-allocated addresses to appear in the DNS with names configured
+either in each host or in a central configuration file. Dnsmasq supports
+static and dynamic DHCP leases and BOOTP for network booting of diskless
 machines.
+
+%package        utils
+Summary:        Utilities for manipulating DHCP server leases
+Group:          System Environment/Daemons
+
+%description    utils
+Utilities that use the standard DHCP protocol to
+query/remove a DHCP server's leases.
 
 
 %prep
@@ -57,7 +65,10 @@ sed -i 's|#conf-dir=/etc/dnsmasq.d|conf-dir=/etc/dnsmasq.d|g' dnsmasq.conf.examp
 
 
 %build
+# Note the main Makefile handles RPM_OPT_FLAGS internally,
+# while we need to explicitly set it for the contrib Makefile
 make %{?_smp_mflags}
+CFLAGS="$RPM_OPT_FLAGS" make -C contrib/wrt %{?_smp_mflags}
 
 
 %install
@@ -73,36 +84,46 @@ install dnsmasq.conf.example $RPM_BUILD_ROOT%{_sysconfdir}/dnsmasq.conf
 install dbus/dnsmasq.conf $RPM_BUILD_ROOT%{_sysconfdir}/dbus-1/system.d/
 install -m 644 man/dnsmasq.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 
-# Systemd 
+# utils sub package
+mkdir -p $RPM_BUILD_ROOT%{_bindir} \
+         $RPM_BUILD_ROOT%{_mandir}/man1
+install -m 755 contrib/wrt/dhcp_release $RPM_BUILD_ROOT%{_bindir}/dhcp_release
+install -m 644 contrib/wrt/dhcp_release.1 $RPM_BUILD_ROOT%{_mandir}/man1/dhcp_release.1
+install -m 755 contrib/wrt/dhcp_lease_time $RPM_BUILD_ROOT%{_bindir}/dhcp_lease_time
+install -m 644 contrib/wrt/dhcp_lease_time.1 $RPM_BUILD_ROOT%{_mandir}/man1/dhcp_lease_time.1
+
+# Systemd
 mkdir -p %{buildroot}%{_unitdir}
 install -m644 %{SOURCE1} %{buildroot}%{_unitdir}
 rm -rf %{buildroot}%{_initrddir}
+
+magic_rpm_clean.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
 if [ $1 -eq 1 ] ; then
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+    /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
-  /bin/systemctl --no-reload dnsmasq.service > /dev/null 2>&1 || :
-  /bin/systemctl stop dnsmasq.service > /dev/null 2>&1 || :
+  /usr/bin/systemctl --no-reload dnsmasq.service > /dev/null 2>&1 || :
+  /usr/bin/systemctl stop dnsmasq.service > /dev/null 2>&1 || :
 fi
 
 
-%postun 
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+%postun
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
-    /bin/systemctl try-restart dnsmasq.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl try-restart dnsmasq.service >/dev/null 2>&1 || :
 fi
 
 %triggerun -- dnsmasq < 2.52-3
 %{_bindir}/systemd-sysv-convert --save dnsmasq >/dev/null 2>&1 ||:
-/sbin/chkconfig --del dnsmasq >/dev/null 2>&1 || :
-/bin/systemctl try-restart dnsmasq.service >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del dnsmasq >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart dnsmasq.service >/dev/null 2>&1 || :
 
 %files
 %defattr(-,root,root,-)
@@ -115,8 +136,20 @@ fi
 %{_sbindir}/dnsmasq
 %{_mandir}/man8/dnsmasq*
 
+%files utils
+%{_bindir}/dhcp_*
+%{_mandir}/man1/dhcp_*
 
 %changelog
+* Sat Feb 11 2012 Pádraig Brady <P@draigBrady.com> - 2.59-5
+- Compile DHCP lease management utils with RPM_OPT_FLAGS
+
+* Thu Feb  9 2012 Pádraig Brady <P@draigBrady.com> - 2.59-4
+- Include DHCP lease management utils in a subpackage
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.59-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Fri Aug 26 2011 Douglas Schilling Landgraf <dougsland@redhat.com> - 2.59-2
 - do not enable service by default
 
