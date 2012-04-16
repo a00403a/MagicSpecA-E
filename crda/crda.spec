@@ -3,7 +3,7 @@
 
 Name:           crda
 Version:        %{crda_version}_%{regdb_version}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Regulatory compliance daemon for 802.11 wireless networking
 
 Group:          System Environment/Base
@@ -25,7 +25,7 @@ Source3:        setregdomain.1
 
 # Add udev rule to call setregdomain on wireless device add
 Patch0:         regulatory-rules-setregdomain.patch
-
+Patch1:		crda-1.1.2-libnl3.patch
 
 %description
 CRDA acts as the udev helper for communication between the kernel
@@ -39,7 +39,7 @@ communication from the kernel.
 %setup -q -T -D -a 1
 
 %patch0 -p1 -b .setregdomain
-
+%patch1 -p0
 
 %build
 
@@ -61,15 +61,16 @@ rm -rf %{buildroot}
 
 cd crda-%{crda_version}
 cp README README.crda
-make install DESTDIR=%{buildroot} PREFIX='' MANDIR=%{_mandir}
+make install DESTDIR=%{buildroot} PREFIX=%{_prefix} MANDIR=%{_mandir}
 
 cd ../wireless-regdb-%{regdb_version}
 cp README README.wireless-regdb
-make install DESTDIR=%{buildroot} PREFIX='' MANDIR=%{_mandir}
+make install DESTDIR=%{buildroot} PREFIX=%{_prefix} MANDIR=%{_mandir}
 
-install -D -pm 0755 %SOURCE2 %{buildroot}/sbin
+install -D -pm 0755 %SOURCE2 %{buildroot}%{_sbindir}
 install -D -pm 0644 %SOURCE3 %{buildroot}%{_mandir}/man1/setregdomain.1
 
+magic_rpm_clean.sh
 
 %clean
 rm -rf %{buildroot}
@@ -77,12 +78,12 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-/sbin/%{name}
-/sbin/regdbdump
-/sbin/setregdomain
-/lib/udev/rules.d/85-regulatory.rules
+%{_sbindir}/%{name}
+%{_sbindir}/regdbdump
+%{_sbindir}/setregdomain
+%{_libdir}/udev/rules.d/85-regulatory.rules
 # location of database is hardcoded to /lib/%{name}
-/lib/%{name}
+%{_libdir}/%{name}
 %{_mandir}/man1/setregdomain.1*
 %{_mandir}/man5/regulatory.bin.5*
 %{_mandir}/man8/crda.8*
@@ -92,6 +93,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.2_2011.04.28-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Thu Aug 11 2011 John W. Linville <linville@redhat.com> 1.1.2_2011.04.28-1
 - Update crda to version 1.1.2
 - Update wireless-regdb to version 2011.04.28 
