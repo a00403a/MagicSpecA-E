@@ -1,11 +1,7 @@
-%define	_root_sbindir	/sbin
-%define	_root_libdir	/%{_lib}
-%define WITH_SELINUX 0
-
 Summary: Utilities for managing ext2, ext3, and ext4 filesystems
 Name: e2fsprogs
-Version: 1.41.14
-Release: 3%{?dist}
+Version: 1.42.2
+Release: 4%{?dist}
 
 # License tags based on COPYING file distinctions for various components
 License: GPLv2
@@ -14,7 +10,7 @@ Source0: http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
 Source1: ext2_types-wrapper.h
 
 Patch1: e2fsprogs-1.40.4-sb_feature_check_ignore.patch
-Patch2: e2fsprogs-1.41.12-e4defrag.patch
+Patch2: e2fsprogs-1.42.2-32-bit-ffz-fix.patch
 
 Url: http://e2fsprogs.sourceforge.net/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -27,11 +23,9 @@ Provides: e4fsprogs = %{version}-%{release}
 %endif
 
 BuildRequires: pkgconfig, texinfo
-%if %{WITH_SELINUX}
-BuildRequires: libsepol-devel, libselinux-devel
-%endif
 BuildRequires: libblkid-devel
 BuildRequires: libuuid-devel
+BuildRequires: gettext
 
 %description
 The e2fsprogs package contains a number of utilities for creating,
@@ -151,19 +145,21 @@ It was originally inspired by the Multics SubSystem library.
 # mildly unsafe but 'til I get something better, avoid full fsck
 # after an selinux install...
 %patch1 -p1 -b .featurecheck
-# Enable e4defrag for testing
-%patch2 -p1 -b .e4defrag
+
+# Handle 32-bit bitmaps in new find_first_zero functions (upstream patch)
+%patch2 -p1
 
 %build
 %configure --enable-elf-shlibs --enable-nls --disable-uuidd --disable-fsck \
-	   --disable-e2initrd-helper --disable-libblkid --disable-libuuid
+	   --disable-e2initrd-helper --disable-libblkid --disable-libuuid \
+	   --with-root-prefix=/usr
 make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
 export PATH=/sbin:$PATH
 make install install-libs DESTDIR=%{buildroot} INSTALL="%{__install} -p" \
-	root_sbindir=%{_root_sbindir} root_libdir=%{_root_libdir}
+	root_sbindir=%{_sbindir} root_libdir=%{_libdir}
 
 # ugly hack to allow parallel install of 32-bit and 64-bit -devel packages:
 %define multilib_arches %{ix86} x86_64 ppc ppc64 s390 s390x sparcv9 sparc64
@@ -177,10 +173,14 @@ install -p -m 644 %{SOURCE1} %{buildroot}%{_includedir}/ext2fs/ext2_types.h
 # Hack for now, otherwise strip fails.
 chmod +w %{buildroot}%{_libdir}/*.a
 
-%find_lang %{name}
+magic_rpm_clean.sh
 
+%find_lang %{name} || touch %{name}.lang
+
+%if 0%{?with_check}
 %check
 make check
+%endif
 
 %clean
 rm -rf %{buildroot}
@@ -211,25 +211,25 @@ exit 0
 %doc COPYING README RELEASE-NOTES
 
 %config(noreplace) /etc/mke2fs.conf
-%{_root_sbindir}/badblocks
-%{_root_sbindir}/debugfs
-%{_root_sbindir}/dumpe2fs
-%{_root_sbindir}/e2fsck
-%{_root_sbindir}/e2image
-%{_root_sbindir}/e2label
-%{_root_sbindir}/e2undo
-%{_root_sbindir}/fsck.ext2
-%{_root_sbindir}/fsck.ext3
-%{_root_sbindir}/fsck.ext4
-%{_root_sbindir}/fsck.ext4dev
-%{_root_sbindir}/logsave
-%{_root_sbindir}/mke2fs
-%{_root_sbindir}/mkfs.ext2
-%{_root_sbindir}/mkfs.ext3
-%{_root_sbindir}/mkfs.ext4
-%{_root_sbindir}/mkfs.ext4dev
-%{_root_sbindir}/resize2fs
-%{_root_sbindir}/tune2fs
+%{_sbindir}/badblocks
+%{_sbindir}/debugfs
+%{_sbindir}/dumpe2fs
+%{_sbindir}/e2fsck
+%{_sbindir}/e2image
+%{_sbindir}/e2label
+%{_sbindir}/e2undo
+%{_sbindir}/fsck.ext2
+%{_sbindir}/fsck.ext3
+%{_sbindir}/fsck.ext4
+%{_sbindir}/fsck.ext4dev
+%{_sbindir}/logsave
+%{_sbindir}/mke2fs
+%{_sbindir}/mkfs.ext2
+%{_sbindir}/mkfs.ext3
+%{_sbindir}/mkfs.ext4
+%{_sbindir}/mkfs.ext4dev
+%{_sbindir}/resize2fs
+%{_sbindir}/tune2fs
 %{_sbindir}/filefrag
 %{_sbindir}/e2freefrag
 %{_sbindir}/e4defrag
@@ -270,8 +270,8 @@ exit 0
 %files libs
 %defattr(-,root,root)
 %doc COPYING
-%{_root_libdir}/libe2p.so.*
-%{_root_libdir}/libext2fs.so.*
+%{_libdir}/libe2p.so.*
+%{_libdir}/libext2fs.so.*
 
 %files static
 %defattr(-,root,root)
@@ -285,14 +285,16 @@ exit 0
 %{_libdir}/libext2fs.so
 %{_libdir}/pkgconfig/e2p.pc
 %{_libdir}/pkgconfig/ext2fs.pc
+%{_libdir}/pkgconfig/quota.pc
 
 %{_includedir}/e2p
 %{_includedir}/ext2fs
+%{_includedir}/quota
 
 %files -n libcom_err
 %defattr(-,root,root)
 %doc COPYING
-%{_root_libdir}/libcom_err.so.*
+%{_libdir}/libcom_err.so.*
 
 %files -n libcom_err-devel
 %defattr(-,root,root)
@@ -300,6 +302,7 @@ exit 0
 %{_libdir}/libcom_err.so
 %{_datadir}/et
 %{_includedir}/et
+%{_includedir}/com_err.h
 %{_mandir}/man1/compile_et.1*
 %{_mandir}/man3/com_err.3*
 %{_libdir}/pkgconfig/com_err.pc
@@ -307,7 +310,7 @@ exit 0
 %files -n libss
 %defattr(-,root,root)
 %doc COPYING
-%{_root_libdir}/libss.so.*
+%{_libdir}/libss.so.*
 
 %files -n libss-devel
 %defattr(-,root,root)
@@ -319,6 +322,54 @@ exit 0
 %{_libdir}/pkgconfig/ss.pc
 
 %changelog
+* Mon Apr 09 2012 Eric Sandeen <sandeen@@redhat.com> 1.42.2-4
+- Handle 32-bit bitmaps in new find_first_zero functions
+
+* Fri Mar 30 2012 Richard W.M. Jones <rjones@redhat.com> 1.42.2-3
+- Rebuild against new RPM (RHBZ#808250).
+
+* Wed Mar 28 2012 Eric Sandeen <sandeen@redhat.com> 1.42.2-2
+- Move files out of /sbin and /lib into /usr/...
+
+* Tue Mar 27 2012 Eric Sandeen <sandeen@redhat.com> 1.42.2-1
+- New upstream release
+
+* Mon Feb 20 2012 Eric Sandeen <sandeen@redhat.com> 1.42.1-1
+- New upstream release
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.42-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Nov 29 2011 Eric Sandeen <sandeen@redhat.com> 1.42-1
+- New upstream point release
+
+* Mon Nov 21 2011 Eric Sandeen <sandeen@redhat.com> 1.42-0.9.WIP.1120
+- Build the right tarball for 1.42-WIP-1120
+
+* Mon Nov 21 2011 Eric Sandeen <sandeen@redhat.com> 1.42-0.8.WIP.1120
+- New upstream snapshot release
+
+* Thu Nov 10 2011 Eric Sandeen <sandeen@redhat.com> 1.42-0.7.WIP.1016
+- Several mmp-related fixes
+
+* Tue Nov 08 2011 Eric Sandeen <sandeen@redhat.com> 1.42-0.6.WIP.1016
+- Fix e2fsck / make check on big endian arch
+
+* Mon Oct 17 2011 Eric Sandeen <sandeen@redhat.com> 1.42-0.5.WIP.1016
+- New upstream snapshot release
+
+* Mon Oct 10 2011 Eric Sandeen <sandeen@redhat.com> 1.42-0.4.WIP.2011.1009
+- New upstream snapshot release
+
+* Mon Sep 26 2011 Eric Sandeen <sandeen@redhat.com> 1.42-0.3.WIP.0925
+- New upstream snapshot release
+
+* Tue Aug 09 2011 Eric Sandeen <sandeen@redhat.com> 1.42-0.2.WIP.0702
+- Fix use of uninitialized memory via ext2fs_copy_generic_bmap()
+
+* Tue Aug 09 2011 Eric Sandeen <sandeen@redhat.com> 1.42-0.1.WIP.0702
+- Test release for >16T support 
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.41.14-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
