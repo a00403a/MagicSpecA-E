@@ -1,12 +1,9 @@
 Summary: An XML parser library
 Name: expat
-Version: 2.0.1
-Release: 12%{?dist}
+Version: 2.1.0
+Release: 3%{?dist}
 Group: System Environment/Libraries
 Source: http://downloads.sourceforge.net/expat/expat-%{version}.tar.gz
-Patch1: expat-2.0.1-confcxx.patch
-Patch2: expat-2.0.1-CVE-2009-3560-revised.patch
-Patch3: expat-1.95.8-CVE-2009-3720.patch
 URL: http://www.libexpat.org/
 License: MIT
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -29,18 +26,23 @@ Requires: expat = %{version}-%{release}
 The expat-devel package contains the libraries, include files and documentation
 to develop XML applications with expat.
 
+%package static
+Summary: expat XML parser static library
+Group: Development/Libraries
+Requires: expat-devel%{?_isa} = %{version}-%{release}
+
+%description static
+The expat-static package contains the static version of the expat library.
+Install it if you need to link statically with expat.
+
 %prep
 %setup -q
-%patch1 -p1 -b .confcxx
-%patch2 -p1 -b .newcve3560
-%patch3 -p1 -b .cve3720
 
 %build
 rm -rf autom4te*.cache
-rm conftools/libtool.m4
 libtoolize --copy --force --automake && aclocal && autoheader && autoconf
 export CFLAGS="$RPM_OPT_FLAGS -fPIC"
-%configure --libdir=/%{_lib} --disable-static
+%configure
 make %{?_smp_mflags}
 
 %install
@@ -51,16 +53,14 @@ chmod 644 README COPYING Changes doc/* examples/*
 
 make install DESTDIR=$RPM_BUILD_ROOT
 
-mkdir -p $RPM_BUILD_ROOT%{_libdir}
-mv $RPM_BUILD_ROOT/%{_lib}/libexpat.so $RPM_BUILD_ROOT%{_libdir}
+rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
-rm -f $RPM_BUILD_ROOT/%{_lib}/libexpat.la
+magic_rpm_clean.sh
 
-lib=`echo $RPM_BUILD_ROOT/%{_lib}/libexpat.so.*.*`
-ln -sf ../../%{_lib}/`basename ${lib}` $RPM_BUILD_ROOT%{_libdir}/libexpat.so
-
+%if 0%{?with_check}
 %check
 make check
+%endif
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -72,18 +72,32 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(-,root,root)
 %doc README COPYING
 %{_bindir}/*
-/%{_lib}/lib*.so.*
+%{_libdir}/lib*.so.*
 %{_mandir}/*/*
 
 %files devel
 %defattr(-,root,root)
 %doc Changes doc examples
 %{_libdir}/lib*.so
+%{_libdir}/pkgconfig/*.pc
 %{_includedir}/*.h
 
+%files static
+%defattr(-,root,root)
+%{_libdir}/lib*.a
+
 %changelog
-* Sun Nov 20 2011 Liu Di <liudidi@gmail.com> - 2.0.1-12
-- 为 Magic 3.0 重建
+* Fri Apr 13 2012 Joe Orton <jorton@redhat.com> - 2.1.0-3
+- add -static subpackage (#722647)
+
+* Fri Mar 30 2012 Joe Orton <jorton@redhat.com> - 2.1.0-1
+- ship .pc file, move library back to libdir (#808399)
+
+* Mon Mar 26 2012 Joe Orton <jorton@redhat.com> - 2.1.0-1
+- update to 2.1.0 (#806602)
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0.1-12
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0.1-11
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
