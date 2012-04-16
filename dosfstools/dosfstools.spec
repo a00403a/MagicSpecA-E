@@ -1,7 +1,7 @@
 Name: dosfstools
 Summary: Utilities for making and checking MS-DOS FAT filesystems on Linux
 Version: 3.0.12
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv3+
 Group: Applications/System
 Source0: http://www.daniel-baumann.ch/software/dosfstools/%{name}-%{version}.tar.bz2
@@ -30,7 +30,9 @@ make %{?_smp_mflags} CFLAGS="$RPM_OPT_FLAGS -D_LARGEFILE_SOURCE -D_FILE_OFFSET_B
 
 %install
 rm -rf %{buildroot}
-make DESTDIR=%{buildroot} install-bin install-man PREFIX=%{_prefix} SBINDIR=/sbin
+make DESTDIR=%{buildroot} install-bin install-man PREFIX=%{_prefix} SBINDIR=%{_sbindir}
+
+magic_rpm_clean.sh
 
 %clean
 rm -rf %{buildroot}
@@ -38,10 +40,13 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc ChangeLog COPYING doc/*-2.x
-/sbin/*
+%{_sbindir}/*
 %{_mandir}/man8/*
 
 %changelog
+* Mon Apr 16 2012 Liu Di <liudidi@gmail.com> - 3.0.12-2
+- 为 Magic 3.0 重建
+
 * Sat Oct 29 2011 Jaroslav Škarvada <jskarvad@redhat.com> - 3.0.12-1
 - New version, all patches were rebased
   Resolves: rhbz#749969
