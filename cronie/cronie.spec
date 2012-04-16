@@ -6,7 +6,7 @@
 Summary:   Cron daemon for executing programs at set times
 Name:      cronie
 Version:   1.4.8
-Release:   9%{?dist}
+Release:   10%{?dist}
 License:   MIT and BSD and ISC and GPLv2
 Group:     System Environment/Base
 URL:       https://fedorahosted.org/cronie
@@ -80,7 +80,7 @@ extra features.
 Summary:   SysV init script for cronie
 Group:     System Environment/Base
 Requires:  %{name} = %{version}-%{release}
-Requires(post):  /sbin/chkconfig 
+Requires(post):  /usr/sbin/chkconfig 
 
 %description sysvinit
 SysV style init script for cronie. It needs to be installed only if systemd
@@ -133,18 +133,20 @@ touch $RPM_BUILD_ROOT/var/spool/anacron/cron.monthly
 install -m 644 contrib/dailyjobs $RPM_BUILD_ROOT/%{_sysconfdir}/cron.d/dailyjobs
 
 # install systemd initscript
-mkdir -p $RPM_BUILD_ROOT/lib/systemd/system/
-install -m 644 %SOURCE1 $RPM_BUILD_ROOT/lib/systemd/system/crond.service
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/systemd/system/
+install -m 644 %SOURCE1 $RPM_BUILD_ROOT%{_libdir}/systemd/system/crond.service
 # install sysvinit initscript into sub-package
 mkdir -pm755 $RPM_BUILD_ROOT%{_initrddir}
 install -m 755 cronie.init $RPM_BUILD_ROOT%{_initrddir}/crond
+
+magic_rpm_clean.sh
 
 %post
 # run after an installation
 if [ $1 -eq 1 ] ; then 
     # Initial installation 
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-    /bin/systemctl enable crond.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+    /usr/bin/systemctl enable crond.service >/dev/null 2>&1 || :
 fi
 
 %post anacron
@@ -155,15 +157,15 @@ fi
 %preun
 # run before a package is removed
 if [ $1 -eq 0 ]; then
-    /bin/systemctl --no-reload disable crond.service >/dev/null 2>&1 || :
-    /bin/systemctl stop crond.service > /dev/null 2>&1 || :
+    /usr/bin/systemctl --no-reload disable crond.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl stop crond.service > /dev/null 2>&1 || :
 fi
 
 %postun
 # run after a package is removed
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ]; then
-    /bin/systemctl try-restart crond.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl try-restart crond.service >/dev/null 2>&1 || :
 fi
 
 %triggerun -- cronie-anacron < 1.4.1
@@ -182,19 +184,19 @@ exit 0
 /usr/bin/systemd-sysv-convert --save crond
 
 # The package is allowed to autostart:
-/bin/systemctl enable crond.service >/dev/null 2>&1
+/usr/bin/systemctl enable crond.service >/dev/null 2>&1
 
-/sbin/chkconfig --del crond >/dev/null 2>&1 || :
-/bin/systemctl try-restart crond.service >/dev/null 2>&1 || :
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del crond >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart crond.service >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %triggerin -- pam, glibc, libselinux
 # changes in pam, glibc or libselinux can make crond crash
 # when it calls pam
-/bin/systemctl try-restart crond.service >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart crond.service >/dev/null 2>&1 || :
 
 %triggerpostun -n cronie-sysvinit -- cronie < 1.4.8-1
-/sbin/chkconfig --add crond >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --add crond >/dev/null 2>&1 || :
 
 %files
 %doc AUTHORS COPYING INSTALL README ChangeLog
@@ -212,7 +214,7 @@ exit 0
 %config(noreplace) %{_sysconfdir}/sysconfig/crond
 %config(noreplace) %{_sysconfdir}/cron.deny
 %attr(0644,root,root) %{_sysconfdir}/cron.d/0hourly
-%attr(0644,root,root) /lib/systemd/system/crond.service
+%attr(0644,root,root) %{_libdir}/systemd/system/crond.service
 
 %files anacron
 %{_sbindir}/anacron
@@ -232,6 +234,9 @@ exit 0
 %attr(0755,root,root) %{_initrddir}/crond
 
 %changelog
+* Mon Apr 16 2012 Liu Di <liudidi@gmail.com> - 1.4.8-10
+- 为 Magic 3.0 重建
+
 * Tue Oct 25 2011 Tomáš Mráz <tmraz@redhat.com> - 1.4.8-9
 - make crond run a little bit later in the boot process (#747759)
 
