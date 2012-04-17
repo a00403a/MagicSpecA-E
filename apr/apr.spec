@@ -6,7 +6,7 @@
 Summary: Apache Portable Runtime library
 Name: apr
 Version: 1.4.6
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: ASL 2.0
 Group: System Environment/Libraries
 URL: http://apr.apache.org/
@@ -85,6 +85,9 @@ install -c -m644 %{SOURCE1} $RPM_BUILD_ROOT%{_includedir}/apr-%{aprver}/apr.h
 rm -f $RPM_BUILD_ROOT%{_libdir}/apr.exp \
       $RPM_BUILD_ROOT%{_libdir}/libapr-*.a
 
+magic_rpm_clean.sh
+
+%if 0%{?with_check}
 %check
 # Fail if LFS support isn't present in a 32-bit build, since this
 # breaks ABI and the soname doesn't change: see #254241
@@ -94,6 +97,7 @@ if grep 'define SIZEOF_VOIDP 4' include/apr.h \
   : LFS support not present in 32-bit build
   exit 1
 fi
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -123,6 +127,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*.m4
 
 %changelog
+* Tue Apr 17 2012 Liu Di <liudidi@gmail.com> - 1.4.6-2
+- 为 Magic 3.0 重建
+
 * Tue Feb 14 2012 Bojan Smojver <bojan@rexursive.com> - 1.4.6-1
 - bump up to 1.4.6
 
