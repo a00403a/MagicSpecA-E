@@ -10,32 +10,38 @@
 %ifnarch s390 s390x
 %bcond_without rdma
 %endif
+%bcond_without systemd
+%bcond_without nss
+%bcond_without xmlconf
 
 Name: corosync
 Summary: The Corosync Cluster Engine and Application Programming Interfaces
-Version: 1.4.2
-Release: 1%{?numcomm:.%{numcomm}}%{?alphatag:.%{alphatag}}%{?dirty:.%{dirty}}%{?dist}
+Version: 2.0.0
+Release: 2%{?numcomm:.%{numcomm}}%{?alphatag:.%{alphatag}}%{?dirty:.%{dirty}}%{?dist}
 License: BSD
 Group: System Environment/Base
 URL: http://ftp.corosync.org
 Source0: ftp://ftp:user@ftp.corosync.org/downloads/%{name}-%{version}/%{name}-%{version}%{?numcomm:.%{numcomm}}%{?alphatag:-%{alphatag}}%{?dirty:-%{dirty}}.tar.gz
+Patch0: ipcs_allow_connections_only_after_all_services_are_ready.patch
 
 # Runtime bits
 Requires: corosynclib = %{version}-%{release}
 Requires(pre): /usr/sbin/useradd
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
-Conflicts: openais <= 0.89, openais-devel <= 0.89
+Obsoletes: openais, openais-devel, openaislib, openaislib-devel
+Obsoletes: cman, clusterlib, clusterlib-devel
 
 # Build bits
 
 %define buildtrunk 0
 %{?_with_buildtrunk: %define buildtrunk 1}
 
+BuildRequires: libqb-devel >= 0.11.1
+BuildRequires: nss-devel
 %if %{buildtrunk}
 BuildRequires: autoconf automake
 %endif
-BuildRequires: nss-devel
 %if %{with rdma}
 BuildRequires: libibverbs-devel librdmacm-devel
 %endif
@@ -45,11 +51,18 @@ BuildRequires: net-snmp-devel
 %if %{with dbus}
 BuildRequires: dbus-devel
 %endif
+%if %{with systemd}
+BuildRequires: systemd-units
+%endif
+%if %{with xmlconf}
+Requires: libxslt
+%endif
 
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %prep
 %setup -q -n %{name}-%{version}%{?numcomm:.%{numcomm}}%{?alphatag:-%{alphatag}}%{?dirty:-%{dirty}}
+%patch0 -p1
 
 %build
 %if %{buildtrunk}
@@ -63,7 +76,6 @@ export rdmacm_CFLAGS=-I/usr/include/rdma \
 export rdmacm_LIBS=-lrdmacm \
 %endif
 %{configure} \
-	--enable-nss \
 %if %{with testagents}
 	--enable-testagents \
 %endif
@@ -82,7 +94,14 @@ export rdmacm_LIBS=-lrdmacm \
 %if %{with rdma}
 	--enable-rdma \
 %endif
-	--with-initddir=%{_initrddir}
+%if %{with systemd}
+	--enable-systemd \
+%endif
+%if %{with xmlconf}
+	--enable-xmlconf \
+%endif
+	--with-initddir=%{_initrddir} \
+	--with-systemddir=%{_unitdir}
 
 make %{_smp_mflags}
 
@@ -101,6 +120,8 @@ install -m 644 %{_builddir}/%{name}-%{version}/conf/corosync-signals.conf %{buil
 rm -f %{buildroot}%{_libdir}/*.a
 # drop docs and html docs for now
 rm -rf %{buildroot}%{_docdir}/*
+
+magic_rpm_clean.sh
 
 %clean
 rm -rf %{buildroot}
@@ -123,18 +144,24 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc LICENSE SECURITY
-%{_bindir}/corosync-blackbox
 %{_sbindir}/corosync
 %{_sbindir}/corosync-keygen
-%{_sbindir}/corosync-objctl
+%{_sbindir}/corosync-cmapctl
 %{_sbindir}/corosync-cfgtool
 %{_sbindir}/corosync-fplay
-%{_sbindir}/corosync-pload
 %{_sbindir}/corosync-cpgtool
 %{_sbindir}/corosync-quorumtool
 %{_sbindir}/corosync-notifyd
+%{_bindir}/corosync-blackbox
+%if %{with xmlconf}
+%{_bindir}/corosync-xmlproc
+%config(noreplace) %{_sysconfdir}/corosync/corosync.xml.example
+%dir %{_datadir}/corosync
+%dir %{_datadir}/corosync/xml2conf.xsl
+%{_mandir}/man8/corosync-xmlproc.8*
+%{_mandir}/man5/corosync.xml.5*
+%endif
 %dir %{_sysconfdir}/corosync
-%dir %{_sysconfdir}/corosync/service.d
 %dir %{_sysconfdir}/corosync/uidgid.d
 %config(noreplace) %{_sysconfdir}/corosync/corosync.conf.example
 %config(noreplace) %{_sysconfdir}/corosync/corosync.conf.example.udpu
@@ -144,36 +171,56 @@ fi
 %if %{with snmp}
 %{_datadir}/snmp/mibs/COROSYNC-MIB.txt
 %endif
+%if %{with systemd}
+%{_unitdir}/corosync.service
+%{_unitdir}/corosync-notifyd.service
+%else
 %{_initrddir}/corosync
 %{_initrddir}/corosync-notifyd
-%dir %{_libexecdir}/lcrso
-%{_libexecdir}/lcrso/coroparse.lcrso
-%{_libexecdir}/lcrso/objdb.lcrso
-%{_libexecdir}/lcrso/service_cfg.lcrso
-%{_libexecdir}/lcrso/service_cpg.lcrso
-%{_libexecdir}/lcrso/service_evs.lcrso
-%{_libexecdir}/lcrso/service_confdb.lcrso
-%{_libexecdir}/lcrso/service_pload.lcrso
-%{_libexecdir}/lcrso/quorum_votequorum.lcrso
-%{_libexecdir}/lcrso/quorum_testquorum.lcrso
-%{_libexecdir}/lcrso/vsf_quorum.lcrso
-%{_libexecdir}/lcrso/vsf_ykd.lcrso
+%endif
 %dir %{_localstatedir}/lib/corosync
-%attr(700, root, root) %{_localstatedir}/log/cluster
 %dir %{_localstatedir}/log/cluster
 %{_mandir}/man8/corosync_overview.8*
 %{_mandir}/man8/corosync.8*
 %{_mandir}/man8/corosync-blackbox.8*
-%{_mandir}/man8/corosync-objctl.8*
+%{_mandir}/man8/corosync-cmapctl.8*
 %{_mandir}/man8/corosync-keygen.8*
 %{_mandir}/man8/corosync-cfgtool.8*
 %{_mandir}/man8/corosync-cpgtool.8*
 %{_mandir}/man8/corosync-fplay.8*
-%{_mandir}/man8/corosync-pload.8*
 %{_mandir}/man8/corosync-notifyd.8*
 %{_mandir}/man8/corosync-quorumtool.8*
 %{_mandir}/man5/corosync.conf.5*
+%{_mandir}/man5/votequorum.5*
+%{_mandir}/man8/cmap_keys.8*
 
+# optional testagent rpm
+#
+%if %{with testagents}
+
+%package -n corosync-testagents
+Summary: The Corosync Cluster Engine Test Agents
+Group: Development/Libraries
+Requires: %{name} = %{version}-%{release}
+Requires: libqb >= 0.10.1
+
+%description -n corosync-testagents
+This package contains corosync test agents.
+
+%files -n corosync-testagents
+%defattr(755,root,root,-)
+%{_datadir}/corosync/tests/mem_leak_test.sh
+%{_datadir}/corosync/tests/net_breaker.sh
+%{_datadir}/corosync/tests/cmap-dispatch-deadlock.sh
+%{_datadir}/corosync/tests/shm_leak_audit.sh
+%{_bindir}/cpg_test_agent
+%{_bindir}/sam_test_agent
+%{_bindir}/votequorum_test_agent
+
+%endif
+
+# library
+#
 %package -n corosynclib
 Summary: The Corosync Cluster Engine Libraries
 Group: System Environment/Libraries
@@ -187,16 +234,12 @@ This package contains corosync libraries.
 %doc LICENSE
 %{_libdir}/libcfg.so.*
 %{_libdir}/libcpg.so.*
-%{_libdir}/libconfdb.so.*
-%{_libdir}/libevs.so.*
+%{_libdir}/libcmap.so.*
 %{_libdir}/libtotem_pg.so.*
-%{_libdir}/liblogsys.so.*
-%{_libdir}/libcoroipcc.so.*
-%{_libdir}/libcoroipcs.so.*
 %{_libdir}/libquorum.so.*
 %{_libdir}/libvotequorum.so.*
-%{_libdir}/libpload.so.*
 %{_libdir}/libsam.so.*
+%{_libdir}/libcorosync_common.so.*
 
 %post -n corosynclib -p /sbin/ldconfig
 
@@ -216,67 +259,91 @@ The Corosync Cluster Engine APIs.
 
 %files -n corosynclib-devel
 %defattr(-,root,root,-)
-%doc LICENSE README.devmap
+%doc LICENSE
 %dir %{_includedir}/corosync/
-%{_includedir}/corosync/cs_config.h
 %{_includedir}/corosync/corodefs.h
-%{_includedir}/corosync/coroipc_types.h
-%{_includedir}/corosync/coroipcs.h
-%{_includedir}/corosync/coroipcc.h
 %{_includedir}/corosync/cfg.h
-%{_includedir}/corosync/confdb.h
+%{_includedir}/corosync/cmap.h
 %{_includedir}/corosync/corotypes.h
 %{_includedir}/corosync/cpg.h
-%{_includedir}/corosync/evs.h
 %{_includedir}/corosync/hdb.h
-%{_includedir}/corosync/list.h
-%{_includedir}/corosync/mar_gen.h
 %{_includedir}/corosync/sam.h
-%{_includedir}/corosync/swab.h
 %{_includedir}/corosync/quorum.h
 %{_includedir}/corosync/votequorum.h
 %dir %{_includedir}/corosync/totem/
-%{_includedir}/corosync/totem/coropoll.h
 %{_includedir}/corosync/totem/totem.h
 %{_includedir}/corosync/totem/totemip.h
 %{_includedir}/corosync/totem/totempg.h
-%dir %{_includedir}/corosync/lcr/
-%{_includedir}/corosync/lcr/lcr_ckpt.h
-%{_includedir}/corosync/lcr/lcr_comp.h
-%{_includedir}/corosync/lcr/lcr_ifact.h
-%dir %{_includedir}/corosync/engine
-%{_includedir}/corosync/engine/config.h
-%{_includedir}/corosync/engine/coroapi.h
-%{_includedir}/corosync/engine/logsys.h
-%{_includedir}/corosync/engine/objdb.h
-%{_includedir}/corosync/engine/quorum.h
 %{_libdir}/libcfg.so
 %{_libdir}/libcpg.so
-%{_libdir}/libconfdb.so
-%{_libdir}/libevs.so
+%{_libdir}/libcmap.so
 %{_libdir}/libtotem_pg.so
-%{_libdir}/liblogsys.so
-%{_libdir}/libcoroipcc.so
-%{_libdir}/libcoroipcs.so
 %{_libdir}/libquorum.so
 %{_libdir}/libvotequorum.so
-%{_libdir}/libpload.so
 %{_libdir}/libsam.so
+%{_libdir}/libcorosync_common.so
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/cpg_*3*
-%{_mandir}/man3/evs_*3*
-%{_mandir}/man3/confdb_*3*
+%{_mandir}/man3/quorum_*3*
 %{_mandir}/man3/votequorum_*3*
 %{_mandir}/man3/sam_*3*
 %{_mandir}/man8/cpg_overview.8*
-%{_mandir}/man8/evs_overview.8*
-%{_mandir}/man8/confdb_overview.8*
-%{_mandir}/man8/logsys_overview.8*
 %{_mandir}/man8/votequorum_overview.8*
-%{_mandir}/man8/coroipc_overview.8*
 %{_mandir}/man8/sam_overview.8*
+%{_mandir}/man3/cmap_*3*
+%{_mandir}/man8/cmap_overview.8*
+%{_mandir}/man8/quorum_overview.8*
 
 %changelog
+* Tue Apr 17 2012 Fabio M. Di Nitto <fdinitto@redhat.com> - 2.0.0-2
+- Backport IPCS fix from master (ack by Steven)
+
+* Tue Apr 10 2012 Jan Friesse <jfriesse@redhat.com> - 2.0.0-1
+- New upstream release
+
+* Thu Apr 05 2012 Karsten Hopp <karsten@redhat.com> 1.99.9-1.1
+- bump release and rebuild on PPC
+
+* Tue Mar 27 2012 Jan Friesse <jfriesse@redhat.com> - 1.99.9-1
+- New upstream release
+
+* Fri Mar 16 2012 Jan Friesse <jfriesse@redhat.com> - 1.99.8-1
+- New upstream release
+
+* Tue Mar  6 2012 Jan Friesse <jfriesse@redhat.com> - 1.99.7-1
+- New upstream release
+
+* Tue Feb 28 2012 Jan Friesse <jfriesse@redhat.com> - 1.99.6-1
+- New upstream release
+
+* Wed Feb 22 2012 Jan Friesse <jfriesse@redhat.com> - 1.99.5-1
+- New upstream release
+
+* Tue Feb 14 2012 Jan Friesse <jfriesse@redhat.com> - 1.99.4-1
+- New upstream release
+
+* Tue Feb 14 2012 Jan Friesse <jfriesse@redhat.com> - 1.99.3-1
+- New upstream release
+
+* Tue Feb  7 2012 Fabio M. Di Nitto <fdinitto@redhat.com> - 1.99.2-1
+- New upstream release
+- Re-enable xmlconfig bits
+- Ship cmap man pages
+- Add workaround to usrmove breakage!!
+
+* Thu Feb  2 2012 Fabio M. Di Nitto <fdinitto@redhat.com> - 1.99.1-2
+- Add proper Obsoltes on openais/cman/clusterlib
+
+* Wed Feb  1 2012 Fabio M. Di Nitto <fdinitto@redhat.com> - 1.99.1-1
+- New upstream release
+- Temporary disable xml config (broken upstream tarball)
+
+* Wed Jan 24 2012 Jan Friesse <jfriesse@redhat.com> - 1.99.0-1
+- New upstream release
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.4.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Wed Oct 06 2011 Jan Friesse <jfriesse@redhat.com> - 1.4.2-1
 - New upstream release
 
