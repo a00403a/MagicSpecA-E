@@ -1,7 +1,6 @@
-%define WITH_SELINUX 0
 Summary: A utility for getting files from remote servers (FTP, HTTP, and others)
 Name: curl
-Version: 7.22.0
+Version: 7.25.0
 Release: 2%{?dist}
 License: MIT
 Group: Applications/Internet
@@ -9,14 +8,17 @@ Source: http://curl.haxx.se/download/%{name}-%{version}.tar.lzma
 Source2: curlbuild.h
 Source3: hide_selinux.c
 
-# nss: select client certificates by DER (#733657)
-Patch1: 0001-curl-7.22.0-bz733657.patch
+# use NSS_InitContext() to initialize NSS if available (#738456)
+Patch1: 0001-curl-7.25.00-20cb12db.patch
+
+# provide human-readable names for NSS errors (upstream commit a60edcc6)
+Patch2: 0002-curl-7.25.00-a60edcc6.patch
 
 # patch making libcurl multilib ready
-Patch101: 0101-curl-7.21.1-multilib.patch
+Patch101: 0101-curl-7.25.0-multilib.patch
 
 # prevent configure script from discarding -g in CFLAGS (#496778)
-Patch102: 0102-curl-7.21.2-debug.patch
+Patch102: 0102-curl-7.25.0-debug.patch
 
 # use localhost6 instead of ip6-localhost in the curl test-suite
 Patch104: 0104-curl-7.19.7-localhost6.patch
@@ -30,9 +32,13 @@ Patch106: 0106-curl-7.21.0-libssh2-valgrind.patch
 # work around valgrind bug (#678518)
 Patch107: 0107-curl-7.21.4-libidn-valgrind.patch
 
+# Fix character encoding of docs, which are of mixed encoding originally so
+# a simple iconv can't fix them
+Patch108: 0108-curl-7.25.0-utf8.patch
+
 Provides: webclient
 URL: http://curl.haxx.se/
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(id -nu)
 BuildRequires: groff
 BuildRequires: krb5-devel
 BuildRequires: libidn-devel
@@ -82,16 +88,6 @@ Summary: Files needed for building applications with libcurl
 Group: Development/Libraries
 Requires: libcurl = %{version}-%{release}
 
-# From Fedora 14, %%{_datadir}/aclocal is included in the filesystem package
-%if 0%{?fedora} < 14
-Requires: %{_datadir}/aclocal
-%endif
-
-# From Fedora 11, RHEL-6, pkgconfig dependency is auto-detected
-%if 0%{?fedora} < 11 && 0%{?rhel} < 6
-Requires: pkgconfig
-%endif
-
 Provides: curl-devel = %{version}-%{release}
 Obsoletes: curl-devel < %{version}-%{release}
 
@@ -103,15 +99,9 @@ documentation of the library, too.
 %prep
 %setup -q
 
-# Convert docs to UTF-8
-# NOTE: we do this _before_ applying of all patches, which are already UTF-8
-for f in CHANGES README; do
-    iconv -f iso-8859-1 -t utf8 < ${f} > ${f}.utf8
-    mv -f ${f}.utf8 ${f}
-done
-
-# upstream patches (not yet applied)
+# upstream patches
 %patch1 -p1
+%patch2 -p1
 
 # Fedora patches
 %patch101 -p1
@@ -119,13 +109,16 @@ done
 %patch104 -p1
 %patch106 -p1
 %patch107 -p1
+%patch108 -p1
 
 # exclude test1112 from the test suite (#565305)
 %patch105 -p1
 rm -f tests/data/test1112
 
 # replace hard wired port numbers in the test suite
-sed -i s/899\\\([0-9]\\\)/%{?__isa_bits}9\\1/ tests/data/test*
+cd tests/data/
+sed -i s/899\\\([0-9]\\\)/%{?__isa_bits}9\\1/ test*
+cd -
 
 %build
 [ -x /usr/kerberos/bin/krb5-config ] && KRB5_PREFIX="=/usr/kerberos"
@@ -161,7 +154,6 @@ export LD_LIBRARY_PATH
 cd tests
 make %{?_smp_mflags}
 
-%if %{WITH_SELINUX}
 # make it possible to start a testing OpenSSH server with SELinux
 # in the enforcing mode (#521087)
 gcc -o hide_selinux.so -fPIC -shared %{SOURCE3}
@@ -171,12 +163,11 @@ export LD_PRELOAD
 # use different port range for 32bit and 64bit build, thus make it possible
 # to run both in parallel on the same machine
 ./runtests.pl -a -b%{?__isa_bits}90 -p -v
-%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-make DESTDIR=$RPM_BUILD_ROOT INSTALL="%{__install} -p" install
+make DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p" install
 
 rm -f ${RPM_BUILD_ROOT}%{_libdir}/libcurl.la
 
@@ -194,8 +185,10 @@ mv $RPM_BUILD_ROOT%{_includedir}/curl/curlbuild.h \
 
 install -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_includedir}/curl/curlbuild.h
 
+magic_rpm_clean.sh
+
 %clean
-rm -rf %{buildroot} %{_builddir}/%{buildsubdir} 
+rm -rf $RPM_BUILD_ROOT
 
 %post -n libcurl -p /sbin/ldconfig
 
@@ -227,6 +220,38 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %{_datadir}/aclocal/libcurl.m4
 
 %changelog
+* Fri Apr 13 2012 Kamil Dudka <kdudka@redhat.com> 7.25.0-2
+- use NSS_InitContext() to initialize NSS if available (#738456)
+- provide human-readable names for NSS errors (upstream commit a60edcc6)
+
+* Fri Mar 23 2012 Paul Howarth <paul@city-fan.org> 7.25.0-1
+- new upstream release (#806264)
+- fix character encoding of docs with a patch rather than just iconv
+- update debug and multilib patches
+- don't use macros for commands
+- reduce size of %%prep output for readability
+
+* Tue Jan 24 2012 Kamil Dudka <kdudka@redhat.com> 7.24.0-1
+- new upstream release (fixes CVE-2012-0036)
+
+* Thu Jan 05 2012 Paul Howarth <paul@city-fan.org> 7.23.0-6
+- rebuild for gcc 4.7
+
+* Mon Jan 02 2012 Kamil Dudka <kdudka@redhat.com> 7.23.0-5
+- upstream patch that allows to run FTPS tests with nss-3.13 (#760060)
+
+* Tue Dec 27 2011 Kamil Dudka <kdudka@redhat.com> 7.23.0-4
+- allow to run FTPS tests with nss-3.13 (#760060)
+
+* Sun Dec 25 2011 Kamil Dudka <kdudka@redhat.com> 7.23.0-3
+- avoid unnecessary timeout event when waiting for 100-continue (#767490)
+
+* Mon Nov 21 2011 Kamil Dudka <kdudka@redhat.com> 7.23.0-2
+- curl -JO now uses -O name if no C-D header comes (upstream commit c532604)
+
+* Wed Nov 16 2011 Kamil Dudka <kdudka@redhat.com> 7.23.0-1
+- new upstream release (#754391)
+
 * Mon Sep 19 2011 Kamil Dudka <kdudka@redhat.com> 7.22.0-2
 - nss: select client certificates by DER (#733657)
 
