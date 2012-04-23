@@ -1,7 +1,7 @@
 Name:		ethtool
 Epoch:		2
-Version:	2.6.39
-Release:	1%{?dist}
+Version:	3.2
+Release:	2%{?dist}
 Summary:	Settings tool for Ethernet NICs
 
 License:	GPLv2
@@ -9,7 +9,7 @@ Group:		Applications/System
 URL:		http://sourceforge.net/projects/gkernel/
 
 # When using tarball from released upstream version:
-# - http://ftp.kernel.org/pub/software/network/%{name}-%{version}.tar.bz2
+# - http://ftp.kernel.org/pub/software/network/%{name}/%{name}-%{version}.tar.bz2
 #
 # When generating tarball package from upstream git:
 # - git clone git://git.kernel.org/pub/scm/network/ethtool/ethtool.git ethtool-6
@@ -17,9 +17,9 @@ URL:		http://sourceforge.net/projects/gkernel/
 # - cp -f ChangeLog ChangeLog.old; git log > ChangeLog.git
 # - rm -rf .git; cd ..; tar cvfz ethtool-6.tar.gz ethtool-6
 # - Use the visible date of latest git log entry for %{release} in spec file
-Source0:	http://ftp.kernel.org/pub/software/network/%{name}-%{version}.tar.bz2
+Source0:	http://ftp.kernel.org/pub/software/network/%{name}/%{name}-%{version}.tar.bz2
 BuildRequires:	automake, autoconf
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Conflicts:      filesystem < 3
 
 %description
 This utility allows querying and changing settings such as speed,
@@ -36,28 +36,30 @@ network devices, especially of Ethernet devices.
 # autoconf
 
 %build
-%configure --sbindir=/sbin
+%configure
 make %{?_smp_mflags}
 
 %install
-rm -rf %{buildroot}
 make DESTDIR=%{buildroot} INSTALL='install -p' install
-
-# Some legacy support for scripts etc. out there
-mkdir -p %{buildroot}%{_sbindir}
-ln -sf ../../sbin/%{name} %{buildroot}%{_sbindir}/%{name}
-
-%clean
-rm -rf %{buildroot}
+magic_rpm_clean.sh
 
 %files
-%defattr(-,root,root,-)
 %doc AUTHORS ChangeLog* COPYING LICENSE NEWS README
-/sbin/%{name}
 %{_sbindir}/%{name}
 %{_mandir}/man8/%{name}.8*
 
 %changelog
+* Wed Jan 25 2012 Harald Hoyer <harald@redhat.com> 2:3.2-2
+- install everything in /usr
+  https://fedoraproject.org/wiki/Features/UsrMove
+
+* Fri Jan 13 2012 Jaromir Capik <jcapik@redhat.com> 2:3.2-1
+- Update to 3.2 (#781357)
+- Minor spec file changes according to the latest guidelines
+
+* Fri Dec 23 2011 Robert Scheck <robert@fedoraproject.org> 2:3.1-1
+- Upgrade to 3.1 (#728480)
+
 * Sun Jul 17 2011 Robert Scheck <robert@fedoraproject.org> 2:2.6.39-1
 - Upgrade to 2.6.39 (#710400)
 
