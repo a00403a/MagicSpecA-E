@@ -1,5 +1,5 @@
 %define main_ver 3.01
-%define min_ver a06
+%define min_ver a07
 Summary: A collection of CD/DVD utilities.
 Summary(zh_CN.UTF-8): 一套 CD/DVD 工具集合
 Name: cdrtools
@@ -125,6 +125,8 @@ groff -Tps -man doc/cdrecord.man > doc/cdrecord.ps
 mkdir -p $RPM_BUILD_ROOT/etc
 
 install -m 0644 %{SOURCE1} $RPM_BUILD_ROOT/etc/cdrecord.conf
+
+magic_rpm_clean.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
