@@ -1,12 +1,12 @@
 #% define beta_tag rc2
-%define patchleveltag .20
+%define patchleveltag .29
 %define baseversion 4.2
 %bcond_with tests
 
 Version: %{baseversion}%{patchleveltag}
 Name: bash
 Summary: The GNU Bourne Again shell
-Release: 4%{?dist}
+Release: 2%{?dist}
 Group: System Environment/Shells
 License: GPLv3+
 Url: http://www.gnu.org/software/bash
@@ -40,6 +40,15 @@ Patch017: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-017
 Patch018: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-018
 Patch019: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-019
 Patch020: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-020
+Patch021: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-021
+Patch022: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-022
+Patch023: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-023
+Patch024: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-024
+Patch025: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-025
+Patch026: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-026
+Patch027: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-027
+Patch028: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-028
+Patch029: ftp://ftp.gnu.org/pub/gnu/bash/bash-4.2-patches/bash42-029
 
 # Other patches
 Patch101: bash-2.02-security.patch
@@ -74,6 +83,9 @@ Patch120: bash-4.2-rc2-logout.patch
 
 # Static analyzis shows some issues in bash-2.05a-interpreter.patch
 Patch121: bash-4.2-coverity.patch
+
+# Don't call malloc in signal handler
+Patch122: bash-4.1-defer-sigchld-trap.patch
 
 BuildRequires: texinfo bison
 BuildRequires: ncurses-devel
@@ -123,6 +135,15 @@ This package contains documentation files for %{name}.
 %patch018 -p0 -b .018
 %patch019 -p0 -b .019
 %patch020 -p0 -b .020
+%patch021 -p0 -b .021
+%patch022 -p0 -b .022
+%patch023 -p0 -b .023
+%patch024 -p0 -b .024
+%patch025 -p0 -b .025
+%patch026 -p0 -b .026
+%patch027 -p0 -b .027
+%patch028 -p0 -b .028
+%patch029 -p0 -b .029
 
 # Other patches
 %patch101 -p1 -b .security
@@ -146,6 +167,8 @@ This package contains documentation files for %{name}.
 %patch119 -p1 -b .broken_pipe
 %patch120 -p1 -b .logout
 %patch121 -p1 -b .coverity
+%patch122 -p1 -b .defer_sigchld_trap
+
 echo %{version} > _distribution
 echo %{release} > _patchlevel
 
@@ -230,7 +253,18 @@ do
   rm -f "$script"-orig
 done
 
-%find_lang %{name}
+# bug #820192, need to add execable alternatives for regular built-ins
+for ea in alias bg cd command fc fg getopts jobs read umask unalias wait
+do
+  cat <<EOF > "$RPM_BUILD_ROOT"/%{_bindir}/"$ea"
+#!/bin/sh
+builtin $ea "\$@"
+EOF
+chmod +x "$RPM_BUILD_ROOT"/%{_bindir}/"$ea"
+done
+
+magic_rpm_clean.sh
+%find_lang %{name} || touch %{name}.lang
 
 # copy doc to /usr/share/doc
 cat /dev/null > %{name}-doc.files
@@ -244,7 +278,6 @@ do
   cp -rp "$file" $RPM_BUILD_ROOT/%{pkgdocdir}/"$file"
   echo "%%doc %{pkgdocdir}/$file" >> %{name}-doc.files
 done
-
 
 %if %{with tests}
 %check
@@ -299,6 +332,18 @@ end
 %config(noreplace) /etc/skel/.b*
 %{_bindir}/sh
 %{_bindir}/bash
+%{_bindir}/alias
+%{_bindir}/bg
+%{_bindir}/cd
+%{_bindir}/command
+%{_bindir}/fc
+%{_bindir}/fg
+%{_bindir}/getopts
+%{_bindir}/jobs
+%{_bindir}/read
+%{_bindir}/umask
+%{_bindir}/unalias
+%{_bindir}/wait
 %dir %{pkgdocdir}/
 %doc %{pkgdocdir}/COPYING
 %attr(0755,root,root) %{_bindir}/bashbug-*
@@ -313,6 +358,23 @@ end
 #%doc doc/*.ps doc/*.0 doc/*.html doc/article.txt
 
 %changelog
+* Thu May 31 2012 Roman Rakus <rrakus@redhat.com> - 4.2.29-2
+- Patchlevel 29
+- Also keep release at -2, so we are newer then f16 and f17
+
+* Tue May 29 2012 Roman Rakus <rrakus@redhat.com> - 4.2.28-2
+- Provide exec-able alternatives to some builtins
+  Resolves #820192
+
+* Wed May 09 2012 Roman Rakus <rrakus@redhat.com> - 4.2.28-1
+- Patchlevel 28
+
+* Mon Apr 23 2012 Roman Rakus <rrakus@redhat.com> - 4.2.24-2
+- Don't call malloc in signal handler
+
+* Tue Mar 13 2012 Roman Rakus <rrakus@redhat.com> - 4.2.24-1
+- Patchlevel 24
+
 * Wed Jan 25 2012 Harald Hoyer <harald@redhat.com> 4.2.20-4
 - install everything in /usr
   https://fedoraproject.org/wiki/Features/UsrMove
