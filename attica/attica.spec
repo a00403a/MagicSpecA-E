@@ -1,6 +1,6 @@
 
 Name:           attica
-Version:        0.3.0
+Version:        0.4.0
 Release:        1%{?dist}
 Summary:        Implementation of the Open Collaboration Services API
 Summary(zh_CN.UTF-8): 开放式协作服务 API 的实现 
@@ -57,12 +57,14 @@ rm -rf %{buildroot}
 
 make install/fast DESTDIR=%{buildroot} -C %{_target_platform}
 
+magic_rpm_clean.sh
 
+%if 0
 %check
 # verify pkg-config version (notoriously wrong in recent releases)
 export PKG_CONFIG_PATH=%{buildroot}%{_datadir}/pkgconfig:%{buildroot}%{_libdir}/pkgconfig
 test "$(pkg-config --modversion libattica)" = "%{version}"
-
+%endif
 
 %clean
 rm -rf %{buildroot}
