@@ -4,21 +4,30 @@
 # Set to bcond_with or use --without gui to disable qt4 gui build
 %bcond_without gui
 # Set to RC version if building RC, else %{nil}
-%define rcver -rc1
+%define rcver %{nil}
 
 Name:           cmake
 Version:        2.8.8
-Release:        0.1.rc1%{?dist}
+Release:        4%{?dist}
 Summary:        Cross-platform make system
 
 Group:          Development/Tools
-License:        BSD
+# most sources are BSD
+# Source/CursesDialog/form/ a bunch is MIT 
+# Source/kwsys/MD5.c is zlib 
+# some GPL-licensed bison-generated files, these all include an exception granting redistribution under terms of your choice
+License:        BSD and MIT and zlib
 URL:            http://www.cmake.org
 Source0:        http://www.cmake.org/files/v2.8/cmake-%{version}%{?rcver}.tar.gz
 Source2:        macros.cmake
 # Patch to find DCMTK in Fedora (bug #720140)
 Patch0:         cmake-dcmtk.patch
-
+# (modified) Upstream patch to fix setting PKG_CONFIG_FOUND (bug #812188)
+Patch1:         cmake-pkgconfig.patch
+# Patch to fix RindRuby vendor settings
+# http://public.kitware.com/Bug/view.php?id=12965
+# https://bugzilla.redhat.com/show_bug.cgi?id=822796
+Patch2:         cmake-findruby.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  gcc-gfortran
@@ -28,6 +37,7 @@ BuildRequires:  curl-devel
 BuildRequires:  expat-devel
 BuildRequires:  libarchive-devel
 BuildRequires:  zlib-devel
+BuildRequires:  emacs
 %if %{without bootstrap}
 #BuildRequires: xmlrpc-c-devel
 %endif
@@ -35,15 +45,23 @@ BuildRequires:  zlib-devel
 BuildRequires: qt4-devel, desktop-file-utils
 %define qt_gui --qt-gui
 %endif
+
 Requires:       rpm
 
+%if (0%{?fedora} >= 16)
+Requires: emacs-filesystem >= %{_emacs_version}
+%endif
+
+# Source/kwsys/MD5.c
+# see https://fedoraproject.org/wiki/Packaging:No_Bundled_Libraries
+Provides: bundled(md5-deutsch)
 
 %description
 CMake is used to control the software compilation process using simple 
 platform and compiler independent configuration files. CMake generates 
 native makefiles and workspaces that can be used in the compiler 
 environment of your choice. CMake is quite sophisticated: it is possible 
-to support complex environments requiring system configuration, pre-processor 
+to support complex environments requiring system configuration, preprocessor
 generation, code generation, and template instantiation.
 
 
@@ -59,6 +77,8 @@ The %{name}-gui package contains the Qt based GUI for CMake.
 %prep
 %setup -q -n %{name}-%{version}%{?rcver}
 %patch0 -p1 -b .dcmtk
+%patch1 -p1 -b .pkgconfig
+%patch2 -p1 -b .findruby
 
 
 %build
@@ -75,19 +95,19 @@ make VERBOSE=1 %{?_smp_mflags}
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
 pushd build
-make install DESTDIR=$RPM_BUILD_ROOT
-find $RPM_BUILD_ROOT/%{_datadir}/%{name}/Modules -type f | xargs chmod -x
+make install DESTDIR=%{buildroot}
+find %{buildroot}/%{_datadir}/%{name}/Modules -type f | xargs chmod -x
 popd
-cp -a Example $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}/
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/emacs/site-lisp
-install -m 0644 Docs/cmake-mode.el $RPM_BUILD_ROOT%{_datadir}/emacs/site-lisp/
+cp -a Example %{buildroot}%{_docdir}/%{name}-%{version}/
+mkdir -p %{buildroot}%{_emacs_sitelispdir}/%{name}
+install -m 0644 Docs/cmake-mode.el %{buildroot}%{_emacs_sitelispdir}/%{name}
+%{_emacs_bytecompile} %{buildroot}%{_emacs_sitelispdir}/%{name}/cmake-mode.el
 # RPM macros
-install -p -m0644 -D %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/rpm/macros.cmake
-sed -i -e "s|@@CMAKE_VERSION@@|%{version}|" $RPM_BUILD_ROOT%{_sysconfdir}/rpm/macros.cmake
-touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/rpm/macros.cmake
-mkdir -p $RPM_BUILD_ROOT%{_libdir}/%{name}
+install -p -m0644 -D %{SOURCE2} %{buildroot}%{_sysconfdir}/rpm/macros.cmake
+sed -i -e "s|@@CMAKE_VERSION@@|%{version}|" %{buildroot}%{_sysconfdir}/rpm/macros.cmake
+touch -r %{SOURCE2} %{buildroot}%{_sysconfdir}/rpm/macros.cmake
+mkdir -p %{buildroot}%{_libdir}/%{name}
 
 %if %{with gui}
 # Desktop file
@@ -95,20 +115,18 @@ desktop-file-install --delete-original \
   --dir=%{buildroot}%{_datadir}/applications \
   %{buildroot}/%{_datadir}/applications/CMake.desktop
 %endif
+magic_rpm_clean.sh
 
-
+%if 0%{?with_test}
 %check
-#unset DISPLAY
-#pushd build
+unset DISPLAY
+pushd build
 #ModuleNotices fails for some unknown reason, and we don't care
 #CMake.HTML currently requires internet access
 #CTestTestUpload requires internet access
-#bin/ctest -V -E ModuleNotices -E CMake.HTML -E CTestTestUpload %{?_smp_mflags}
-
-
-%clean
-rm -rf $RPM_BUILD_ROOT
-
+bin/ctest -V -E ModuleNotices -E CMake.HTML -E CTestTestUpload %{?_smp_mflags}
+popd
+%endif
 
 %if %{with gui}
 %post gui
@@ -122,11 +140,10 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 
 %files
-%defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/rpm/macros.cmake
-%{_datadir}/doc/%{name}-%{version}/
+%{_docdir}/%{name}-%{version}/
 %if %{with gui}
-%exclude %{_datadir}/doc/%{name}-%{version}/cmake-gui.*
+%exclude %{_docdir}/%{name}-%{version}/cmake-gui.*
 %endif
 %{_bindir}/ccmake
 %{_bindir}/cmake
@@ -144,13 +161,12 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_mandir}/man1/cmakevars.1.gz
 %{_mandir}/man1/cpack.1.gz
 %{_mandir}/man1/ctest.1.gz
-%{_datadir}/emacs/
+%{_emacs_sitelispdir}/%{name}
 %{_libdir}/%{name}/
 
 %if %{with gui}
 %files gui
-%defattr(-,root,root,-)
-%{_datadir}/doc/%{name}-%{version}/cmake-gui.*
+%{_docdir}/%{name}-%{version}/cmake-gui.*
 %{_bindir}/cmake-gui
 %{_datadir}/applications/CMake.desktop
 %{_datadir}/mime/packages/cmakecache.xml
@@ -160,6 +176,27 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 
 %changelog
+* Mon May 21 2012 Orion Poplawski <orion@cora.nwra.com> 2.8.8-4
+- Add patch to fix FindRuby (bug 822796)
+
+* Thu May 10 2012 Rex Dieter <rdieter@fedoraproject.org> 2.8.8-3
+- Incorrect license tag in spec file (#820334)
+
+* Thu May 3 2012 Orion Poplawski <orion@cora.nwra.com> - 2.8.8-2
+- Comply with Emacs packaging guidlines (bug #818658)
+
+* Thu Apr 19 2012 Orion Poplawski <orion@cora.nwra.com> - 2.8.8-1
+- Update to 2.8.8 final
+
+* Sat Apr 14 2012 Rex Dieter <rdieter@fedoraproject.org> 2.8.8-0.4.rc2
+- adjust pkgconfig patch (#812188)
+
+* Fri Apr 13 2012 Orion Poplawski <orion@cora.nwra.com> - 2.8.8-0.3.rc2
+- Add upstream patch to set PKG_CONFIG_FOUND (bug #812188)
+
+* Mon Apr 9 2012 Orion Poplawski <orion@cora.nwra.com> - 2.8.8-0.2.rc2
+- Update to 2.8.8 RC 2
+
 * Fri Mar 23 2012 Orion Poplawski <orion@cora.nwra.com> - 2.8.8-0.1.rc1
 - Update to 2.8.8 RC 1
 
