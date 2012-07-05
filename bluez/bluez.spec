@@ -1,7 +1,7 @@
 Summary: Bluetooth utilities
 Name: bluez
-Version: 4.99
-Release: 3%{?dist}
+Version: 4.101
+Release: 1%{?dist}
 License: GPLv2+
 Group: Applications/System
 URL: http://www.bluez.org/
@@ -18,10 +18,10 @@ Source8: bluez-uinput.modules
 Patch4: bluez-socket-mobile-cf-connection-kit.patch
 # http://thread.gmane.org/gmane.linux.bluez.kernel/2396
 Patch5: 0001-Add-sixaxis-cable-pairing-plugin.patch
-# http://thread.gmane.org/gmane.linux.bluez.kernel/8645
-Patch6: 0001-systemd-install-systemd-unit-files.patch
-
-Patch7: sbc_mmx.patch
+# PS3 BD Remote patches
+Patch6: 0001-input-Add-helper-function-to-request-disconnect.patch
+Patch7: 0002-fakehid-Disconnect-from-PS3-remote-after-10-mins.patch
+Patch8: 0003-fakehid-Use-the-same-constant-as-declared.patch
 
 BuildRequires: flex
 BuildRequires: dbus-devel >= 0.90
@@ -33,7 +33,7 @@ BuildRequires: readline-devel
 # For cable pairing
 BuildRequires: libudev-devel
 %ifnarch s390 s390x
-BuildRequires: libusb1-devel
+BuildRequires: libusbx-devel
 %endif
 BuildRequires: udev
 
@@ -48,8 +48,8 @@ Requires: hwdata >= 0.215
 Requires: dbus-bluez-pin-helper
 %endif
 Requires: udev >= 143-2
-Requires(preun): /usr/sbin/chkconfig, /usr/sbin/service
-Requires(post): /usr/sbin/chkconfig, /usr/sbin/service
+Requires(preun): /usr/sbin/chkconfig, /sbin/service
+Requires(post): /usr/sbin/chkconfig, /sbin/service
 
 %description
 Utilities for use in Bluetooth applications:
@@ -145,18 +145,19 @@ and mouse.
 %setup -q
 %patch4 -p1 -b .socket-mobile
 %patch5 -p1 -b .cable-pairing
-%patch6 -p1 -b .systemd
-%patch7 -p1 -b .mmx
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
 
 %build
 libtoolize -f -c
 autoreconf
-%configure --enable-cups --enable-dfutool --enable-tools --enable-bccmd --enable-gstreamer --enable-hidd --enable-pand --enable-dund --enable-hid2hci --with-ouifile=/usr/share/hwdata/oui.txt --with-systemdsystemunitdir=%{_libdir}/systemd/system
-make
+%configure --enable-cups --enable-dfutool --enable-tools --enable-bccmd --enable-gstreamer --enable-hidd --enable-pand --enable-dund --enable-hid2hci --with-ouifile=/usr/share/hwdata/oui.txt --with-systemdsystemunitdir=/lib/systemd/system
+make V=1
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
-/sbin/ldconfig -n $RPM_BUILD_ROOT/%{_libdir}
+/usr/sbin/ldconfig -n $RPM_BUILD_ROOT/%{_libdir}
 # Remove autocrap and libtool droppings
 rm -f $RPM_BUILD_ROOT/%{_libdir}/*.la				\
 	$RPM_BUILD_ROOT/%{_libdir}/alsa-lib/*.la		\
@@ -176,44 +177,48 @@ if test -d ${RPM_BUILD_ROOT}/usr/lib64/cups ; then
 	rm -rf ${RPM_BUILD_ROOT}%{_libdir}/cups
 fi
 
-rm -f ${RPM_BUILD_ROOT}/%{_sysconfdir}/udev/*.rules 
-#${RPM_BUILD_ROOT}%{_libdir}/udev/rules.d/*.rules
-install -D -p -m0644 scripts/bluetooth-serial.rules ${RPM_BUILD_ROOT}%{_libdir}/udev/rules.d/97-bluetooth-serial.rules
-install -D -p -m0644 scripts/bluetooth-hid2hci.rules ${RPM_BUILD_ROOT}%{_libdir}/udev/rules.d/97-bluetooth-hid2hci.rules
-install -D -m0755 scripts/bluetooth_serial ${RPM_BUILD_ROOT}%{_libdir}/udev/bluetooth_serial
+rm -f ${RPM_BUILD_ROOT}/%{_sysconfdir}/udev/*.rules ${RPM_BUILD_ROOT}/lib/udev/rules.d/*.rules
+install -D -p -m0644 scripts/bluetooth-serial.rules ${RPM_BUILD_ROOT}/lib/udev/rules.d/97-bluetooth-serial.rules
+install -D -p -m0644 scripts/bluetooth-hid2hci.rules ${RPM_BUILD_ROOT}/lib/udev/rules.d/97-bluetooth-hid2hci.rules
+install -D -m0755 scripts/bluetooth_serial ${RPM_BUILD_ROOT}/lib/udev/bluetooth_serial
 
 install -D -m0755 %{SOURCE8} $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/modules/bluez-uinput.modules
 
 install -d -m0755 $RPM_BUILD_ROOT/%{_localstatedir}/lib/bluetooth
 
-%post libs -p /sbin/ldconfig
+mkdir -p $RPM_BUILD_ROOT/%{_libdir}/bluetooth/
+cp -rf %{buildroot}/lib/udev %{buildroot}/usr/lib/
+rm -rf %{buildroot}/lib
+magic_rpm_clean.sh
+
+%post libs -p /usr/sbin/ldconfig
 
 %post
 if [ $1 -eq 1 ]; then
-	/bin/systemctl enable bluetooth.service >/dev/null 2>&1 || :
+	/usr/bin/systemctl enable bluetooth.service >/dev/null 2>&1 || :
 fi
 
-%postun libs -p /sbin/ldconfig
+%postun libs -p /usr/sbin/ldconfig
 
 %preun
 if [ $1 -eq 0 ]; then
-        /bin/systemctl --no-reload disable bluetooth.service >/dev/null 2>&1 || :
-        /bin/systemctl stop bluetooth.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl --no-reload disable bluetooth.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl stop bluetooth.service >/dev/null 2>&1 || :
 fi
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
-        /bin/systemctl try-restart bluetooth.service >/dev/null 2>&1 || :
+        /usr/bin/systemctl try-restart bluetooth.service >/dev/null 2>&1 || :
 fi
 
 %triggerun -- bluez < 4.94-4
-/bin/systemctl --no-reload enable bluetooth.service >/dev/null 2>&1 || :
+/usr/bin/systemctl --no-reload enable bluetooth.service >/dev/null 2>&1 || :
 
 %post compat
-/sbin/chkconfig --add dund
-/sbin/chkconfig --add pand
-/sbin/chkconfig --add rfcomm
+/usr/sbin/chkconfig --add dund
+/usr/sbin/chkconfig --add pand
+/usr/sbin/chkconfig --add rfcomm
 if [ "$1" -ge "1" ]; then
 	/sbin/service dund condrestart >/dev/null 2>&1 || :
 	/sbin/service pand condrestart >/dev/null 2>&1 || :
@@ -226,13 +231,13 @@ if [ "$1" = "0" ]; then
 	/sbin/service dund stop >/dev/null 2>&1 || :
 	/sbin/service pand stop >/dev/null 2>&1 || :
 	/sbin/service rfcomm stop >/dev/null 2>&1 || :
-	/sbin/chkconfig --del dund
-	/sbin/chkconfig --del pand
-	/sbin/chkconfig --del rfcomm
+	/usr/sbin/chkconfig --del dund
+	/usr/sbin/chkconfig --del pand
+	/usr/sbin/chkconfig --del rfcomm
 fi
 
 %post hid2hci
-/sbin/udevadm trigger --subsystem-match=usb
+/usr/sbin/udevadm trigger --subsystem-match=usb
 
 %files
 %defattr(-,root,root,-)
@@ -255,14 +260,12 @@ fi
 %config(noreplace) %{_sysconfdir}/bluetooth/main.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/modules/bluez-uinput.modules
 %config %{_sysconfdir}/dbus-1/system.d/bluetooth.conf
-#%{_libdir}/bluetooth/
-%{_libdir}/udev/bluetooth_serial
-%{_libdir}/udev/rules.d/97-bluetooth-serial.rules
-%{_libdir}/udev/rules.d/97-bluetooth.rules
+%{_libdir}/bluetooth/
+/usr/lib/udev/bluetooth_serial
+/usr/lib/udev/rules.d/97-bluetooth-serial.rules
 %{_localstatedir}/lib/bluetooth
 %{_datadir}/dbus-1/system-services/org.bluez.service
-%{_libdir}/systemd/system/bluetooth.service
-%exclude /usr/lib/systemd/system/bluetooth.service
+/usr/lib/systemd/system/bluetooth.service
 
 %files libs
 %defattr(-,root,root,-)
@@ -278,7 +281,7 @@ fi
 
 %files cups
 %defattr(-,root,root,-)
-%{_libdir}/cups/backend/bluetooth
+/usr/lib/cups/backend/bluetooth
 
 %files gstreamer
 %defattr(-,root,root,-)
@@ -306,17 +309,21 @@ fi
 
 %files hid2hci
 %defattr(-,root,root,-)
-%{_libdir}/udev/hid2hci
+/usr/lib/udev/hid2hci
 %{_mandir}/man8/hid2hci.8*
-%{_libdir}/udev/rules.d/97-bluetooth-hid2hci.rules
-%exclude %{_libdir}/udev/rules.d/97-bluetooth-hid2hci.rules
+/usr/lib/udev/rules.d/97-bluetooth-hid2hci.rules
+%exclude /usr/lib/udev/rules.d/97-bluetooth-hid2hci.rules
 
 %changelog
-* Thu Apr 12 2012 Liu Di <liudidi@gmail.com> - 4.99-3
-- 为 Magic 3.0 重建
+* Sun Jun 17 2012 Bastien Nocera <bnocera@redhat.com> 4.100-2
+- Add PS3 BD Remote patches (power saving)
 
-* Thu Apr 12 2012 Liu Di <liudidi@gmail.com> - 4.99-2
-- 为 Magic 3.0 重建
+* Thu Jun 14 2012 Bastien Nocera <bnocera@redhat.com> 4.100-1
+- Update to 4.100
+
+* Fri Jun  1 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 4.99-2
+- Add patch for udev change to fix FTBFS on rawhide
+- Drop sbc patch as fixed in gcc 4.7 final
 
 * Tue Mar 06 2012 Bastien Nocera <bnocera@redhat.com> 4.99-1
 - Update to 4.99
