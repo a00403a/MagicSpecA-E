@@ -1,16 +1,16 @@
 %define glib2_version 2.27.2
-%define vala_version 0.11.7
+%define vala_version 0.17.0
 
 Name:           dconf
-Version:        0.11.2
-Release:        1%{?dist}
+Version:        0.13.0
+Release:        2%{?dist}
 Summary:        A configuration system
 
 Group:          System Environment/Base
 License:        LGPLv2+
 URL:            http://live.gnome.org/dconf
 #VCS:           git:git://git.gnome.org/dconf
-Source0:        http://download.gnome.org/sources/dconf/0.11/dconf-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/dconf/0.12/dconf-%{version}.tar.xz
 
 BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  gtk3-devel
@@ -54,22 +54,28 @@ make %{?_smp_mflags}
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
+magic_rpm_clean.sh
+
+%post
+touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
 
 %postun
 if [ $1 -eq 0 ] ; then
-  /sbin/ldconfig
+  /usr/sbin/ldconfig
   gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
   glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
+  touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
+  gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 fi
 
 %posttrans
-/sbin/ldconfig
+/usr/sbin/ldconfig
 gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
 glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
+gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 
 
 %files
-%defattr(-,root,root,-)
 %doc COPYING
 %{_libdir}/gio/modules/libdconfsettings.so
 %{_libexecdir}/dconf-service
@@ -82,7 +88,6 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/glib-2.0/schemas/ca.desrt.dconf-editor.gschema.xml
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/dconf
 %{_libdir}/libdconf.so
 %{_libdir}/pkgconfig/dconf.pc
@@ -93,13 +98,38 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/vala
 
 %files editor
-%defattr(-,root,root,-)
 %{_bindir}/dconf-editor
 %{_datadir}/applications/dconf-editor.desktop
 %dir %{_datadir}/dconf-editor
 %{_datadir}/dconf-editor/dconf-editor.ui
+%{_datadir}/dconf-editor/dconf-editor-menu.ui
+%{_datadir}/icons/hicolor/*/apps/dconf-editor.png
 
 %changelog
+* Thu Jun 07 2012 Richard Hughes <hughsient@gmail.com> - 0.13.0-2
+- Add missing file to file list.
+
+* Thu Jun 07 2012 Richard Hughes <hughsient@gmail.com> - 0.13.0-1
+- Update to 0.13.0
+
+* Sat May 05 2012 Kalev Lember <kalevlember@gmail.com> - 0.12.1-1
+- Update to 0.12.1
+
+* Tue Mar 27 2012 Kalev Lember <kalevlember@gmail.com> - 0.12.0-1
+- Update to 0.12.0
+
+* Tue Mar 20 2012 Kalev Lember <kalevlember@gmail.com> - 0.11.7-1
+- Update to 0.11.7
+
+* Fri Mar  9 2012 Matthias Clasen <mclasen@redhat.com> - 0.11.6-1
+- Update to 0.11.6
+
+* Mon Feb  6 2012 Matthias Clasen <mclasen@redhat.com> - 0.11.5-1
+- Update to 0.11.5
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.11.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Mon Nov 21 2011 Matthias Clasen <mclasen@redhat.com> - 0.11.2-1
 - Update to 0.11.2
 
