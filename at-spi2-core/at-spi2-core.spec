@@ -1,12 +1,12 @@
 Name:           at-spi2-core
-Version:        2.3.91
+Version:        2.5.3
 Release:        1%{?dist}
 Summary:        Protocol definitions and daemon for D-Bus at-spi
 
 Group:          System Environment/Libraries
 License:        LGPLv2+
 URL:            http://www.linuxfoundation.org/en/AT-SPI_on_D-Bus
-Source0:        http://download.gnome.org/sources/at-spi2-core/2.3/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/at-spi2-core/2.5/%{name}-%{version}.tar.xz
 
 BuildRequires:  dbus-devel
 BuildRequires:  dbus-glib-devel
@@ -53,7 +53,7 @@ make %{?_smp_mflags}
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
-
+magic_rpm_clean.sh
 %{find_lang} %{name}
 
 rm $RPM_BUILD_ROOT%{_libdir}/libatspi.la
@@ -81,6 +81,24 @@ rm $RPM_BUILD_ROOT%{_libdir}/libatspi.la
 %{_libdir}/pkgconfig/atspi-2.pc
 
 %changelog
+* Tue Jun 26 2012 Richard Hughes <hughsient@gmail.com> - 2.5.3-1
+- Update to 2.5.3
+
+* Wed Jun 06 2012 Richard Hughes <hughsient@gmail.com> - 2.5.2-1
+- Update to 2.5.2
+
+* Sat May 05 2012 Kalev Lember <kalevlember@gmail.com> - 2.5.1-1
+- Update to 2.5.1
+
+* Tue Apr 17 2012 Kalev Lember <kalevlember@gmail.com> - 2.4.1-1
+- Update to 2.4.1
+
+* Tue Mar 27 2012 Matthias Clasen <mclasen@redhat.com> - 2.4.0-1
+- Update to 2.4.0
+
+* Wed Mar 21 2012 Kalev Lember <kalevlember@gmail.com> - 2.3.92-1
+- Update to 2.3.92
+
 * Mon Mar  6 2012 Matthias Clasen <mclasen@redhat.com> - 2.3.91-1
 - Update to 2.3.91
 
