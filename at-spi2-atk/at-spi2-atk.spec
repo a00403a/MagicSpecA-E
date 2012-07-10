@@ -1,5 +1,5 @@
 Name:           at-spi2-atk
-Version:        2.3.91
+Version:        2.5.3
 Release:        1%{?dist}
 Summary:        A GTK+ module that bridges ATK to D-Bus at-spi
 
@@ -7,7 +7,7 @@ Group:          System Environment/Libraries
 License:        LGPLv2+
 URL:            http://www.linuxfoundation.org/en/AT-SPI_on_D-Bus
 #VCS: git:git://git.gnome.org/at-spi-atk
-Source0:        http://download.gnome.org/sources/at-spi2-atk/2.3/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/at-spi2-atk/2.5/%{name}-%{version}.tar.xz
 
 BuildRequires:  at-spi2-core-devel
 BuildRequires:  dbus-devel
@@ -33,6 +33,12 @@ ORBIT / CORBA for its transport protocol.
 This package includes a gtk-module that bridges ATK to the new
 D-Bus based at-spi.
 
+%package devel
+Summary:        A GTK+ module that bridges ATK to D-Bus at-spi
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+
+%description devel
+The %{name}-devel package includes the header files for the %{name} library.
 
 %prep
 %setup -q
@@ -50,16 +56,17 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 rm $RPM_BUILD_ROOT%{_libdir}/gtk-2.0/modules/libatk-bridge.la
 rm $RPM_BUILD_ROOT%{_libdir}/gtk-3.0/modules/libatk-bridge.la
-
+rm $RPM_BUILD_ROOT%{_libdir}/libatk-bridge-2.0.la
+magic_rpm_clean.sh
 %find_lang %{name}
 
 %postun
 if [ $1 -eq 0 ]; then
-  glib-compile-schemas %{_datadir}/glib-2.0/schemas
+  glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 fi
 
 %posttrans
-glib-compile-schemas %{_datadir}/glib-2.0/schemas
+glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 
 %files -f %{name}.lang
 %doc COPYING AUTHORS README
@@ -71,9 +78,33 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %{_libdir}/gtk-3.0/modules/libatk-bridge.so
 %{_datadir}/glib-2.0/schemas/org.a11y.atspi.gschema.xml
 %{_libdir}/gnome-settings-daemon-3.0/gtk-modules/at-spi2-atk.desktop
+%{_libdir}/libatk-bridge-2.0.so.*
+
+%files devel
+%{_includedir}/at-spi2-atk/2.0/atk-bridge.h
+%{_libdir}/libatk-bridge-2.0.so
+%{_libdir}/pkgconfig/atk-bridge-2.0.pc
 
 
 %changelog
+* Tue Jun 26 2012 Richard Hughes <hughsient@gmail.com> - 2.5.3-1
+- Update to 2.5.3
+
+* Thu Jun 07 2012 Richard Hughes <hughsient@gmail.com> - 2.5.2-1
+- Update to 2.5.2
+
+* Sat May 05 2012 Kalev Lember <kalevlember@gmail.com> - 2.5.1-1
+- Update to 2.5.1
+
+* Tue Apr 24 2012 Kalev Lember <kalevlember@gmail.com> - 2.4.0-2
+- Silence glib-compile-schemas output
+
+* Tue Mar 27 2012 Matthias Clasen <mclasen@redhat.com> - 2.4.0-1
+- Update to 2.4.0
+
+* Wed Mar 21 2012 Kalev Lember <kalevlember@gmail.com> - 2.3.92-1
+- Update to 2.3.92
+
 * Mon Mar  5 2012 Matthias Clasen <mclasen@redhat.com> - 2.3.91-1
 - Update to 2.3.91
 
