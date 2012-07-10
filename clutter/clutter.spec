@@ -1,20 +1,30 @@
 Name:          clutter
-Version:       1.9.16
+Version:       1.11.6
 Release:       1%{?dist}
 Summary:       Open Source software library for creating rich graphical user interfaces
 
 Group:         Development/Libraries
 License:       LGPLv2+
 URL:           http://www.clutter-project.org/
-Source0:       http://www.clutter-project.org/sources/%{name}/1.9/%{name}-%{version}.tar.xz
+Source0:       http://www.clutter-project.org/sources/%{name}/1.11/%{name}-%{version}.tar.xz
 
 BuildRequires: glib2-devel mesa-libGL-devel pkgconfig pango-devel
 BuildRequires: cairo-gobject-devel gdk-pixbuf2-devel atk-devel
-BuildRequires: cogl-devel >= 1.9.8
+BuildRequires: cogl-devel >= 1.10.0
 BuildRequires: gobject-introspection-devel >= 0.9.6
+BuildRequires: gtk3-devel
 BuildRequires: json-glib-devel >= 0.12.0
-BuildRequires: libXdamage-devel libXcomposite-devel
+BuildRequires: libXcomposite-devel
+BuildRequires: libXdamage-devel
+BuildRequires: libXi-devel
 Requires:      gobject-introspection
+
+# Obsolete clutter packages that have been removed from Fedora
+Obsoletes:     clutter-gesture < 0.0.2-3
+Obsoletes:     clutter-gesture-devel < 0.0.2-3
+Obsoletes:     clutter-imcontext < 0.1.6-5
+Obsoletes:     clutter-imcontext-devel < 0.1.6-5
+Obsoletes:     clutter-imcontext-docs < 0.1.6-5
 
 %description
 Clutter is an open source software library for creating fast,
@@ -68,7 +78,7 @@ make install DESTDIR=%{buildroot} INSTALL='install -p'
 
 #Remove libtool archives.
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
-
+magic_rpm_clean.sh
 %find_lang clutter-1.0
 
 %post -p /sbin/ldconfig
@@ -93,6 +103,40 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/gtk-doc/html/cally
 
 %changelog
+* Tue Jun 26 2012 Richard Hughes <hughsient@gmail.com> - 1.11.6-1
+- Update to 1.11.6
+
+* Tue Jun  5 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.11.4-1
+- Update to 1.11.4
+
+* Thu May 10 2012 Kalev Lember <kalevlember@gmail.com> - 1.11.2-1
+- Update to 1.11.2
+
+* Thu May 03 2012 Bastien Nocera <bnocera@redhat.com> 1.10.4-2
+- Add patches to fix crashes with touch events
+
+* Tue May  1 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.10.4-1
+- Update to 1.10.4
+
+* Tue Apr 17 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.10.2-1
+- Update to 1.10.2
+
+* Thu Apr 12 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.10.0-5
+- Fix misnamed define to enable XI 2.2 support (#809864)
+
+* Fri Apr 06 2012 Zeeshan Ali <zeenix@redhat.com> - 1.10.0-4
+- Include layout fix (Needed by gnome-boxes at least).
+
+* Wed Apr 04 2012 Kalev Lember <kalevlember@gmail.com> - 1.10.0-3
+- Obsolete clutter-gesture and clutter-imcontext packages (#809864)
+
+* Thu Mar 29 2012 Kalev Lember <kalevlember@gmail.com> - 1.10.0-2
+- Build with xi2.2 support (#803430)
+- Enable the GDK backend
+
+* Thu Mar 22 2012 Matthias Clasen <mclasen@redhat.com> - 1.10.0-1
+- Update to 1.10.0
+
 * Tue Mar 20 2012 Kalev Lember <kalevlember@gmail.com> - 1.9.16-1
 - Update to 1.9.16
 
