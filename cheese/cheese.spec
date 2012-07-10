@@ -1,14 +1,25 @@
 Name:           cheese
 Epoch:          2
-Version:        3.3.90
-Release:        2%{?dist}
+Version:        3.5.2
+Release:        4%{?dist}
 Summary:        Application for taking pictures and movies from a webcam
 
 Group:          Amusements/Graphics
 License:        GPLv2+
 URL:            http://projects.gnome.org/cheese/
 #VCS: git:git://git.gnome.org/cheese
-Source0:        http://download.gnome.org/sources/cheese/3.3/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/cheese/3.5/%{name}-%{version}.tar.xz
+# https://bugzilla.gnome.org/show_bug.cgi?id=677543
+Patch3: 0003-main-window-ui-Fix-images-missing-from-effect-button.patch
+# https://bugzilla.gnome.org/show_bug.cgi?id=677544
+Patch4: 0004-camera-device-monitor-Don-t-add-NULL-devices-to-the-.patch
+# https://bugzilla.gnome.org/show_bug.cgi?id=677731
+Patch5: 0005-cheese-camera-Don-t-overwrite-camerabin-s-default-fl.patch
+# https://bugzilla.gnome.org/show_bug.cgi?id=677735
+Patch6: 0006-cheese-thumb-view-Don-t-add-0-sized-files-to-the-thu.patch
+# FIXME file upstream bugs for these 2 (gnome bz is down atm)
+Patch7: 0007-cheese-thumb-view-Don-t-set-columns-to-5000-in-horiz.patch
+Patch8: 0008-cheese-optimize-encoding.patch
 
 BuildRequires: gtk3-devel >= 3.0.0
 BuildRequires: gstreamer-devel >= 0.10.23
@@ -37,6 +48,7 @@ BuildRequires: gnome-desktop3-devel
 BuildRequires: chrpath
 BuildRequires: itstool
 
+Requires: %{name}-libs = %{epoch}:%{version}-%{release}
 Requires: gstreamer-plugins-good >= 0.10.6-2
 Requires: gstreamer-plugins-bad-free
 Requires: gnome-video-effects
@@ -66,6 +78,13 @@ for writing applications that require a webcam display widget.
 
 %prep
 %setup -q
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+
 
 %build
 %configure --disable-static
@@ -82,7 +101,7 @@ desktop-file-install --delete-original --vendor="" 	\
  	--dir=$RPM_BUILD_ROOT%{_datadir}/applications 	\
 	--add-category X-AudioVideoImport		\
 	$RPM_BUILD_ROOT%{_datadir}/applications/cheese.desktop
-
+magic_rpm_clean.sh
 %find_lang %{name} --with-gnome
 
 chrpath --delete $RPM_BUILD_ROOT%{_bindir}/cheese
@@ -102,13 +121,13 @@ fi
 gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 
 %post libs
-/sbin/ldconfig
+/usr/sbin/ldconfig
 if [ $1 -eq 1 ] ; then
     glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 fi
 
 %postun libs
-/sbin/ldconfig
+/usr/sbin/ldconfig
 glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 
 %files
@@ -140,11 +159,38 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/gir-1.0/Cheese-3.0.gir
 
 %changelog
-* Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 2:3.3.90-2
-- Rebuild against new cogl
+* Tue Jun 19 2012 Hans de Goede <hdegoede@redhat.com> - 2:3.4.2-3
+- Reduce camerabin pipeline creation time (rhbz#797188, gnome#677731)
+- Don't add 0 byte sized files to the thumb-view (rhbz#830166, gnome#677735)
+- Fix sizing of horizontal thumbnail list (rhbz#829957)
+- Optimize encoding parameters (rhbz#572169)
 
-* Sun Feb 26 2012 Matthias Clasen <mclasen@redhat.com> - 2:3.3.90-1
-- Update to 3.3.90
+* Wed Jun 13 2012 Owen Taylor <otaylor@redhat.com> - 2:3.5.2-3
+- Require matching version of cheese-libs for cheese
+
+* Thu Jun 07 2012 Matthias Clasen <mclasen@redhat.com> - 2:3.5.2-2
+- Rebuild against new gnome-desktop
+
+* Thu Jun 07 2012 Richard Hughes <hughsient@gmail.com> - 2:3.5.2-1
+- Update to 3.5.2
+
+* Tue Jun  5 2012 Hans de Goede <hdegoede@redhat.com> - 2:3.5.1-2
+- Fix missing images on buttons, also fixes the "Gtk-WARNING **: Attempting to
+  add a widget with type GtkImage to a GtkButton ..." warnings (gnome#677543)
+- Fix cheese crashing when started on machines with v4l2 radio or vbi devices
+  (rhbz#810429, gnome#677544)
+
+* Sun May 06 2012 Kalev Lember <kalevlember@gmail.com> - 2:3.5.1-1
+- Update to 3.5.1
+
+* Tue Apr 17 2012 Kalev Lember <kalevlember@gmail.com> - 2:3.4.1-1
+- Update to 3.4.1
+
+* Tue Mar 27 2012 Richard Hughes <hughsient@gmail.com> - 2:3.4.0-1
+- Update to 3.4.0
+
+* Wed Mar 14 2012 Brian Pepple <bpepple@fedoraproject.org> - 2:3.3.5-2
+- Rebuild for new cogl
 
 * Tue Feb  7 2012 Matthias Clasen <mclasen@redhat.com> - 2:3.3.5-1
 - Update to 3.3.5
