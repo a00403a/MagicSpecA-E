@@ -16,14 +16,18 @@
 
 Summary: Utilities to configure the GNOME desktop
 Name: control-center
-Version: 3.3.91
-Release: 1%{?dist}
+Version: 3.5.4
+Release: 2%{?dist}
 Epoch: 1
 License: GPLv2+ and GFDL
 Group: User Interface/Desktops
 #VCS: git:git://git.gnome.org/gnome-control-center
-Source: http://download.gnome.org/sources/gnome-control-center/3.3/gnome-control-center-%{version}.tar.xz
+Source: http://download.gnome.org/sources/gnome-control-center/3.4/gnome-control-center-%{version}.tar.xz
 URL: http://www.gnome.org
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=672682
+# https://bugzilla.redhat.com/show_bug.cgi?id=802381
+Patch0: printers-firewalld1-api.patch
 
 Requires: gnome-settings-daemon >= 2.21.91-3
 Requires: magic-menus >= %{redhat_menus_version}
@@ -74,7 +78,7 @@ BuildRequires: gsettings-desktop-schemas-devel
 BuildRequires: pulseaudio-libs-devel libcanberra-devel
 BuildRequires: upower-devel
 BuildRequires: NetworkManager-glib-devel >= 0.9
-#BuildRequires: NetworkManager-gtk-devel >= 0.9
+BuildRequires: libnm-gtk-devel >= 0.9
 BuildRequires: polkit-devel
 BuildRequires: gnome-common
 BuildRequires: cups-devel
@@ -87,7 +91,10 @@ BuildRequires: libnotify-devel
 BuildRequires: gnome-doc-utils
 BuildRequires: libwacom-devel
 BuildRequires: systemd-devel
+BuildRequires: libpwquality-devel >= 1.1.1
+%ifnarch s390 s390x
 BuildRequires: gnome-bluetooth-devel >= 3.3.4
+%endif
 
 Requires(post): desktop-file-utils >= %{desktop_file_utils_version}
 Requires(post): shared-mime-info
@@ -124,6 +131,7 @@ utilities.
 
 %prep
 %setup -q -n gnome-control-center-%{version}
+%patch0 -p1 -b .firewalld1
 
 %build
 %configure \
@@ -163,17 +171,17 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} \;
 # remove rpath
 chrpath --delete $RPM_BUILD_ROOT%{_libdir}/control-center-1/panels/*.so
 chrpath --delete $RPM_BUILD_ROOT%{_bindir}/gnome-control-center
-
+magic_rpm_clean.sh
 %find_lang %{gettext_package} --all-name --with-gnome
 
 %post
-/sbin/ldconfig
+/usr/sbin/ldconfig
 update-desktop-database --quiet %{_datadir}/applications
 update-mime-database %{_datadir}/mime > /dev/null
 touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
 
 %postun
-/sbin/ldconfig
+/usr/sbin/ldconfig
 update-desktop-database --quiet %{_datadir}/applications
 update-mime-database %{_datadir}/mime > /dev/null
 if [ $1 -eq 0 ]; then
@@ -191,12 +199,14 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_datadir}/gnome-control-center/pixmaps
 %{_datadir}/gnome-control-center/datetime/
 %{_datadir}/gnome-control-center/sounds/gnome-sounds-default.xml
+%ifnarch s390 s390x
 %{_datadir}/gnome-control-center/bluetooth.ui
+%endif
 %{_datadir}/applications/*.desktop
 %{_datadir}/desktop-directories/*
 %{_datadir}/icons/hicolor/*/*/*
 %{_datadir}/gnome-control-center/icons/
-%{_datadir}/polkit-1/actions/org.gnome.controlcenter.datetime.policy
+%{_datadir}/polkit-1/actions/org.gnome.controlcenter.*.policy
 %{_datadir}/pkgconfig/gnome-keybindings.pc
 %{_datadir}/sounds/gnome/default/*/*.ogg
 # list all binaries explicitly, so we notice if one goes missing
@@ -206,15 +216,16 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_sysconfdir}/xdg/menus/gnomecc.menu
 %dir %{_libdir}/control-center-1
 %{_libdir}/control-center-1/panels/libbackground.so
+%ifnarch s390 s390x
 %{_libdir}/control-center-1/panels/libbluetooth.so
+%endif
 %{_libdir}/control-center-1/panels/libcolor.so
 %{_libdir}/control-center-1/panels/libdate_time.so
 %{_libdir}/control-center-1/panels/libdisplay.so
 %{_libdir}/control-center-1/panels/libinfo.so
 %{_libdir}/control-center-1/panels/libkeyboard.so
 %{_libdir}/control-center-1/panels/libmouse-properties.so
-#?networkmanager-gtk?
-#%{_libdir}/control-center-1/panels/libnetwork.so
+%{_libdir}/control-center-1/panels/libnetwork.so
 %{_libdir}/control-center-1/panels/libonline-accounts.so
 %{_libdir}/control-center-1/panels/libpower.so
 %{_libdir}/control-center-1/panels/libprinters.so
@@ -233,6 +244,37 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 
 
 %changelog
+* Mon Jul 02 2012 Dan Horák <dan[at]danny.cz> - 1:3.5.4-2
+- fix build on s390(x) without Bluetooth
+
+* Wed Jun 27 2012 Richard Hughes <hughsient@gmail.com> - 1:3.5.4-1
+- Update to 3.5.4
+
+* Tue Jun 26 2012 Richard Hughes <hughsient@gmail.com> - 1:3.5.3-1
+- Update to 3.5.3
+
+* Wed Jun 06 2012 Richard Hughes <hughsient@gmail.com> - 1:3.5.2-1
+- Update to 3.5.2
+
+* Fri May 18 2012 Richard Hughes <hughsient@gmail.com> - 1:3.4.2-1
+- Update to 3.4.2
+
+* Tue May 08 2012 Bastien Nocera <bnocera@redhat.com> 3.4.1-2
+- Disable Bluetooth panel on s390
+
+* Mon Apr 16 2012 Richard Hughes <hughsient@gmail.com> - 1:3.4.1-1
+- Update to 3.4.1
+
+* Thu Apr 12 2012 Marek Kasik <mkasik@redhat.com> - 3.4.0-2
+- Add support for FirewallD1 API
+- Resolves: #802381
+
+* Mon Mar 26 2012 Richard Hughes <rhughes@redhat.com> - 3.4.0-1
+- New upstream version.
+
+* Tue Mar 20 2012 Richard Hughes <rhughes@redhat.com> 3.3.92-1
+- Update to 3.3.92
+
 * Mon Mar 05 2012 Bastien Nocera <bnocera@redhat.com> 3.3.91-1
 - Update to 3.3.91
 
