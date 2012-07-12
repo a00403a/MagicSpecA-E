@@ -7,7 +7,7 @@
 %global archivename2 Cantarell-Regular
 
 Name: %{fontname}-fonts
-Version: 0.0.7
+Version: 0.0.9
 Release: 1%{?dist}
 Summary: Cantarell, a Humanist sans-serif font family
 
@@ -44,11 +44,21 @@ install -m 0644 -p fontconfig/%{fontconf} \
         %{buildroot}%{_fontconfig_templatedir}/%{fontconf}
 ln -s %{_fontconfig_templatedir}/%{fontconf} \
       %{buildroot}%{_fontconfig_confdir}/%{fontconf}
-
+#不需要
+#magic_rpm_clean.sh
 %_font_pkg -f %{fontconf} *.otf
 %doc COPYING NEWS README
 
 %changelog
+* Mon Jun 11 2012 Richard Hughes <hughsient@gmail.com> - 0.0.9-1
+- Update to 0.0.9
+
+* Wed Mar 28 2012 Richard Hughes <hughsient@gmail.com> - 0.0.8-1
+- Update to 0.0.8
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.0.7-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Tue Oct 18 2011 Matthias Clasen <mclasen@redhat.com> - 0.0.7-1
 - Update to 0.0.7
 
