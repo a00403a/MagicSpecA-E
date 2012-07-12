@@ -5,7 +5,7 @@ diff -ru autotrace-0.31.1.orig/input-magick.c autotrace-0.31.1/input-magick.c
  
    for(j=0,runcount=0,point=0;j<image->rows;j++)
      for(i=0;i<image->columns;i++) {
-+#if (MagickLibVersion < 0x0645)
++#if (MagickLibVersion < 0x0645) || (MagickLibVersion >= 0x0649)
        p=GetOnePixel(image,i,j);
 +#else
 +      GetOnePixel(image,i,j,pixel);
