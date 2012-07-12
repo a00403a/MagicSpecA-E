@@ -1,10 +1,10 @@
 %global rh_backgrounds_version 15
 %global waves_version 0.1.2
-%global fedora_release_name verne
-%global Fedora_Release_Name Verne
-
+%global fedora_release_name beefy-miracle
+%global Fedora_Release_Name Beefy_Miracle
+#此包是fedora特有包，需要改成Magic的。
 Name:           desktop-backgrounds
-Version:        16.0.0
+Version:        17.0.0
 Release:        1%{?dist}
 Summary:        Desktop backgrounds
 
@@ -41,7 +41,7 @@ Group:          User Interface/Desktops
 %if 0%{?fedora} == 15
 Requires:       lovelock-backgrounds-stripes-gnome
 %else
-Requires:       %{fedora_release_name}-backgrounds-gnome
+#Requires:       %{fedora_release_name}-backgrounds-gnome
 %endif
 # starting with this release, gnome uses picture-uri instead of picture-filename
 # see gnome bz #633983
@@ -55,7 +55,7 @@ The desktop-backgrounds-gnome package sets default background in gnome.
 %package        xfce
 Summary:        The default Fedora wallpaper from XFCE desktop
 Group:          User Interface/Desktops
-Requires:       %{fedora_release_name}-backgrounds-xfce
+#Requires:       %{fedora_release_name}-backgrounds-xfce
 Provides:       system-backgrounds-xfce = %{version}-%{release}
 License:        CC-BY-SA
 
@@ -66,7 +66,7 @@ environment to set up the default backdrop.
 %package        compat
 Summary:        The default Fedora wallpaper for less common DEs
 Group:          User Interface/Desktops
-Requires:       %{fedora_release_name}-backgrounds-single
+#Requires:       %{fedora_release_name}-backgrounds-single
 Provides:       system-backgrounds-compat = %{version}-%{release}
 License:        CC-BY-SA
 
@@ -82,7 +82,6 @@ Group:          User Interface/Desktops
 %description    waves
 The desktop-backgrounds-waves package contains the "Waves" desktop backgrounds
 which were used in Fedora 9.
-
 
 %prep
 %setup -qn redhat-backgrounds-%{rh_backgrounds_version}
@@ -142,19 +141,19 @@ ln -s ../../../../backgrounds/waves/waves-wide-3-night.png 1920x1200.png
 # Defalts for various desktops:
 #   for GNOME
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/glib-2.0/schemas
-/bin/echo '[org.gnome.desktop.background]' > \
+/usr/bin/echo '[org.gnome.desktop.background]' > \
     $RPM_BUILD_ROOT%{_datadir}/glib-2.0/schemas/org.gnome.desktop.background.fedora.gschema.override
 %if 0%{?fedora} == 15
-/bin/echo "picture-uri='file://%{_datadir}/backgrounds/lovelock/default-stripes/lovelock.xml'" >> \
+/usr/bin/echo "picture-uri='file://%{_datadir}/backgrounds/lovelock/default-stripes/lovelock.xml'" >> \
     $RPM_BUILD_ROOT%{_datadir}/glib-2.0/schemas/org.gnome.desktop.background.fedora.gschema.override
 %else
-/bin/echo "picture-uri='file://%{_datadir}/backgrounds/%{fedora_release_name}/default/%{fedora_release_name}.xml'" >> \
+/usr/bin/echo "picture-uri='file://%{_datadir}/backgrounds/%{fedora_release_name}/default/%{fedora_release_name}.xml'" >> \
     $RPM_BUILD_ROOT%{_datadir}/glib-2.0/schemas/org.gnome.desktop.background.fedora.gschema.override
 %endif
 #   for KDE, this is handled in kde-settings
 #   for XFCE
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/xfce4/backdrops
-/bin/ln -s %{fedora_release_name}.png \
+/usr/bin/ln -s %{fedora_release_name}.png \
            $RPM_BUILD_ROOT%{_datadir}/xfce4/backdrops/default.png
 #   and for the rest (e.g. LXDE)
 (cd $RPM_BUILD_ROOT%{_datadir}/backgrounds/images;
@@ -168,7 +167,7 @@ cd ..
 ln -s ./%{fedora_release_name}/default/standard/%{fedora_release_name}.png \
       default.png
 )
-
+magic_rpm_clean.sh
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -218,6 +217,12 @@ fi
 %{_datadir}/backgrounds/default.png
 
 %changelog
+* Tue Feb 07 2012 Martin Sourada <mso@fedoraproject.org> - 17.0.0-1
+- Switch to Beefy Miracle
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 16.0.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Fri Jul 29 2011 Martin Sourada <mso@fedoraproject.org> - 16.0.0-1
 - Switch to Verne
 
