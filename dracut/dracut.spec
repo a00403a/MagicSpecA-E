@@ -3,17 +3,15 @@
 # Variables must be defined
 %define with_nbd                1
 
-# nbd in Fedora only
-%if 0%{?rhel} >= 6
-%define with_nbd 0
-%endif
-
 Name: dracut
 Version: 020
-Release: 22.git20120702%{?dist}
+Release: 84.git20120711%{?dist}
 
 Summary: Initramfs generator using udev
 Group: System Environment/Base
+%if 0%{?suse_version}
+Group: System/Base
+%endif
 
 # The entire source code is GPLv2+
 # except install/* which is LGPLv2.1+
@@ -45,13 +43,82 @@ Patch18: 0018-dracut-functions.sh-create-initdir-if-it-does-not-ex.patch
 Patch19: 0019-dracut-install.c-for-lazy-install-shebangs-do-not-ch.patch
 Patch20: 0020-usrmount-mount-usr.sh-give-emergency_shell-if-usr-mo.patch
 Patch21: 0021-dracut-functions.sh-forgot-set-version-kernel-for-mo.patch
+Patch22: 0022-dracut-functions.sh-find_kernel_modules_by_path-fixe.patch
+Patch23: 0023-base-init.sh-error-out-early-if-dev-proc-or-sys-cann.patch
+Patch24: 0024-add-lsinitrd-and-mkinitrd-man-pages.patch
+Patch25: 0025-manpages-simplify-AUTHORS.patch
+Patch26: 0026-dracut.sh-use-getopt-to-parse-arguments.patch
+Patch27: 0027-usrmount-mount-usr.sh-check-the-right-path-with-ismo.patch
+Patch28: 0028-TEST-03-USR-MOUNT-change-test-to-use-a-seperate-disk.patch
+Patch29: 0029-TEST-30-ISCSI-put-back-in-hard-off.sh-for-tests.patch
+Patch30: 0030-lsinitrd.sh-print-usage-for-h.patch
+Patch31: 0031-lsinitrd.sh-get-rid-of-awk-call.patch
+Patch32: 0032-lsinitrd.sh-fixed-version-file-extraction.patch
+Patch33: 0033-Makefile-mkinitrd-man-page-install-typo.patch
+Patch34: 0034-fips-change-module-list.patch
+Patch35: 0035-i18n-module-setup.sh-s-error-info-if-no-keymap-is-co.patch
+Patch36: 0036-fips-add-instmods-silent-check-mode-c-s.patch
+Patch37: 0037-install-user-group-adm-for-journal.patch
+Patch38: 0038-network-factor-out-parse_ifname_opts-for-ifname-genr.patch
+Patch39: 0039-systemd-exit-with-sane-state.patch
+Patch40: 0040-dracut.asc-add-lsinitrd-and-mkinitrd.patch
+Patch41: 0041-dracut.8.asc-fixup-NOTE-sections.patch
+Patch42: 0042-dracut.cmdline.7.asc-fixup.patch
+Patch43: 0043-network-do-not-rename-other-interfaces-and-document-.patch
+Patch44: 0044-mkinitrd.8.asc-mark-paragraph-as-important.patch
+Patch45: 0045-network-ifname-genrules.sh-check-for-multiple-ifname.patch
+Patch46: 0046-dracut.sh-keep-vim-syntax-highlighting-happy.patch
+Patch47: 0047-systemd-check-that-prefix-does-not-contain-run.patch
+Patch48: 0048-fixed-bash-sh-requirements.patch
+Patch49: 0049-dracut.spec-dracut.conf.d-fedora.conf.example-no-das.patch
+Patch50: 0050-systemd-module-setup.sh-also-include-systemd-udevd-u.patch
+Patch51: 0051-dracut.conf.d-fedora.conf.example-removed-readonly-f.patch
+Patch52: 0052-dracut-functions.sh-bail-out-if-initdir-is-not-set.patch
+Patch53: 0053-dracut.sh-corrected-error-messages-if-mktemp-failed.patch
+Patch54: 0054-require-systemd-186.patch
+Patch55: 0055-systemd-udev-trigger.service-and-systemd-udev-settle.patch
+Patch56: 0056-TEST-30-ISCSI-convert-to-ext3.patch
+Patch57: 0057-02caps-do-not-create-bin-sh-link.patch
+Patch58: 0058-dhclient-initqueue-hook-fix.patch
+Patch59: 0059-Makefile-do-not-install-service-from-98systemd.-They.patch
+Patch60: 0060-plymouth-Use-latest-plymouth-s-populate-script.patch
+Patch61: 0061-test-export-initdir.patch
+Patch62: 0062-test-new-test-TEST-99-RPM.patch
+Patch63: 0063-resume-move-resume-process-to-initqueue.patch
+Patch64: 0064-TEST-99-RPM-test-trap.patch
+Patch65: 0065-systemd-service-cleanup.patch
+Patch66: 0066-plymouth-add-plymouth-wait-quit.service-to-initrd.patch
+Patch67: 0067-TEST-01-BASIC-turn-on-systemd-debugging.patch
+Patch68: 0068-TEST-01-BASIC-enable-selinux.patch
+Patch69: 0069-install-dracut-install.c-redirect-stderr-to-stdout-a.patch
+Patch70: 0070-systemd-initrd-switch-root.service-stop-journald-rat.patch
+Patch71: 0071-systemd-install-all-dracut-units-in-etc-and-let-the-.patch
+Patch72: 0072-test-server-init.sh-redirect-stdin-out-err-to-dev-co.patch
+Patch73: 0073-systemd-initrd-switch-root.target-add-ConditionPathE.patch
+Patch74: 0074-kernel-modules-module-setup.sh-also-install-lib-modp.patch
+Patch75: 0075-nfs-install-modprobe-config-file.patch
+Patch76: 0076-test-add-support-for-make-V-1-TESTS-01-20-40-check.patch
+Patch77: 0077-dracut-shutdown.service-s-reboot.service-systemd-reb.patch
+Patch78: 0078-test-TEST-04-FULL-SYSTEMD-full-test-with-systemd-and.patch
+Patch79: 0079-test-silence-make-all.patch
+Patch80: 0080-systemd-fixed-initrd-switch-root.service.patch
+Patch81: 0081-dracut.sh-for-include-copy-also-the-symbolic-links.patch
+Patch82: 0082-install-dracut-install.c-check-for-empty-or-destdir.patch
+Patch83: 0083-systemd-initrd-switch-root.service-add-back-force-to.patch
 
 
 BuildRequires: dash bash git
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+%if 0%{?suse_version}
+BuildRoot: %{_tmppath}/%{name}-%{version}-build
+%endif
 
 BuildRequires: docbook-style-xsl docbook-dtds libxslt
+
+%if 0%{?suse_version}
+-BuildRequires: docbook-xsl-stylesheets libxslt
+%endif
 
 BuildRequires: asciidoc
 
@@ -63,6 +130,11 @@ Obsoletes: nash <= 6.0.93
 Obsoletes: libbdevid-python <= 6.0.93
 
 BuildRequires: systemd-units
+
+%if 0%{?suse_version} > 9999
+Obsoletes: mkinitrd < 2.6.1
+Provides: mkinitrd = 2.6.1
+%endif
 
 Obsoletes: dracut-kernel < 005
 Provides:  dracut-kernel = %{version}-%{release}
@@ -80,7 +152,7 @@ Requires: sed
 Requires: file
 Requires: udev > 166
 Requires: util-linux >= 2.21
-Requires: systemd >= 44-15
+Requires: systemd >= 186
 
 Conflicts: initscripts < 8.63-1
 Conflicts: plymouth < 0.8.0-0.2009.29.09.19.1
@@ -156,7 +228,9 @@ git am -p1 %{patches}
 make all
 
 %install
+%if 0%{?fedora} || 0%{?rhel}
 rm -rf $RPM_BUILD_ROOT
+%endif
 make install DESTDIR=$RPM_BUILD_ROOT \
      libdir=%{_prefix}/lib \
      bindir=%{_bindir} \
@@ -166,6 +240,9 @@ make install DESTDIR=$RPM_BUILD_ROOT \
      sysconfdir=/etc mandir=%{_mandir}
 
 echo "DRACUT_VERSION=%{version}-%{release}" > $RPM_BUILD_ROOT/%{dracutlibdir}/dracut-version.sh
+
+# we do not support dash in the initramfs
+rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/00dash
 
 # remove gentoo specific modules
 # rm -fr $RPM_BUILD_ROOT/%{dracutlibdir}/modules.d/50gensplash
@@ -187,6 +264,10 @@ mkdir -p $RPM_BUILD_ROOT%{_sharedstatedir}/initramfs
 install -m 0644 dracut.conf.d/fedora.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/01-dist.conf
 install -m 0644 dracut.conf.d/fips.conf.example $RPM_BUILD_ROOT/etc/dracut.conf.d/40-fips.conf
 
+%if 0%{?suse_version}
+install -m 0644 dracut.conf.d/suse.conf.example   $RPM_BUILD_ROOT/etc/dracut.conf.d/01-dist.conf
+%endif
+
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
 install -m 0644 dracut.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/dracut_log
 
@@ -204,10 +285,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/dracut
 # compat symlink
 /usr/sbin/dracut
-%if 0%{?fedora} > 12 || 0%{?rhel} >= 6 || 0%{?suse_version} > 9999
 %{_bindir}/mkinitrd
 %{_bindir}/lsinitrd
-%endif
 %dir %{dracutlibdir}
 %dir %{dracutlibdir}/modules.d
 %{dracutlibdir}/dracut-functions.sh
@@ -220,11 +299,12 @@ rm -rf $RPM_BUILD_ROOT
 %config /etc/dracut.conf.d/01-dist.conf
 %dir /etc/dracut.conf.d
 %{_mandir}/man8/dracut.8*
+%{_mandir}/man8/mkinitrd.8*
 %{_mandir}/man7/dracut.kernel.7*
 %{_mandir}/man7/dracut.cmdline.7*
 %{_mandir}/man5/dracut.conf.5*
+%{_mandir}/man1/lsinitrd.1*
 %{dracutlibdir}/modules.d/00bootchart
-%{dracutlibdir}/modules.d/00dash
 %{dracutlibdir}/modules.d/04watchdog
 %{dracutlibdir}/modules.d/05busybox
 %{dracutlibdir}/modules.d/10i18n
@@ -274,9 +354,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0644,root,root) %ghost %config(missingok,noreplace) %{_localstatedir}/log/dracut.log
 %dir %{_sharedstatedir}/initramfs
 %if %{defined _unitdir}
-%{_unitdir}/*.service
-%{_unitdir}/*.target
-%{_unitdir}/*/*.service
+%{_unitdir}/dracut-shutdown.service
+%{_unitdir}/shutdown.target.wants/dracut-shutdown.service
 %endif
 
 %files network
@@ -315,6 +394,47 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/lib/dracut/overlay
 
 %changelog
+* Wed Jul 11 2012 Harald Hoyer <harald@redhat.com> 020-84.git20120711
+- add back "--force" to switch-root, otherwise systemd umounts /run
+
+* Wed Jul 11 2012 Harald Hoyer <harald@redhat.com> 020-83.git20120711
+- more systemd journal fixes
+- nfs module fix
+- install also /lib/modprobe.d/*
+- fixed dracut-shutdown service
+- safeguards for dracut-install
+- for --include also copy symlinks
+
+* Tue Jul 10 2012 Harald Hoyer <harald@redhat.com> 020-72.git20120710
+- stop journal rather than restart
+- copy over dracut services to /run/systemd/system
+
+* Tue Jul 10 2012 Harald Hoyer <harald@redhat.com> 020-70.git20120710
+- more systemd unit fixups
+- restart systemd-journald in switch-root post
+- fixed dracut-install loader ldd error message
+
+* Mon Jul 09 2012 Harald Hoyer <harald@redhat.com> 020-64.git20120709
+- fixed plymouth install
+- fixed resume
+- fixed dhcp
+- no dracut systemd services installed in the system
+
+* Mon Jul 09 2012 Harald Hoyer <harald@redhat.com> 020-57.git20120709
+- more fixups for systemd-udevd unit renaming
+
+* Mon Jul 09 2012 Harald Hoyer <harald@redhat.com> 020-55.git20120709
+- require systemd >= 186
+- more fixups for systemd-udevd unit renaming
+
+* Mon Jul 09 2012 Harald Hoyer <harald@redhat.com> 020-52.git20120709
+- fixed prefix in 01-dist.conf
+
+* Fri Jul 06 2012 Harald Hoyer <harald@redhat.com> 020-51.git20120706
+- cope with systemd-udevd unit renaming
+- fixed network renaming
+- removed dash module
+
 * Mon Jul 02 2012 Harald Hoyer <harald@redhat.com> 020-22.git20120702
 - fixed kernel modules install
 
