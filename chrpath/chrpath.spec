@@ -1,7 +1,7 @@
 Summary: Modify rpath of compiled programs
 Name: chrpath
 Version: 0.13
-Release: 8%{?dist}
+Release: 9%{?dist}
 License: GPL+
 Group: Development/Tools
 URL: ftp://ftp.hungry.com/pub/hungry/chrpath/
@@ -27,6 +27,8 @@ rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 rm -fr %{buildroot}/usr/doc
 
+magic_rpm_clean.sh
+
 %clean
 rm -rf %{buildroot}
 
@@ -38,6 +40,9 @@ rm -rf %{buildroot}
 %{_mandir}/man1/chrpath.1*
 
 %changelog
+* Wed Jul 25 2012 Liu Di <liudidi@gmail.com> - 0.13-9
+- 为 Magic 3.0 重建
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.13-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
