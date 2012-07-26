@@ -4,7 +4,7 @@ Summary: Text based document generation
 Summary(zh_CN.UTF-8): 基于文本的文档生成器
 Name: asciidoc
 Version: 8.4.5
-Release: 7%{?dist}
+Release: 8%{?dist}
 # The python code does not specify a version.
 # The javascript example code is GPLv2+.
 License: GPL+ and GPLv2+
@@ -67,7 +67,7 @@ install -Dpm 644 asciidocapi.py %{buildroot}%{python_sitelib}/asciidocapi.py
 for file in %{buildroot}{%{_bindir},%{_datadir}/asciidoc/filters/*}/*.py ; do
     touch ${file}{c,o}
 done
-
+magic_rpm_clean.sh
 
 %clean
 rm -rf %{buildroot}
@@ -84,6 +84,9 @@ rm -rf %{buildroot}
 %doc README BUGS CHANGELOG COPYRIGHT
 
 %changelog
+* Thu Jul 26 2012 Liu Di <liudidi@gmail.com> - 8.4.5-8
+- 为 Magic 3.0 重建
+
 * Fri Jan 13 2012 Liu Di <liudidi@gmail.com> - 8.4.5-7
 - 为 Magic 3.0 重建
 
