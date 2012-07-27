@@ -1,6 +1,6 @@
 Name:           dash
 Version:        0.5.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Small and fast POSIX-compliant shell
 Group:          System Environment/Shells
 License:        BSD
@@ -21,9 +21,7 @@ make %{?_smp_mflags}
 
 %install
 make install DESTDIR=%{buildroot}
-mkdir -p %{buildroot}/bin
-mv %{buildroot}%{_bindir}/dash %{buildroot}/bin/
-rm -rf %{buildroot}%{_bindir}/
+magic_rpm_clean.sh
 
 %post
 grep -qF '^/bin/dash$' /etc/shells || echo '/bin/dash' >> /etc/shells
@@ -35,10 +33,13 @@ fi
 
 %files
 %doc INSTALL COPYING ChangeLog
-/bin/dash
+%{_bindir}/dash
 %{_datadir}/man/man1/dash.1.gz
 
 %changelog
+* Fri Jul 27 2012 Liu Di <liudidi@gmail.com> - 0.5.7-2
+- 为 Magic 3.0 重建
+
 * Wed Aug 17 2011 Petr Sabata <contyk@redhat.com> - 0.5.7-1
 - 0.5.7 bump
 
