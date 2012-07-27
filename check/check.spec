@@ -1,6 +1,6 @@
 Name:           check
 Version:        0.9.8
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        A unit test framework for C
 Source0:        http://downloads.sourceforge.net/check/%{name}-%{version}.tar.gz
 Group:          Development/Tools
@@ -45,19 +45,20 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -rf $RPM_BUILD_ROOT%{_infodir}/dir
 rm -rf $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}
+magic_rpm_clean.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
-/sbin/ldconfig
+/usr/sbin/ldconfig
 if [ -e %{_infodir}/%{name}.info* ]; then
   /sbin/install-info \
     --entry='* Check: (check).               A unit testing framework for C.' \
     %{_infodir}/%{name}.info %{_infodir}/dir || :
 fi
 
-%postun -p /sbin/ldconfig
+%postun -p /usr/sbin/ldconfig
 
 %preun
 if [ $1 = 0 -a -e %{_infodir}/%{name}.info* ]; then
@@ -86,6 +87,9 @@ fi
 %{_libdir}/libcheck.a
 
 %changelog
+* Fri Jul 27 2012 Liu Di <liudidi@gmail.com> - 0.9.8-5
+- 为 Magic 3.0 重建
+
 * Mon Feb 14 2011 Jerry James <loganjerry@gmail.com> - 0.9.8-3
 - Rebuild for new gcc (Fedora 15 mass rebuild)
 
