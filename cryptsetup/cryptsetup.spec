@@ -1,18 +1,19 @@
 Summary: A utility for setting up encrypted disks
 Name: cryptsetup
-Version: 1.4.2
-Release: 1%{?dist}
+Version: 1.5.0
+Release: 2%{?dist}
 License: GPLv2 and LGPLv2+
 Group: Applications/System
 URL: http://cryptsetup.googlecode.com/
 BuildRequires: libgcrypt-devel, popt-devel, device-mapper-devel
 BuildRequires: libgpg-error-devel, libuuid-devel
 BuildRequires: python-devel
+BuildRequires: fipscheck-devel >= 1.3.0
 Provides: cryptsetup-luks = %{version}-%{release}
 Obsoletes: cryptsetup-luks < 1.4.0
 Requires: cryptsetup-libs = %{version}-%{release}
+Requires: fipscheck-lib%{_isa} >= 1.3.0
 
-%define _root_sbindir /sbin
 %define upstream_version %{version}
 Source0: http://cryptsetup.googlecode.com/files/cryptsetup-%{upstream_version}.tar.bz2
 
@@ -38,9 +39,28 @@ Group: System Environment/Libraries
 Summary: Cryptsetup shared library
 Provides: cryptsetup-luks-libs = %{version}-%{release}
 Obsoletes: cryptsetup-luks-libs < 1.4.0
+Requires: fipscheck-lib%{_isa} >= 1.3.0
 
 %description libs
 This package contains the cryptsetup shared library, libcryptsetup.
+
+%package -n veritysetup
+Group: Applications/System
+Summary: A utility for setting up dm-verity volumes
+Requires: cryptsetup-libs = %{version}-%{release}
+
+%description -n veritysetup
+The veritysetup package contains a utility for setting up
+disk verification using dm-verity kernel module.
+
+%package reencrypt
+Group: Applications/System
+Summary: A utility for offline reencryption of LUKS encrypted disks.
+Requires: cryptsetup-libs = %{version}-%{release}
+
+%description reencrypt
+This package contains cryptsetup-reencrypt utility which
+can be used for offline reencryption of disk in situ.
 
 %package python
 Group: System Environment/Libraries
@@ -56,37 +76,50 @@ for setting up disk encryption using dm-crypt kernel module.
 %prep
 %setup -q -n cryptsetup-%{upstream_version}
 chmod -x python/pycryptsetup-test.py
+chmod -x misc/dracut_90reencrypt/*
 
 %build
-%configure  --sbindir=%{_root_sbindir} --libdir=%{_libdir} --enable-python
+%configure --enable-python --enable-fips --enable-cryptsetup-reencrypt
 # remove rpath
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 make %{?_smp_mflags}
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
-rm -rf  $RPM_BUILD_ROOT%{_libdir}/*.la $RPM_BUILD_ROOT%{_libdir}/cryptsetup
+# Generate HMAC checksums (FIPS)
+%define __spec_install_post \
+  %{?__debug_package:%{__debug_install_post}} \
+  %{__arch_install_post} \
+  %{__os_install_post} \
+  fipshmac -d %{buildroot}/%{_libdir}/fipscheck %{buildroot}/%{_sbindir}/cryptsetup \
+  fipshmac -d %{buildroot}/%{_libdir}/fipscheck %{buildroot}/%{_libdir}/libcryptsetup.so.* \
+%{nil}
 
-# move libcryptsetup.so to %%{_libdir}
-#pushd $RPM_BUILD_ROOT/%{_lib}
-#rm libcryptsetup.so
-#mkdir -p $RPM_BUILD_ROOT/%{_libdir}
-#ln -s ../../%{_lib}/$(ls libcryptsetup.so.?.?.?) $RPM_BUILD_ROOT/%{_libdir}/libcryptsetup.so
-#mv $RPM_BUILD_ROOT/%{_lib}/pkgconfig $RPM_BUILD_ROOT/%{_libdir}
-#popd
-magic_rpm_clean.sh
+make install DESTDIR=%{buildroot}
+rm -rf %{buildroot}/%{_libdir}/*.la
+install -d %{buildroot}/%{_libdir}/fipscheck
+magic_rpm_clean.sh 
 %find_lang cryptsetup || touch cryptsetup.lang
 
-%post -n cryptsetup-libs -p /usr/sbin/ldconfig
+%post -n cryptsetup-libs -p /sbin/ldconfig
 
-%postun -n cryptsetup-libs -p /usr/sbin/ldconfig
+%postun -n cryptsetup-libs -p /sbin/ldconfig
 
-%files -f cryptsetup.lang
+%files
 %doc COPYING ChangeLog AUTHORS TODO FAQ
 %{_mandir}/man8/cryptsetup.8.gz
-%{_root_sbindir}/cryptsetup
+%{_sbindir}/cryptsetup
+%{_libdir}/fipscheck/cryptsetup.hmac
+
+%files -n veritysetup
+%doc COPYING
+%{_mandir}/man8/veritysetup.8.gz
+%{_sbindir}/veritysetup
+
+%files reencrypt
+%doc COPYING misc/dracut_90reencrypt
+%{_mandir}/man8/cryptsetup-reencrypt.8.gz
+%{_sbindir}/cryptsetup-reencrypt
 
 %files devel
 %doc docs/examples/*
@@ -94,9 +127,10 @@ magic_rpm_clean.sh
 %{_libdir}/libcryptsetup.so
 %{_libdir}/pkgconfig/libcryptsetup.pc
 
-%files libs
+%files libs -f cryptsetup.lang
 %doc COPYING
 %{_libdir}/libcryptsetup.so.*
+%{_libdir}/fipscheck/libcryptsetup.so.*.hmac
 
 %files python
 %doc COPYING.LGPL python/pycryptsetup-test.py
@@ -106,6 +140,28 @@ magic_rpm_clean.sh
 %clean
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Jul 10 2012 Milan Broz <mbroz@redhat.com> - 1.5.0-1
+- Update to cryptsetup 1.5.0.
+
+* Wed Jun 20 2012 Milan Broz <mbroz@redhat.com> - 1.5.0-0.2
+- Update to cryptsetup 1.5.0-rc2.
+- Add cryptsetup-reencrypt subpackage.
+
+* Mon Jun 11 2012 Milan Broz <mbroz@redhat.com> - 1.5.0-0.1
+- Update to cryptsetup 1.5.0-rc1.
+- Add veritysetup subpackage.
+- Move localization files to libs subpackage.
+
+* Thu May 31 2012 Milan Broz <mbroz@redhat.com> - 1.4.3-2
+- Build with fipscheck (verification in fips mode).
+- Clean up spec file, use install to /usr.
+
+* Thu May 31 2012 Milan Broz <mbroz@redhat.com> - 1.4.3-1
+- Update to cryptsetup 1.4.3.
+
 * Thu Apr 12 2012 Milan Broz <mbroz@redhat.com> - 1.4.2-1
 - Update to cryptsetup 1.4.2.
 
