@@ -244,6 +244,9 @@ such as Pacemaker.
 %doc COPYING.LIB
 
 %changelog
+* Mon Jul 30 2012 Liu Di <liudidi@gmail.com> - 1.0.6-9.2
+- 为 Magic 3.0 重建
+
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.6-9.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
