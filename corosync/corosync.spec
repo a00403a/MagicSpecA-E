@@ -121,7 +121,7 @@ rm -f %{buildroot}%{_libdir}/*.a
 # drop docs and html docs for now
 rm -rf %{buildroot}%{_docdir}/*
 
-magic_rpm_clean.sh
+#magic_rpm_clean.sh
 
 %clean
 rm -rf %{buildroot}
