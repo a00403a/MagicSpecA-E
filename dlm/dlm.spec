@@ -1,6 +1,6 @@
 Name:           dlm
-Version:        3.99.2
-Release:        1%{?dist}
+Version:        3.99.5
+Release:        2%{?dist}
 License:        GPLv2 and GPLv2+ and LGPLv2+
 # For a breakdown of the licensing, see README.license
 Group:          System Environment/Kernel
@@ -13,8 +13,13 @@ BuildRequires:  libxml2-devel
 BuildRequires:  systemd-units
 Source0:	http://people.redhat.com/teigland/%{name}-%{version}.tar.gz
 
+%if 0%{?rhel}
+ExclusiveArch: i686 x86_64
+%endif
+
 Requires:       %{name}-lib = %{version}-%{release}
 Requires:       corosync >= 1.99.9
+Requires:	kernel-modules-extra
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
@@ -29,15 +34,19 @@ The kernel dlm requires a user daemon to control cluster membership.
 %build
 # upstream does not require configure
 # upstream does not support _smp_mflags
-CFLAGS=$RPM_OPT_FLAGS make UDEVDIR=%{_prefix}/lib/udev/rules.d/
+CFLAGS=$RPM_OPT_FLAGS make
 CFLAGS=$RPM_OPT_FLAGS make -C fence
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install LIBDIR=%{_libdir} DESTDIR=$RPM_BUILD_ROOT UDEVDIR=%{_prefix}/lib/udev/rules.d/
+make install LIBDIR=%{_libdir} DESTDIR=$RPM_BUILD_ROOT
 make -C fence install LIBDIR=%{_libdir} DESTDIR=$RPM_BUILD_ROOT
 
 install -Dm 0644 init/dlm.service %{buildroot}%{_unitdir}/dlm.service
+install -Dm 0644 init/dlm.sysconfig %{buildroot}/etc/sysconfig/dlm
+
+mv %{buildroot}/lib/udev %{buildroot}/usr/lib
+rm %{buildroot}/lib -rf
 
 magic_rpm_clean.sh
 
@@ -68,6 +77,7 @@ fi
 %{_mandir}/man8/dlm*
 %{_mandir}/man5/dlm*
 %{_mandir}/man3/*dlm*
+%config(noreplace) %{_sysconfdir}/sysconfig/dlm
 
 %package        lib
 Summary:        Library for %{name}
@@ -84,7 +94,7 @@ from userland applications.
 
 %files          lib
 %defattr(-,root,root,-)
-%{_prefix}/lib/udev/rules.d/*-dlm.rules
+/usr/lib/udev/rules.d/*-dlm.rules
 %{_libdir}/libdlm*.so.*
 
 %package        devel
@@ -104,6 +114,21 @@ developing applications that use %{name}.
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.99.5-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Thu Jun 21 2012 David Teigland <teigland@redhat.com> - 3.99.5-1
+- New upstream release
+
+* Wed May 30 2012 David Teigland <teigland@redhat.com> - 3.99.4-2
+- Limit rhel arches
+
+* Mon May 21 2012 David Teigland <teigland@redhat.com> - 3.99.4-1
+- New upstream release
+
+* Mon May 14 2012 David Teigland <teigland@redhat.com> - 3.99.3-1
+- New upstream release
+
 * Wed Apr 11 2012 Fabio M. Di Nitto <fdinitto@redhat.com> - 3.99.2-1
 - New upstream release
 
