@@ -6,32 +6,34 @@
 
 %define glib2_version 2.30.0
 %define gtk3_version 3.2.0
+%define gcr_version 3.4
 %define gtk_doc_version 1.9
 %define intltool_version 0.35.5
 %define libgdata_version 0.10.0
-%define libgweather_version 2.91.0
+%define libgweather_version 3.5.0
 %define libical_version 0.46
 %define liboauth_version 0.9.4
 %define soup_version 2.31.2
 %define sqlite_version 3.5
 
-%define eds_base_version 3.4
+%define eds_base_version 3.6
 
 %define camel_provider_dir %{_libdir}/evolution-data-server/camel-providers
 %define ebook_backends_dir %{_libdir}/evolution-data-server/addressbook-backends
 %define ecal_backends_dir %{_libdir}/evolution-data-server/calendar-backends
+%define modules_dir %{_libdir}/evolution-data-server/registry-modules
 
 ### Abstract ###
 
 Name: evolution-data-server
-Version: 3.3.91
+Version: 3.5.90
 Release: 1%{?dist}
 Group: System Environment/Libraries
 Summary: Backend data server for Evolution
 License: LGPLv2+
 URL: http://projects.gnome.org/evolution/
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-Source: http://download.gnome.org/sources/%{name}/3.3/%{name}-%{version}.tar.xz
+Source: http://download.gnome.org/sources/%{name}/3.5/%{name}-%{version}.tar.xz
 
 Provides: evolution-webcal = %{version}
 Obsoletes: evolution-webcal < 2.24.0
@@ -43,9 +45,10 @@ Patch01: evolution-data-server-1.11.5-fix-64bit-acinclude.patch
 
 ### Build Dependencies ###
 
-BuildRequires: GConf2-devel
 BuildRequires: bison
 BuildRequires: libdb-devel
+BuildRequires: dbus-glib-devel
+BuildRequires: gcr-devel >= %{gcr_version}
 BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gnome-common
@@ -221,25 +224,26 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
 rm -f $RPM_BUILD_ROOT/%{_libdir}/evolution-data-server/camel-providers/*.a
 rm -f $RPM_BUILD_ROOT/%{_libdir}/evolution-data-server/addressbook-backends/*.a
 rm -f $RPM_BUILD_ROOT/%{_libdir}/evolution-data-server/calendar-backends/*.a
+rm -f $RPM_BUILD_ROOT/%{_libdir}/evolution-data-server/registry-modules/*.a
 
 # give the libraries some executable bits 
 find $RPM_BUILD_ROOT -name '*.so.*' -exec chmod +x {} \;
-
+magic_rpm_clean.sh
 %find_lang %{name}-%{eds_base_version}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
+%post -p /usr/sbin/ldconfig
 
 %postun
-/sbin/ldconfig
+/usr/sbin/ldconfig
 if [ $1 -eq 0 ] ; then
-    glib-compile-schemas %{_datadir}/glib-2.0/schemas
+    glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 fi
 
 %posttrans
-glib-compile-schemas %{_datadir}/glib-2.0/schemas
+glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 
 %files -f %{name}-%{eds_base_version}.lang
 %defattr(-,root,root,-)
@@ -261,21 +265,28 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %{_libexecdir}/camel-lock-helper-1.2
 %{_libexecdir}/evolution-addressbook-factory
 %{_libexecdir}/evolution-calendar-factory
+%{_libexecdir}/evolution-source-registry
 
 # GSettings schemas:
 %{_datadir}/GConf/gsettings/libedataserver.convert
+%{_datadir}/GConf/gsettings/evolution-data-server.convert
+%{_datadir}/glib-2.0/schemas/org.gnome.Evolution.DefaultSources.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution-data-server.addressbook.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution-data-server.calendar.gschema.xml
 %{_datadir}/glib-2.0/schemas/org.gnome.evolution.eds-shell.gschema.xml
 %{_datadir}/glib-2.0/schemas/org.gnome.evolution.shell.network-config.gschema.xml
 
 %{_datadir}/evolution-data-server-%{eds_base_version}
 %{_datadir}/dbus-1/services/org.gnome.evolution.dataserver.AddressBook.service
 %{_datadir}/dbus-1/services/org.gnome.evolution.dataserver.Calendar.service
+%{_datadir}/dbus-1/services/org.gnome.evolution.dataserver.Sources.service
 %{_datadir}/pixmaps/evolution-data-server
 
 %dir %{_libdir}/evolution-data-server
 %dir %{camel_provider_dir}
 %dir %{ebook_backends_dir}
 %dir %{ecal_backends_dir}
+%dir %{modules_dir}
 
 # Camel providers:
 %{camel_provider_dir}/libcamelimap.so
@@ -310,6 +321,10 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %{ecal_backends_dir}/libecalbackendfile.so
 %{ecal_backends_dir}/libecalbackendhttp.so
 %{ecal_backends_dir}/libecalbackendweather.so
+%{modules_dir}/module-cache-reaper.so
+%{modules_dir}/module-google-backend.so
+%{modules_dir}/module-online-accounts.so
+%{modules_dir}/module-yahoo-backend.so
 
 %files devel
 %defattr(-,root,root,-)
@@ -352,6 +367,55 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %{_datadir}/gtk-doc/html/libedataserverui
 
 %changelog
+* Mon Aug 20 2012 Milan Crha <mcrha@redhat.com> - 3.5.90-1
+- Update to 3.5.90
+
+* Mon Aug 06 2012 Milan Crha <mcrha@redhat.com> - 3.5.5-1
+- Update to 3.5.5
+- Remove patch for less memory usage from vTrash camel folders (fixed upstream)
+
+* Thu Jul 26 2012 Milan Crha <mcrha@redhat.com> - 3.5.4-3
+- Add patch for less memory usage from vTrash camel folders
+
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.5.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Mon Jul 16 2012 Milan Crha <mcrha@redhat.com> - 3.5.4-1
+- Update to 3.5.4
+- Change dependency from db4 to libdb
+
+* Sun Jul  1 2012 Matthew Barnes <mbarnes@redhat.com> - 3.5.3.1-1
+- Update to 3.5.3.1
+
+* Wed Jun 27 2012 Matthew Barnes <mbarnes@redhat.com> - 3.5.3-3
+- Avoid exposing <db.h> in a public header file.
+
+* Wed Jun 27 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.3-2
+- Build against libgweather 3.5
+
+* Mon Jun 25 2012 Matthew Barnes <mbarnes@redhat.com> - 3.5.3-1
+- Update to 3.5.3
+- Add BR: gcr-devel >= 3.4
+- Drop BR: GConf2-devel  \o/
+
+* Mon Jun 04 2012 Milan Crha <mcrha@redhat.com> - 3.5.2-1
+- Update to 3.5.2
+
+* Sun Apr 29 2012 Matthew Barnes <mbarnes@redhat.com> - 3.5.1-1
+- Update to 3.5.1
+
+* Tue Apr 24 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-2
+- Silence rpm scriptlet output
+
+* Mon Apr 16 2012 Richard Hughes <hughsient@gmail.com> - 3.4.1-1
+- Update to 3.4.1
+
+* Mon Mar 26 2012 Milan Crha <mcrha@redhat.com> - 3.4.0-1
+- Update to 3.4.0
+
+* Mon Mar 19 2012 Milan Crha <mcrha@redhat.com> - 3.3.92-1
+- Update to 3.3.92
+
 * Tue Mar 06 2012 Milan Crha <mcrha@redhat.com> - 3.3.91-1
 - Update to 3.3.91
 
