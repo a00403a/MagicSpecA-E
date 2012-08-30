@@ -8,7 +8,7 @@
 Summary: The Cyrus SASL library
 Name: cyrus-sasl
 Version: 2.1.23
-Release: 29%{?dist}
+Release: 30%{?dist}
 License: BSD with advertising
 Group: System Environment/Libraries
 # Source0 originally comes from ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/;
@@ -337,6 +337,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/sasl2/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_mandir}/cat8/saslauthd.8
 
+magic_rpm_clean.sh
 
 %clean
 test "$RPM_BUILD_ROOT" != "/" && rm -rf $RPM_BUILD_ROOT
@@ -347,26 +348,26 @@ getent passwd %{username} >/dev/null || useradd -r -g %{username} -d %{homedir} 
 
 %post
 if [ $1 -eq 1 ]; then
-	/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+	/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
 %preun
 if [ $1 -eq 0 ]; then
-	/bin/systemctl --no-reload disable saslauthd.service >/dev/null 2>&1 || :
-	/bin/systemctl stop saslauthd.service >/dev/null 2>&1 || :
+	/usr/bin/systemctl --no-reload disable saslauthd.service >/dev/null 2>&1 || :
+	/usr/bin/systemctl stop saslauthd.service >/dev/null 2>&1 || :
 fi
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ]; then
-	/bin/systemctl try-restart saslauthd.service >/dev/null 2>&1 || :
+	/usr/bin/systemctl try-restart saslauthd.service >/dev/null 2>&1 || :
 fi
 exit 0
 
 %triggerun -n cyrus-sasl -- cyrus-sasl < 2.1.23-32
 /usr/bin/systemd-sysv-convert --save saslauthd >/dev/null 2>&1 || :
-/sbin/chkconfig --del saslauthd >/dev/null 2>&1 || :
-/bin/systemctl try-restart saslauthd.service >/dev/null 2>&1 || :
+/usr/sbin/chkconfig --del saslauthd >/dev/null 2>&1 || :
+/usr/bin/systemctl try-restart saslauthd.service >/dev/null 2>&1 || :
 
 %post lib -p /sbin/ldconfig
 %postun lib -p /sbin/ldconfig
@@ -437,6 +438,9 @@ exit 0
 /etc/rc.d/init.d/saslauthd
 
 %changelog
+* Tue Aug 28 2012 Liu Di <liudidi@gmail.com> - 2.1.23-30
+- 为 Magic 3.0 重建
+
 * Wed Feb 08 2012 Petr Lautrbach <plautrba@redhat.com> 2.1.23-29
 - Change saslauth user homedir to /run/saslauthd (#752889)
 - Change all /var/run/ to /run/
