@@ -5,7 +5,7 @@
 Summary: PIM Storage Service
 Summary(zh_CN.UTF-8): 个人信息管理存储服务
 Name:    akonadi
-Version: 1.7.1
+Version: 1.8.0
 Release: 1%{?dist}
 
 Group:   System Environment/Libraries
@@ -43,7 +43,7 @@ Requires: qt4-mysql%{?_isa}
 # not *strictly* required, but we need a functional default configuration
 Requires: mysql-server
 %endif
-Requires(postun): /sbin/ldconfig
+Requires(postun): /usr/sbin/ldconfig
 
 %description
 %{summary}.
@@ -117,7 +117,7 @@ mkdir -p %{buildroot}%{_libdir}/akonadi
 # %%ghost'd global akonadiserverrc 
 touch akonadiserverrc 
 install -p -m644 -D akonadiserverrc %{buildroot}%{_sysconfdir}/xdg/akonadi/akonadiserverrc
-
+magic_rpm_clean.sh
 
 %check
 #make test -C %{_target_platform}
@@ -129,13 +129,13 @@ install -p -m644 -D akonadiserverrc %{buildroot}%{_sysconfdir}/xdg/akonadi/akona
 rm -rf %{buildroot}
 
 
-%post -p /sbin/ldconfig
+%post -p /usr/sbin/ldconfig
 
 %posttrans
 update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %postun
-/sbin/ldconfig ||:
+/usr/sbin/ldconfig ||:
 if [ $1 -eq 0 ] ; then
   update-mime-database %{_datadir}/mime &> /dev/null ||:
 fi
