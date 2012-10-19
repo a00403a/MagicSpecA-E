@@ -1,13 +1,13 @@
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
-%if 0%{?fedora} > 12 || 0%{?rhel} > 5
+%if 0%{?fedora} > 12
 %global with_python3 1
 %endif
 
 Summary: Create deltas between rpms
 Name: deltarpm
 Version: 3.6
-Release: 0.7.20110223git%{?dist}
+Release: 0.11.20110223git%{?dist}
 License: BSD
 Group: System Environment/Base
 URL: http://gitorious.org/deltarpm/deltarpm
@@ -92,7 +92,6 @@ This package contains python bindings for deltarpm.
 %else
 rm -rf %{buildroot}%{_libdir}/python3*
 %endif
-
 magic_rpm_clean.sh
 
 %clean
@@ -139,8 +138,20 @@ magic_rpm_clean.sh
 %endif
 
 %changelog
-* Sun Apr 15 2012 Liu Di <liudidi@gmail.com> - 3.6-0.7.20110223git
-- 为 Magic 3.0 重建
+* Fri Aug 03 2012 David Malcolm <dmalcolm@redhat.com> - 3.6-0.11.20110223git
+- rebuild for https://fedoraproject.org/wiki/Features/Python_3.3
+
+* Fri Aug  3 2012 David Malcolm <dmalcolm@redhat.com> - 3.6-0.10.20110223git
+- remove rhel logic from with_python3 conditional
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.6-0.9.20110223git
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Mar 20 2012 Jindrich Novy <jnovy@redhat.com> - 3.6-0.8.20110223git
+- rebuild against new rpm
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.6-0.7.20110223git
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Wed Feb 23 2011 - Jonathan Dieter <jdieter@lesbg.com> - 3.6-0.6.20110223git
 - Fix makedeltaiso so it (partially) works when compression formats change
