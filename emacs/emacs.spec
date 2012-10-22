@@ -2,60 +2,56 @@
 Summary: GNU Emacs text editor
 Name: emacs
 Epoch: 1
-Version: 24.0.94
-Release: 3%{?dist}
+Version: 24.2
+Release: 5%{?dist}
 License: GPLv3+
 URL: http://www.gnu.org/software/emacs/
 Group: Applications/Editors
-#Source0: ftp://ftp.gnu.org/gnu/emacs/emacs-%{version}.tar.bz2
-Source0: http://alpha.gnu.org/gnu/emacs/pretest/emacs-%{version}.tar.gz
+Source0: ftp://ftp.gnu.org/gnu/emacs/emacs-%{version}.tar.xz
 Source1: emacs.desktop
 Source2: emacsclient.desktop
 Source3: dotemacs.el
 Source4: site-start.el
-Source7: http://php-mode.svn.sourceforge.net/svnroot/php-mode/tags/php-mode-1.5.0/php-mode.el
-Source8: php-mode-init.el
-# rpm-spec-mode from XEmacs
-Source10: rpm-spec-mode.el
-Source11: rpm-spec-mode-init.el
-Source13: focus-init.el
-Source18: default.el
+Source5: default.el
 # Emacs Terminal Mode, #551949, #617355
-Source19: emacs-terminal.desktop
-Source20: emacs-terminal.sh
-Patch0: glibc-open-macro.patch
-Patch1: rpm-spec-mode.patch
-Patch2: rpm-spec-mode-utc.patch
-Patch3: rpm-spec-mode-changelog.patch
+Source6: emacs-terminal.desktop
+Source7: emacs-terminal.sh
 # rhbz#713600
 Patch7: emacs-spellchecker.patch
+# rhbz#830162, fixed in org-mode upstream
+Patch8: emacs-locate-library.patch
 
-BuildRequires: atk-devel, cairo-devel, freetype-devel, fontconfig-devel, dbus-devel, giflib-devel, glibc-devel, gtk2-devel, libpng-devel
-BuildRequires: libjpeg-turbo-devel, libtiff-devel, libX11-devel, libXau-devel, libXdmcp-devel, libXrender-devel, libXt-devel
-BuildRequires: libXpm-devel, ncurses-devel, xorg-x11-proto-devel, zlib-devel, gnutls-devel
-BuildRequires: librsvg2-devel, m17n-lib-devel, libotf-devel, ImageMagick-devel
-BuildRequires: GConf2-devel, alsa-lib-devel, gpm-devel, liblockfile-devel, libxml2-devel
-BuildRequires: autoconf, automake, bzip2, cairo, texinfo, gzip
-# Desktop integration
-BuildRequires: desktop-file-utils
-# Buildrequire both python2 and python3 since below we turn off the
-# brp-python-bytecompile script
-BuildRequires: python2-devel python3-devel
+BuildRequires: atk-devel cairo-devel freetype-devel fontconfig-devel dbus-devel giflib-devel glibc-devel libpng-devel
+BuildRequires: libjpeg-devel libtiff-devel libX11-devel libXau-devel libXdmcp-devel libXrender-devel libXt-devel
+BuildRequires: libXpm-devel ncurses-devel xorg-x11-proto-devel zlib-devel gnutls-devel
+BuildRequires: librsvg2-devel m17n-lib-devel libotf-devel ImageMagick-devel
+BuildRequires: GConf2-devel alsa-lib-devel gpm-devel liblockfile-devel libxml2-devel
+BuildRequires: bzip2 cairo texinfo gzip desktop-file-utils
+%if 0%{?el6}
+BuildRequires: gtk2-devel
+%else
+# Buildrequire both python2 and python3 on systems containing both,
+# since below we turn off the brp-python-bytecompile script
+BuildRequires: gtk3-devel python2-devel python3-devel
+%endif
 %ifarch %{ix86}
 BuildRequires: util-linux
 %endif
-Requires: desktop-file-utils
-# Emacs doesn't run without these fonts, rhbz#732422
-Requires: xorg-x11-fonts-misc
+
+# Emacs doesn't run without xorg-x11-fonts-misc, rhbz#732422
+# We should consider depending on some other font!
+Requires: desktop-file-utils xorg-x11-fonts-misc
 Requires(preun): %{_sbindir}/alternatives
 Requires(posttrans): %{_sbindir}/alternatives
 Requires: emacs-common = %{epoch}:%{version}-%{release}
 Provides: emacs(bin) = %{epoch}:%{version}-%{release}
 
+%if 0%{!?el6:1}
 # Turn off the brp-python-bytecompile script since this script doesn't
 # properly dtect the correct python runtime for the files emacs2.py and
 # emacs3.py
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+%endif
 
 %define paranoid 1
 %if 0%{?fedora}
@@ -97,6 +93,9 @@ on a terminal.
 
 %package common
 Summary: Emacs common files
+# The entire source code is GPLv3+ except lib-src/etags.c which is
+# also BSD.  Manual (info) is GFDL.
+License: GPLv3+ and GFDL and BSD
 Group: Applications/Editors
 Requires(preun): /sbin/install-info
 Requires(preun): %{_sbindir}/alternatives
@@ -116,6 +115,7 @@ This package contains all the common files needed by emacs or emacs-nox.
 Summary: Lisp source files included with GNU Emacs
 Group: Applications/Editors
 Requires: %{name}-filesystem
+BuildArch: noarch
 
 %description el
 Emacs-el contains the emacs-elisp sources for many of the elisp
@@ -128,18 +128,19 @@ Emacs packages or see some elisp examples.
 Summary: A desktop menu item for GNU Emacs terminal.
 Group: Applications/Editors
 Requires: emacs = %{epoch}:%{version}-%{release}
+BuildArch: noarch
 
 %description terminal
-
 Contains a desktop menu item running GNU Emacs terminal. Install
 emacs-terminal if you need a terminal with Malayalam support.
 
 Please note that emacs-terminal is a temporary package and it will be
-removed when anther terminal becomes capable of handling Malayalam.
+removed when another terminal becomes capable of handling Malayalam.
 
 %package filesystem
 Summary: Emacs filesystem layout
 Group: Applications/Editors
+BuildArch: noarch
 
 %description filesystem
 This package provides some directories which are required by other
@@ -148,16 +149,8 @@ packages that add functionality to Emacs.
 %prep
 %setup -q
 
-%patch0 -p1 -b .glibc-open-macro
 %patch7 -p1 -b .spellchecker
-
-# Install site-lisp files
-cp %SOURCE7 %SOURCE10 site-lisp
-pushd site-lisp
-%patch1 -p0
-%patch2 -p0
-%patch3 -p0
-popd
+%patch8 -p1 -b .locate-library
 
 # We prefer our emacs.desktop file
 cp %SOURCE1 etc/emacs.desktop
@@ -174,7 +167,7 @@ rm -f lisp/play/tetris.el lisp/play/tetris.elc
 rm -f etc/sex.6 etc/condom.1 etc/celibacy.1 etc/COOKIES etc/future-bug etc/JOKES
 %endif
 
-%define info_files ada-mode auth autotype calc ccmode cl dbus dired-x ebrowse ede ediff edt eieio efaq eintr elisp emacs emacs-mime epa erc ert eshell eudc flymake forms gnus idlwave info mairix-el message mh-e newsticker nxml-mode org pcl-cvs pgg rcirc reftex remember sasl sc semantic ses sieve smtpmail speedbar tramp url vip viper widget woman
+%define info_files ada-mode auth autotype calc ccmode cl dbus dired-x ebrowse ede ediff edt eieio efaq eintr elisp emacs emacs-gnutls emacs-mime epa erc ert eshell eudc flymake forms gnus idlwave info mairix-el message mh-e newsticker nxml-mode org pcl-cvs pgg rcirc reftex remember sasl sc semantic ses sieve smtpmail speedbar tramp url vip viper widget woman
 
 if test "$(perl -e 'while (<>) { if (/^INFO_FILES/) { s/.*=//; while (s/\\$//) { s/\\//; $_ .= <>; }; s/\s+/ /g; s/^ //; s/ $//; print; exit; } }' Makefile.in)" != "%info_files"; then
   echo Please update info_files >&2
@@ -198,29 +191,29 @@ rm lisp/textmodes/ispell.el.spellchecker
 
 export CFLAGS="-DMAIL_USE_LOCKF $RPM_OPT_FLAGS"
 
-# We patch configure.in so we have to do this
-autoconf
-
-# Build GTK+2 binary
+# Build GTK+ binary
 mkdir build-gtk && cd build-gtk
 ln -s ../configure .
 
+%if 0%{?el6}
+%define toolkit gtk
+%else
+%define toolkit gtk3
+%endif
+
 %configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg \
-           --with-tiff --with-xft --with-xpm --with-x-toolkit=gtk --with-gpm=no \
+           --with-tiff --with-xft --with-xpm --with-x-toolkit=%{toolkit} --with-gpm=no \
 	   --with-wide-int
-make bootstrap
-%{setarch} make %{?_smp_mflags}
+env MALLOC_PERTURB_=0 MALLOC_CHECK_=0 make bootstrap
+env MALLOC_PERTURB_=0 MALLOC_CHECK_=0 %{setarch} make %{?_smp_mflags}
 cd ..
 
 # Build binary without X support
 mkdir build-nox && cd build-nox
 ln -s ../configure .
 %configure --with-x=no
-%{setarch} make %{?_smp_mflags}
+env MALLOC_PERTURB_=0 MALLOC_CHECK_=0 %{setarch} make %{?_smp_mflags}
 cd ..
-
-# Make sure patched lisp files get byte-compiled
-build-gtk/src/emacs %{bytecompargs} site-lisp/*.el
 
 # Remove versioned file so that we end up with .1 suffix and only one DOC file
 rm build-{gtk,nox}/src/emacs-%{version}.*
@@ -266,7 +259,7 @@ chmod 755 %{buildroot}%{emacs_libexecdir}/movemail
 
 mkdir -p %{buildroot}%{site_lisp}
 install -p -m 0644 %SOURCE4 %{buildroot}%{site_lisp}/site-start.el
-install -p -m 0644 %SOURCE18 %{buildroot}%{site_lisp}
+install -p -m 0644 %SOURCE5 %{buildroot}%{site_lisp}
 
 # This solves bz#474958, "update-directory-autoloads" now finally
 # works the path is different each version, so we'll generate it here
@@ -278,11 +271,7 @@ mv %{buildroot}%{_mandir}/man1/{ctags.1.gz,gctags.1.gz}
 mv %{buildroot}%{_mandir}/man1/{etags.1.gz,etags.emacs.1.gz}
 mv %{buildroot}%{_bindir}/{ctags,gctags}
 
-# Install site-lisp files
-install -p -m 0644 site-lisp/*.el{,c} %{buildroot}%{site_lisp}
-
 mkdir -p %{buildroot}%{site_lisp}/site-start.d
-install -p -m 0644 %SOURCE8 %SOURCE11 %SOURCE13 %{buildroot}%{site_lisp}/site-start.d
 
 # Default initialization file
 mkdir -p %{buildroot}%{_sysconfdir}/skel
@@ -300,7 +289,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm
 install -p -m 0644 macros.emacs %{buildroot}%{_sysconfdir}/rpm/
 
 # Installing emacs-terminal binary
-install -p -m 755 %SOURCE20 %{buildroot}%{_bindir}/emacs-terminal
+install -p -m 755 %SOURCE7 %{buildroot}%{_bindir}/emacs-terminal
 
 # After everything is installed, remove info dir
 rm -f %{buildroot}%{_infodir}/dir
@@ -311,13 +300,16 @@ mkdir -p %{buildroot}%{_datadir}/applications
 desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
                      %SOURCE1
 desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
-                     %SOURCE19
+                     %SOURCE6
 
 # Byte compile emacs*.py with correct python interpreters
+%if 0%{!?el6:1}
 %py_byte_compile %{__python} %{buildroot}%{_datadir}/%{name}/%{version}/etc/emacs.py
 %py_byte_compile %{__python} %{buildroot}%{_datadir}/%{name}/%{version}/etc/emacs2.py
 %py_byte_compile %{__python3} %{buildroot}%{_datadir}/%{name}/%{version}/etc/emacs3.py
+%endif
 
+magic_rpm_clean.sh
 #
 # Create file lists
 #
@@ -434,8 +426,60 @@ update-desktop-database &> /dev/null || :
 %dir %{_datadir}/emacs/site-lisp/site-start.d
 
 %changelog
-* Tue Mar 27 2012 Liu Di <liudidi@gmail.com> - 1:24.0.94-3
-- 为 Magic 3.0 重建
+* Thu Sep 20 2012 Karel Klíč <kklic@redhat.com> - 1:24.2-5
+- Add BSD to emacs-common licenses because of etags.
+
+* Fri Sep 14 2012 Karel Klíč <kklic@redhat.com> - 1:24.2-4
+- Moved RPM spec mode to a separate package (rhbz#857865)
+
+* Fri Sep 14 2012 Karel Klíč <kklic@redhat.com> - 1:24.2-3
+- Removed patch glibc-open-macro, which seems to be no longer necessary
+
+* Thu Sep 13 2012 Karel Klíč <kklic@redhat.com> - 1:24.2-2
+- Removed focus-init.el which used to set focus-follows-mouse to nil.
+  It is set to nil by default in Emacs 24.2.
+
+* Thu Sep 13 2012 Karel Klíč <kklic@redhat.com> - 1:24.2-1
+- Updated to the newest upstream release
+- Switched from bz2 upstream package to xz
+- Make the spec file usable on EL6
+- Removed the nogets and CVE-2012-3479 patches, because the upstream
+  package fixes the associated issues
+- Added GFDL license to emacs-common package
+
+* Mon Aug 13 2012 Karel Klíč <kklic@redhat.com> - 1:24.1-6
+- Fix CVE-2012-3479: Evaluation of 'eval' forms in file-local variable
+  sections, when 'enable-local-variables' set to ':safe'
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:24.1-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jul 13 2012 Karel Klíč <kklic@redhat.com> - 1:24.1-4
+- Remove php-mode from the main package. It should be packaged separately. rhbz#751749
+
+* Wed Jul 11 2012 Karel Klíč <kklic@redhat.com> - 1:24.1-3
+- Fix org-mode to work without emacs-el installed. rhbz#830162
+- Fix building without gets function, which is removed from recent version of glibc.
+
+* Wed Jul 11 2012 Ville Skyttä <ville.skytta@iki.fi> - 1:24.1-2
+- Build -el, -terminal, and -filesystem as noarch (rhbz#834907).
+
+* Mon Jun 18 2012 Karel Klíč <kklic@redhat.com> - 1:24.1-1
+- New upstream release
+- Switch from GTK 2 to GTK 3
+
+* Fri Jun  8 2012 Karel Klíč <kklic@redhat.com> - 1:24.1-0.rc1
+- New upstream prerelease
+- Cleanup of the %%changelog section
+
+* Mon May 21 2012 Karel Klíč <kklic@redhat.com> - 1:24.0.97-1
+- Newest prerelease
+
+* Fri Apr  6 2012 Karel Klíč <kklic@redhat.com> - 1:24.0.95-1
+- New upstream prerelease
+
+* Mon Mar 19 2012 Karel Klíč <kklic@redhat.com> - 1:24.0.94-3
+- Another rebuild for ImageMagick update
 
 * Fri Mar  2 2012 Karel Klíč <kklic@redhat.com> - 1:24.0.94-2
 - Rebuild for ImageMagick update
@@ -734,7 +778,7 @@ update-desktop-database &> /dev/null || :
 * Thu Jun 25 2009 Daniel Novotny <dnovotny@redhat.com> 1:23.0.93-5
 - revoked default.el change (#508033)
 - added build dependency: librsvg2-devel (#507852)
-- added dependency: aspell (#443549) 
+- added dependency: aspell (#443549)
 
 * Wed Jun 24 2009 Daniel Novotny <dnovotny@redhat.com> 1:23.0.93-4
 - added xorg-x11-fonts-misc to dependencies (#469220)
@@ -858,7 +902,7 @@ update-desktop-database &> /dev/null || :
 * Mon Aug 13 2007 Chip Coldwell <coldwell@redhat.com> - 22.1-2
 - add pkgconfig file for emacs-common and virtual provides (Resolves: bz242176)
 - glibc-open-macro.patch to deal with glibc turning "open" into a macro.
-- leave emacs info pages in default section (Resolves: bz199008) 
+- leave emacs info pages in default section (Resolves: bz199008)
 
 * Fri Jun  6 2007 Chip Coldwell <coldwell@redhat.com> - 22.1-1
 - move alternatives install to posttrans scriptlet (Resolves: bz239745)
@@ -1462,8 +1506,8 @@ update-desktop-database &> /dev/null || :
 - Drop all old patches
 - Misc cleanups
 - Update the elisp manual to 21-2.7
-- Deprecate the emacs-nox and emacs-X11 subpackages. 
-  Simplify build procedure to match. 
+- Deprecate the emacs-nox and emacs-X11 subpackages.
+  Simplify build procedure to match.
 - Update php-mode to 1.0.0
 
 * Mon Oct 15 2001 Trond Eivind Glomsrød <teg@redhat.com> 20.7-43
@@ -1528,7 +1572,7 @@ update-desktop-database &> /dev/null || :
 * Mon Dec 18 2000 Trond Eivind Glomsrød <teg@redhat.com>
 - add /usr/share/emacs/locale.alias , which had gone AWOL
 - update rpm-spec-mode to 0.11a, fresh from the author
-  (Stig Bjorlykke <stigb@tihlde.org>). The changes we made 
+  (Stig Bjorlykke <stigb@tihlde.org>). The changes we made
   are integrated.
 
 * Fri Dec 15 2000 Trond Eivind Glomsrød <teg@redhat.com>
@@ -1545,10 +1589,10 @@ update-desktop-database &> /dev/null || :
 * Thu Dec 07 2000 Trond Eivind Glomsrød <teg@redhat.com>
 - add rpm-spec-mode after modifying (use Red Hat groups,
   from /usr/share/doc/rpm-version/GROUPS) and fixing
-  colours(don't specify "yellow" on "bright") Also, 
+  colours(don't specify "yellow" on "bright") Also,
   use gpg, not pgp.
 - use it (site-start.el)
-- add mwheel 
+- add mwheel
 - use it, in /etc/skel/.emacs
 
 * Thu Nov 30 2000 Trond Eivind Glomsrød <teg@redhat.com>
@@ -1556,7 +1600,7 @@ update-desktop-database &> /dev/null || :
 - change site-start.el so files in the above directory
   are automatically run on startup
 - don't set the ispell name in site-start.el, use the
-  above directory instead  
+  above directory instead
 
 * Thu Oct 19 2000 Trond Eivind Glomsrød <teg@redhat.com>
 - fix icon name in the .desktop file
@@ -1582,7 +1626,7 @@ update-desktop-database &> /dev/null || :
 - don't use bcopy without a prototype
 
 * Thu Aug 24 2000 Trond Eivind Glomsrød <teg@redhat.com>
-- define MAIL_USE_LOCKF 
+- define MAIL_USE_LOCKF
 - remove setgid on movemail
 
 * Mon Aug 07 2000 Trond Eivind Glomsrød <teg@redhat.com>
@@ -1608,7 +1652,7 @@ update-desktop-database &> /dev/null || :
 
 * Wed Jun 28 2000 Trond Eivind Glomsrød <teg@redhat.com>
 - include python mode and change in site-start.el related to this
-- some changes to the default .emacs 
+- some changes to the default .emacs
 
 * Mon Jun 26 2000 Matt Wilson <msw@redhat.com>
 - don't build with -O2 on alpha until we can track down the compiler
@@ -1625,7 +1669,7 @@ update-desktop-database &> /dev/null || :
 
 * Wed Jun 14 2000 Matt Wilson <msw@redhat.com>
 - edited japanese patch not to patch configure
-- fixed a missing escaped " in a wc string
+- fixed a missing escaped \" in a wc string
 - merge japanese support to head of development
 
 * Tue Jun 13 2000 Trond Eivind Glomsrød <teg@redhat.com>
@@ -1670,11 +1714,11 @@ update-desktop-database &> /dev/null || :
 - gzip man pages
 
 * Thu Apr 20 2000 Trond Eivind Glomsrød <teg@redhat.com>
-- added a security patch from RUS-CERT, which fixes 
+- added a security patch from RUS-CERT, which fixes
   bugs mentioned in "Advisory 200004-01: GNU Emacs 20"
 
 * Tue Apr 18 2000 Trond Eivind Glomsrød <teg@redhat.com>
-- patched to detect bash2 scripts. 
+- patched to detect bash2 scripts.
 
 * Thu Apr 06 2000 Trond Eivind Glomsrød <teg@redhat.com>
 - removed configuraton file status from /usr/share/pixmaps/emacs.png
@@ -1744,7 +1788,7 @@ update-desktop-database &> /dev/null || :
 * Wed Mar 31 1999 Preston Brown <pbrown@redhat.com>
 - updated mh-utils emacs lisp file to match our nmh path locations
 
-* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
+* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com>
 - auto rebuild in the new build environment (release 9)
 
 * Fri Feb 26 1999 Cristian Gafton <gafton@redhat.com>
