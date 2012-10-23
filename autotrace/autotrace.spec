@@ -1,6 +1,6 @@
 Name:           autotrace
 Version:        0.31.1
-Release:        29%{?dist}
+Release:        30%{?dist}
 
 Summary:        Utility for converting bitmaps to vector graphics
 
@@ -91,6 +91,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 22 2012 Liu Di <liudidi@gmail.com> - 0.31.1-30
+- 为 Magic 3.0 重建
+
 * Fri Mar 02 2012 Jon Ciesla <limburgher@gmail.com> - 0.31.1-29.1
 - Libpng 1.5 fix.
 
