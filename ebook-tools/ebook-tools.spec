@@ -2,7 +2,7 @@ Summary: Tools for accessing and converting various ebook file formats
 Summary(zh_CN.UTF-8): 访问和转换多种 ebook 文件格式的工具
 Name: ebook-tools
 Version: 0.2.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 URL: http://ebook-tools.sourceforge.net/
 License: The MIT License
 Group: Development/Libraries
@@ -55,6 +55,7 @@ cmake -DCMAKE_INSTALL_PREFIX=%{_prefix} \
 	-DLIB_INSTALL_DIR=%{_libdir} ..
 
 make %{?_smp_mflags}
+magic_rpm_clean.sh
 
 %install
 cd build
@@ -79,6 +80,9 @@ cd build
 %{_libdir}/libepub.so
 
 %changelog
+* Mon Oct 22 2012 Liu Di <liudidi@gmail.com> - 0.2.1-4
+- 为 Magic 3.0 重建
+
 * Wed Jan 14 2009 Ni Hui <shuizhuyuanluo@126.com> - 0.1.1-0.1mgc
 - 更新至 0.1.1
 - 戊子  十二月十九
