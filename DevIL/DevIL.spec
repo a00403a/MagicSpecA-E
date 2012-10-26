@@ -1,6 +1,6 @@
 Name:           DevIL
 Version:        1.7.8
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        A cross-platform image library
 Group:          System Environment/Libraries
 License:        LGPLv2
@@ -86,16 +86,16 @@ make %{?_smp_mflags}
 make install DESTDIR=%{buildroot}
 rm %{buildroot}%{_libdir}/*.la
 rm %{buildroot}%{_infodir}/dir
-
+magic_rpm_clean.sh
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %post devel
-/sbin/install-info %{_infodir}/DevIL_manual.info %{_infodir}/dir 2> /dev/null || :
+/usr/sbin/install-info %{_infodir}/DevIL_manual.info %{_infodir}/dir 2> /dev/null || :
 %preun devel
 if [ $1 = 0 ] ; then
-  /sbin/install-info --delete %{_infodir}/DevIL_manual.info %{_infodir}/dir 2> /dev/null || :
+  /usr/sbin/install-info --delete %{_infodir}/DevIL_manual.info %{_infodir}/dir 2> /dev/null || :
 fi
 
 %post ILUT -p /sbin/ldconfig
@@ -134,6 +134,9 @@ fi
 
 
 %changelog
+* Fri Oct 26 2012 Liu Di <liudidi@gmail.com> - 1.7.8-8
+- 为 Magic 3.0 重建
+
 * Sun Nov 20 2011 Hans de Goede <hdegoede@redhat.com> - 1.7.8-7
 - Rebuild for new libpng (rhbz#751583)
 
