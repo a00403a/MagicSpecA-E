@@ -5,7 +5,7 @@ Summary: A game programming library.
 Summary(zh_CN.UTF-8): 一个游戏程序库。
 Name: allegro
 Version: %{soft_version}
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: Gift Ware
 Packager: Allegro development team
 Group:          System Environment/Libraries
@@ -27,7 +27,7 @@ Buildroot: %{_tmppath}/%{name}-buildroot
 # which is exactly what we don't want...
 # But which you *need* for compiling on other platforms ...
 Autoreqprov: on
-Requires: /sbin/ldconfig, /sbin/install-info
+Requires: /sbin/ldconfig, /usr/sbin/install-info
 
 %description
 Allegro is a cross-platform library intended for use in computer games
@@ -257,11 +257,11 @@ magic_rpm_clean.sh
 %postun -p /sbin/ldconfig
 
 %post devel
-/sbin/install-info %{_infodir}/allegro.info %{_infodir}/dir 2>/dev/null || :
+/usr/sbin/install-info %{_infodir}/allegro.info %{_infodir}/dir 2>/dev/null || :
 
 %preun devel
 if [ $1 -eq 0 ] ; then
-  /sbin/install-info --delete %{_infodir}/allegro.info %{_infodir}/dir \
+  /usr/sbin/install-info --delete %{_infodir}/allegro.info %{_infodir}/dir \
     2>/dev/null || :
 fi
 
@@ -389,6 +389,9 @@ rm -rf %{builddir}/%{name}-%{version}
 %{_includedir}/logg.h
 
 %changelog
+* Fri Oct 26 2012 Liu Di <liudidi@gmail.com> - 4.4.2-2
+- 为 Magic 3.0 重建
+
 * Fri Oct 28 2011 Liu Di <liudidi@gmail.com> - 4.4.2-1
 - 更新到 4.4.2
 
