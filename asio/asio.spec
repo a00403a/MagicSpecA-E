@@ -5,7 +5,7 @@ Summary: A cross-platform C++ library for network programming
 Summary(zh_CN.UTF-8): 跨平台的网络程序 C++ 库
 Name: asio
 Version: 1.4.8
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://sourceforge.net/projects/asio/
 Source0: http://downloads.sourceforge.net/asio/asio-%{version}.tar.bz2
 License: Boost
@@ -65,5 +65,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/asio.hpp
 
 %changelog
+* Sun Oct 28 2012 Liu Di <liudidi@gmail.com> - 1.4.8-2
+- 为 Magic 3.0 重建
+
 * Wed Oct 26 2011 Liu Di <liudidi@gmail.com> - 1.4.8-1
 - 升级到 1.4.8
