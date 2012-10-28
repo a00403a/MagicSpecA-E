@@ -1,6 +1,6 @@
 Name: 		aiksaurus
 Version: 	1.2.1
-Release: 	20%{?dist}
+Release: 	21%{?dist}
 Summary: 	An English-language thesaurus library
 Summary(zh_CN.UTF-8): 英语同义词库
 
@@ -102,19 +102,19 @@ desktop-file-install --vendor magic                    \
 rm -rf $RPM_BUILD_ROOT
 
 
-%post -p /sbin/ldconfig
+%post -p /usr/sbin/ldconfig
 
 
-%postun -p /sbin/ldconfig
+%postun -p /usr/sbin/ldconfig
 
 
 %post gtk
-/sbin/ldconfig
+/usr/sbin/ldconfig
 update-desktop-database &> /dev/null ||:
 
 
 %postun gtk
-/sbin/ldconfig
+/usr/sbin/ldconfig
 update-desktop-database &> /dev/null ||:
 
 
@@ -152,5 +152,8 @@ update-desktop-database &> /dev/null ||:
 
 
 %changelog
+* Sun Oct 28 2012 Liu Di <liudidi@gmail.com> - 1:1.2.1-21
+- 为 Magic 3.0 重建
+
 * Wed Oct 26 2011 Liu Di <liudidi@gmail.com> - 1.2.1-20
 - 为 Magic 3.0 重建　
