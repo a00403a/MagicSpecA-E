@@ -12,7 +12,7 @@
 %global relccache %(%abs2rel %{_bindir}/ccache %{_libdir}/ccache)
 
 Name:           ccache
-Version:        3.1.7
+Version:        3.1.8
 Release:        1%{?dist}
 Summary:        C/C++ compiler cache
 
@@ -78,7 +78,7 @@ for n in cc gcc g++ c++ ; do
 done
 find $RPM_BUILD_ROOT%{_libdir}/ccache -type l | \
     sed -e "s|^$RPM_BUILD_ROOT|%%ghost |" > %{name}-%{version}.compilers
-
+magic_rpm_clean.sh
 
 %check
 make check
@@ -123,8 +123,10 @@ done\
 %ccache_trigger -p gcc4-c++ c++4 g++4
 %ccache_trigger -p gcc44 cc4 gcc44
 %ccache_trigger -p gcc44-c++ c++44 g++44
-%ccache_trigger -p mingw32-gcc i686-pc-mingw32-cc i686-pc-mingw32-gcc
-%ccache_trigger -p mingw32-gcc-c++ i686-pc-mingw32-c++ i686-pc-mingw32-g++
+%ccache_trigger -p mingw32-gcc i686-pc-mingw32-cc i686-pc-mingw32-gcc i686-w64-mingw32-gcc
+%ccache_trigger -p mingw32-gcc-c++ i686-pc-mingw32-c++ i686-pc-mingw32-g++ i686-w64-mingw32-c++ i686-w64-mingw32-g++
+%ccache_trigger -p mingw64-gcc i686-w64-mingw32-gcc x86_64-w64-mingw32-gcc
+%ccache_trigger -p mingw64-gcc-c++ i686-w64-mingw32-c++ i686-w64-mingw32-g++ x86_64-w64-mingw32-c++ x86_64-w64-mingw32-g++
 %ccache_trigger -p msp430-gcc msp430-cc msp430-gcc
 
 %pre
@@ -142,6 +144,13 @@ getent group ccache >/dev/null || groupadd -r ccache || :
 
 
 %changelog
+* Sat Aug 18 2012 Ville Skyttä <ville.skytta@iki.fi> - 3.1.8-1
+- Update to 3.1.8, fixes #783971.
+- Update mingw* symlink triggers.
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.1.7-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Sun Jan  8 2012 Ville Skyttä <ville.skytta@iki.fi> - 3.1.7-1
 - Update to 3.1.7.
 
