@@ -14,7 +14,7 @@ License: LGPL v2 or later
 Group: System/GUI/KDE
 Group(zh_CN.UTF-8): 系统/GUI/KDE
 URL: http://amarok.kde.org/
-Version: 2.5.0
+Version: 2.6.0
 %if %{enable_svn}
 Release: 0.svn%rversion.1%{?dist}
 %else
@@ -38,8 +38,6 @@ Requires: taglib >= 1.6
 Requires: strigi-libs >= 0.5.9
 Requires: mysql-libs
 Requires: mysql-embedded
-Requires: kdemultimedia4-libkcompactdisc >= 4.0.60
-Requires: kdemultimedia4-libkcddb >= 4.0.60
 Requires: loudmouth
 Requires: phonon >= 4.1.83
 Requires: phonon-backend
@@ -222,7 +220,6 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %exclude %{kde4_plugindir}/kcm_amarok_service_mp3tunes.so
 %exclude %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-ampache-amarok.png
 %exclude %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-jamendo-amarok.png
-%exclude %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-jamendo-black-amarok.png
 %exclude %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-librivox-amarok.png
 %exclude %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-mp3tunes-amarok.png
 %exclude %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-opml-amarok.png
@@ -255,7 +252,6 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %{kde4_plugindir}/kcm_amarok_service_mp3tunes.so
 %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-ampache-amarok.png
 %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-jamendo-amarok.png
-%{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-jamendo-black-amarok.png
 %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-librivox-amarok.png
 %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-mp3tunes-amarok.png
 %{kde4_appsdir}/amarok/icons/hicolor/*/actions/view-services-opml-amarok.png
