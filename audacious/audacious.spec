@@ -1,7 +1,7 @@
 %define name audacious
-%define version 3.1
-%define testver beta3
-%if %{testver}
+%define version 3.3.2
+%define testver %{nil}
+%if 0%{?testver}
 %define release 0.%{testver}.1%{?dist}
 %else
 %define release 1%{?dist}
@@ -13,7 +13,7 @@ Summary(zh_CN.UTF-8): Audacious 媒体播放器
 Version:	%{version}
 Release:	%{release}
 
-%if %{testver}
+%if 0%{?testver}
 Source: 	http://distfiles.atheme.org/audacious-%{version}-%{testver}.tar.bz2
 %else
 Source:		http://distfiles.atheme.org/%{name}-%{version}.tar.bz2
@@ -49,7 +49,7 @@ Libraries and header files required for compiling Audacious plugins.
 编译 Audacious 插件需要的库和头文件。
 
 %prep
-%if %{testver}
+%if 0%{?testver}
 %setup -q -n %{name}-%{version}-%{testver}
 %else
 %setup -q
@@ -70,15 +70,14 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 
 %files
 %defattr(-, root, root)
-%doc README AUTHORS COPYING NEWS
+%doc AUTHORS COPYING
 %{_bindir}/aud*
 %{_libdir}/lib*
 %{_datadir}/applications/audacious*.desktop
 %{_datadir}/audacious/*
 %{_datadir}/locale/*
 %{_datadir}/man/*
-%{_datadir}/pixmaps/*
-%{_iconsdir}/hicolor/*/apps/*.*
+%{_datadir}/icons/hicolor/*/apps/*.*
 
 %files devel
 %defattr(-,root,root,-)
