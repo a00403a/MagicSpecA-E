@@ -16,9 +16,9 @@ Group(zh_CN.UTF-8): 系统/GUI/KDE
 URL: http://amarok.kde.org/
 Version: 2.6.0
 %if %{enable_svn}
-Release: 0.svn%rversion.1%{?dist}
+Release: 0.svn%rversion.1%{?dist}.2
 %else
-Release: 2%{?dist}
+Release: 3%{?dist}
 %endif
 
 %if %{enable_svn}
@@ -40,7 +40,7 @@ Requires: mysql-libs
 Requires: mysql-embedded
 Requires: loudmouth
 Requires: phonon >= 4.1.83
-Requires: phonon-backend
+Requires: phonon-backend%{?_isa}
 Requires: libgcrypt
 Requires: libgpod
 Requires: libmtp
@@ -273,6 +273,12 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %{kde4_servicesdir}/amarok_service_opmldirectory.desktop
 
 %changelog
+* Tue Oct 30 2012 Liu Di <liudidi@gmail.com> - 2.6.0-2
+- 为 Magic 3.0 重建
+
+* Tue Oct 30 2012 Liu Di <liudidi@gmail.com> - 2.6.0-2
+- 为 Magic 3.0 重建
+
 * Sat May 23 2009 Ni Hui <shuizhuyuanluo@126.com> - 2.0.96-1mgc
 - 更新至 2.0.96
 - 己丑  四月廿九
