@@ -1,8 +1,8 @@
 %define name audacious-plugins
 %define summary Audacious-Plugins
-%define version 3.1
-%define testver beta3
-%if %{testver}
+%define version 3.3.2
+%define testver %{nil}
+%if 0%{testver}
 %define release 0.%{testver}.1%{?dist}
 %else
 %define release 1%{?dist}
@@ -15,7 +15,7 @@ Summary:	%{summary}
 Summary(zh_CN.UTF-8):	Audacious 的插件
 Version:	%{version}
 Release:	%{release}
-%if %{testver}
+%if 0%{testver}
 Source:		http://distfiles.atheme.org/%{name}-%{version}-%{testver}.tar.bz2
 %else
 Source:		http://distfiles.atheme.org/audacious-plugins-%{version}.tar.bz2
@@ -37,7 +37,7 @@ Offical Plugins of Audacious
 Audacious 的官方插件包
 
 %prep
-%if %{testver}
+%if 0%{testver}
 %setup -q -n %{name}-%{version}-%{testver}
 %else
 %setup -q
