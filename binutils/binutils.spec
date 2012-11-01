@@ -16,8 +16,8 @@
 
 Summary: A GNU collection of binary utilities
 Name: %{?cross}binutils%{?_with_debug:-debug}
-Version: 2.22.52.0.1
-Release: 10%{?dist}
+Version: 2.23.51.0.3
+Release: 3%{?dist}
 License: GPLv3+
 Group: Development/Tools
 URL: http://sources.redhat.com/binutils
@@ -34,21 +34,16 @@ Patch04: binutils-2.20.51.0.2-version.patch
 Patch05: binutils-2.20.51.0.2-set-long-long.patch
 Patch06: binutils-2.20.51.0.10-copy-osabi.patch
 Patch07: binutils-2.20.51.0.10-sec-merge-emit.patch
-# Upstream http://sourceware.org/git/?p=binutils.git;a=commitdiff;h=f5edd1ac0e79c0356c6a1e2beffcadc0c532be98
-# Fixes RH #788107
-Patch08: binutils-2.22.52.0.1-weakdef.patch
-# From upstream, fixes ld/13621 bug 'dangling global hidden symbol in symtab'
-Patch09: binutils-2.22.52.0.1-ld-13621.patch
-# From upstream
-Patch10: binutils-rh797752.patch
 # Enable -zrelro by default: BZ #621983
-Patch11: binutils-2.22.52.0.1-relro-on-by-default.patch
-# From upstream
-Patch12: binutils-2.22.52.0.1-x86_64-hidden-ifunc.patch
-# From upstream
-Patch13: binutils-2.22.52.0.1-tsx.patch
-# From upstream
-Patch14: binutils-2.22.52.0.1-hidden-ifunc.patch
+Patch08: binutils-2.22.52.0.1-relro-on-by-default.patch
+# Local patch - export demangle.h with the binutils-devel rpm.
+Patch09: binutils-2.22.52.0.1-export-demangle.h.patch
+# Disable checks that config.h has been included before system headers.  BZ #845084
+Patch10: binutils-2.22.52.0.4-no-config-h-check.patch
+# Renames ARM LDRALT insn to LDALT.  BZ# 869025
+Patch11: binutils-2.23.51.0.3-arm-ldralt.patch
+
+Provides: bundled(libiberty)
 
 %define gold_arches %ix86 x86_64
 
@@ -65,7 +60,7 @@ Patch14: binutils-2.22.52.0.1-hidden-ifunc.patch
 %define debug_package %{nil}
 %define run_testsuite 0%{?_with_testsuite:1}
 %else
-%define run_testsuite 0%{!?_without_testsuite:0}
+%define run_testsuite 0%{?_with_testsuite:1}
 %endif
 
 Buildroot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
@@ -118,6 +113,7 @@ Provides: binutils-static = %{version}-%{release}
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 Requires: zlib-devel
+Requires: binutils = %{version}-%{release}
 
 %description devel
 This package contains BFD and opcodes static and dynamic libraries.
@@ -146,15 +142,12 @@ using libelf instead of BFD.
 %patch05 -p0 -b .set-long-long~
 %patch06 -p0 -b .copy-osabi~
 %patch07 -p0 -b .sec-merge-emit~
-%patch08 -p1 -b .weakdef~
-%patch09 -p1 -b .ld-13621~
-%patch10 -p1 -b .cxxfilt-docs~
-%if 0%{?fedora} >= 18
-%patch11 -p0 -b .relro~
+%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%patch08 -p0 -b .relro~
 %endif
-%patch12 -p0 -b .x86_64-hidden-ifunc~
-%patch13 -p0 -b .tsx~
-%patch14 -p0 -b .hidden-ifunc~
+%patch09 -p0 -b .export-demangle-h~
+%patch10 -p0 -b .no-config-h-check~
+%patch11 -p0 -b .arm-ldralt~
 
 # We cannot run autotools as there is an exact requirement of autoconf-2.59.
 
@@ -178,6 +171,10 @@ do
   sed -i -e "s/^DEJATOOL = .*/DEJATOOL = $tool/" $tool/Makefile.in
 done
 touch */configure
+
+%ifarch %{power64}
+%define _target_platform %{_arch}-%{_vendor}-%{_host_os}
+%endif
 
 %build
 echo target is %{binutils_target}
@@ -292,7 +289,7 @@ rm -f %{buildroot}%{_libdir}/lib{bfd,opcodes}.la
 # Sanity check --enable-64-bit-bfd really works.
 grep '^#define BFD_ARCH_SIZE 64$' %{buildroot}%{_prefix}/include/bfd.h
 # Fix multilib conflicts of generated values by __WORDSIZE-based expressions.
-%ifarch %{ix86} x86_64 ppc ppc64 s390 s390x sh3 sh4 sparc sparc64 arm
+%ifarch %{ix86} x86_64 ppc %{power64} s390 s390x sh3 sh4 sparc sparc64 arm
 sed -i -e '/^#include "ansidecl.h"/{p;s~^.*$~#include <bits/wordsize.h>~;}' \
     -e 's/^#define BFD_DEFAULT_TARGET_SIZE \(32\|64\) *$/#define BFD_DEFAULT_TARGET_SIZE __WORDSIZE/' \
     -e 's/^#define BFD_HOST_64BIT_LONG [01] *$/#define BFD_HOST_64BIT_LONG (__WORDSIZE == 64)/' \
@@ -344,7 +341,7 @@ rm -rf %{buildroot}%{_libdir}/libiberty.a
 # This one comes from gcc
 rm -f %{buildroot}%{_infodir}/dir
 rm -rf %{buildroot}%{_prefix}/%{binutils_target}
-
+magic_rpm_clean.sh
 %find_lang %{?cross}binutils
 %find_lang %{?cross}opcodes
 %find_lang %{?cross}bfd
@@ -377,7 +374,7 @@ rm -rf %{buildroot}
 %{_sbindir}/alternatives --auto %{?cross}ld 
 %endif
 %if %{isnative}
-/sbin/ldconfig
+/usr/sbin/ldconfig
 # For --excludedocs:
 if [ -e %{_infodir}/binutils.info.gz ]
 then
@@ -414,7 +411,7 @@ fi
 exit 0
 
 %if %{isnative}
-%postun -p /sbin/ldconfig
+%postun -p /usr/sbin/ldconfig
 %endif # %{isnative}
 
 %files -f %{?cross}binutils.lang
@@ -449,6 +446,72 @@ exit 0
 %endif # %{isnative}
 
 %changelog
+* Tue Oct 23 2012 Nick Clifton <nickc@redhat.com> - 2.23.51.0.3-3
+- Rename ARM LDRALT instruction to LDALT.  (#869025) PR/14575
+
+* Mon Oct 15 2012 Jon Ciesla <limburgher@gmail.com> - 2.23.51.0.3-2
+- Provides: bundled(libiberty)
+
+* Tue Oct 02 2012 Nick Clifton <nickc@redhat.com> - 2.23.51.0.3-1
+- Rebase on 2.23.51.0.3 release.  (#858560)
+
+* Tue Sep 11 2012 Nick Clifton <nickc@redhat.com> - 2.23.51.0.2-1
+- Rebase on 2.23.51.0.2 release.  (#856119)
+- Retire binutils-2.23.51.0.1-gold-keep.patch and binutils-rh805974.patch.
+
+* Tue Sep 4 2012 Jeff Law <law@redhat.com> 2.23.51.0.1-4
+- Correctly handle PLTOFF relocs for s390 IFUNCs.
+
+* Tue Aug 14 2012 Karsten Hopp <karsten@redhat.com> 2.23.51.0.1-3
+- apply F17 commit cd2fda5 to honour {powerpc64} macro (#834651)
+
+* Tue Aug 14 2012 Nick Clifton <nickc@redhat.com> - 2.23.51.0.1-2
+- Make GOLD honour KEEP directives in linker scripts  (#8333355)
+
+* Wed Aug 08 2012 Nick Clifton <nickc@redhat.com> - 2.23.51.0.1-1
+- Rebase on 2.23.51.0.1 release.  (#846433)
+- Retire binutils-2.22.52.0.4-dwz.patch, binutils-2.22.52.0.4-ar-4Gb.patch, binutils-2.22.52.0.4-arm-plt-refcount.patch, binutils-2.22.52.0.4-s390-64bit-archive.patch.
+
+* Thu Aug 02 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.4-8
+- Make the binutils-devel package depend upon the binutils package. (#845082)
+
+* Thu Aug 02 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.4-7
+- Disable checks that config.h is included before system headers.  (#845084)
+
+* Tue Jul 17 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.4-6
+- Use 64bit indicies in archives for s390 binaries.  (#835957)
+
+* Thu Jul 05 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.4-5
+- Catch attempts to create a broken symbol index with archives > 4Gb in size.  (#835957)
+
+* Fri Jun 30 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.4-4
+- Import fix for ld/14189.  (#829311)
+
+* Fri Jun 30 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.4-3
+- Fix handling of archives > 4Gb in size by importing patch for PR binutils/14302.  (#835957)
+
+* Tue Jun 19 2012 Jakub Jelinek <jakub@redhat.com> - 2.22.52.0.4-2
+- Add minimal dwz -m support.
+
+* Wed Jun 06 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.4-1
+- Rebase on 2.22.52.0.4 release.  (#829027)
+
+* Tue May 08 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.3-1
+- Rebase on 2.22.52.0.3 release.  (#819823)
+
+* Mon Apr 30 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.2-1
+- Rebase on 2.22.52.0.2 release.  (#816514)
+- Retire binutils-2.22.52.0.1-weakdef.patch, binutils-2.22.52.0.1-ld-13621.patch, binutils-rh797752.patch, binutils-2.22.52.0.1-x86_64-hidden-ifunc.patch, binutils-2.22.52.0.1-tsx.patch and binutils-2.22.52.0.1-hidden-ifunc.patch.
+- Update binutils-2.22.52.0.1-reloc-on-by-default.patch.
+
+* Fri Apr 27 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.1-12
+- Include demangle.h in the devel rpm.
+
+%if 0%{?rhel} >= 7
+* Tue Apr 03 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.1-11
+- Enable -zrelro by default for RHEL 7+. (#807831)
+%endif
+
 * Fri Mar 16 2012 Jakub Jelinek <jakub@redhat.com> - 2.22.52.0.1-10
 - Fix up handling of hidden ifunc relocs on i?86
 
@@ -461,7 +524,7 @@ exit 0
 
 %if 0%{?fedora} >= 18
 * Tue Mar 06 2012 Nick Clifton <nickc@redhat.com> - 2.22.52.0.1-7
-- Enable -zrelro be default. (#621983)
+- Enable -zrelro by default. (#621983 #807831)
 %endif
 
 * Mon Feb 27 2012 Jeff Law <law@redhat.com> - 2.22.52.0.1-6
