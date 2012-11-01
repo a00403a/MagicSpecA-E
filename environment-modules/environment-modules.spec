@@ -1,6 +1,6 @@
 Name:           environment-modules
-Version:        3.2.9b
-Release:        1%{?dist}
+Version:        3.2.9c
+Release:        4%{?dist}
 Summary:        Provides dynamic modification of a user's environment
 
 Group:          System Environment/Base
@@ -10,6 +10,9 @@ Source0:        http://downloads.sourceforge.net/modules/modules-%{version}.tar.
 Source1:        modules.sh
 Source2:        createmodule.sh
 Patch0:         environment-modules-3.2.7-bindir.patch
+# Patch to fix segfault in module unload due to Tcl RegExp handling
+# https://bugzilla.redhat.com/show_bug.cgi?id=834580
+Patch1:         environment-modules-regex.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  tcl-devel, tclx-devel, libX11-devel
@@ -46,6 +49,7 @@ have access to the module alias.
 %prep
 %setup -q -n modules-3.2.9
 %patch0 -p1 -b .bindir
+%patch1 -p1 -b .regex
 
 
 %build
@@ -66,7 +70,7 @@ cp -p %SOURCE1 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/modules.sh
 cp -p %SOURCE2 $RPM_BUILD_ROOT%{_datadir}/Modules/bin
 ln -s %{_datadir}/Modules/init/csh $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/modules.csh
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/modulefiles
-
+magic_rpm_clean.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -82,12 +86,32 @@ make test
 %{_sysconfdir}/modulefiles
 %{_sysconfdir}/profile.d/*
 %{_bindir}/modulecmd
-%{_datadir}/Modules/
+%dir %{_datadir}/Modules
+%{_datadir}/Modules/bin/
+%dir %{_datadir}/Modules/init
+%{_datadir}/Modules/init/*
+%config(noreplace) %{_datadir}/Modules/init/.modulespath
+%{_datadir}/Modules/modulefiles
 %{_mandir}/man1/module.1.gz
 %{_mandir}/man4/modulefile.4.gz
 
 
 %changelog
+* Fri Aug 24 2012 Orion Poplawski <orion@cora.nwra.com> - 3.2.9c-4
+- Add patch to fix segfault from Tcl RexExp handling (bug 834580)
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.2.9c-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.2.9c-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Nov 29 2011 Orion Poplawski <orion@cora.nwra.com> - 3.2.9c-1
+- Update to 3.2.9c (fixes bug 753760)
+
+* Tue Nov 22 2011 Orion Poplawski <orion@cora.nwra.com> - 3.2.9b-2
+- Make .modulespath a config file
+
 * Tue Nov 15 2011 Orion Poplawski <orion@cora.nwra.com> - 3.2.9b-1
 - Update to 3.2.9b
 
