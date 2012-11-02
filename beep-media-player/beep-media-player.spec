@@ -1,6 +1,6 @@
 Name:          beep-media-player
 Version:        0.9.7.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A GTK2 based media player similar to xmms
 Summary(zh_CN): 基于 GTK2 的类似 xmms 的媒体播放器
 
@@ -12,6 +12,7 @@ URL:             http://audacious-media-player.org/
 Source0:       bmp-%{version}.tar.gz
 Source1:	     Skins.tar.gz
 Patch0:		bmp-0.9.7.1-gtk2.patch
+Patch1: 	bmp-0.9.7.1-gmodule.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  gtk2-devel >= 2.6
 
@@ -26,6 +27,7 @@ BMP.
 %prep
 %setup -q -n bmp-%{version}
 %patch0 -p1
+%patch1 -p1
 
 %build
 %configure
@@ -44,10 +46,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.a
 rm -rf $RPM_BUILD_ROOT
 
 %post
-/sbin/ldconfig
+/usr/sbin/ldconfig
 
 %postun
-/sbin/ldconfig
+/usr/sbin/ldconfig
 
 %files 
 %{_bindir}/*
@@ -58,6 +60,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/bmp.pc
 
 %changelog
+* Fri Nov 02 2012 Liu Di <liudidi@gmail.com> - 0.9.7.1-3
+- 为 Magic 3.0 重建
+
 * Wed Nov 02 2011 Liu Di <liudidi@gmail.com> - 0.9.7.1-2
 - 为 Magic 3.0 重建 
 - *注意*：这是此软件的最后一个版本
