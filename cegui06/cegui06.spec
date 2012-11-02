@@ -1,6 +1,6 @@
 Name:           cegui06
 Version:        0.6.2
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        CEGUI library 0.6 for apps which need this specific version
 Group:          System Environment/Libraries
 License:        MIT and LGPLv2+
@@ -155,6 +155,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Nov 02 2012 Liu Di <liudidi@gmail.com> - 0.6.2-10
+- 为 Magic 3.0 重建
+
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.6.2-9
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
