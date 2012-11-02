@@ -4,7 +4,7 @@ Summary:	A GNU tool for automatically creating Makefiles.
 Summary(zh_CN.UTF-8): 一套自动建立Makefile的GNU工具
 Name:		automake14
 Version:	1.4p6
-Release:   	13%{?dist}
+Release:   	14%{?dist}
 License:	GPL
 Group:		Development/Tools
 Group(zh_CN.UTF-8):   开发/工具
@@ -79,6 +79,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/automake-1.4
 
 %changelog
+* Fri Nov 02 2012 Liu Di <liudidi@gmail.com> - 1.4p6-14
+- 为 Magic 3.0 重建
+
 * Mon Oct 02 2006 Liu Di <liudidi@gmail.com> - 1.4p6-13mgc
 - rebuild for Magic
 
