@@ -1,6 +1,6 @@
 Name:           cryptopp
 Version:        5.6.1
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Public domain C++ class library of cryptographic schemes
 License:        Public Domain
 Group:          System Environment/Libraries
@@ -128,6 +128,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Nov 03 2012 Liu Di <liudidi@gmail.com> - 5.6.1-6
+- 为 Magic 3.0 重建
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.6.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
