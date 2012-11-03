@@ -4,7 +4,7 @@
 Summary:          C++ API for the cairo graphics library
 Name:             cairomm
 Version:          1.10.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 URL:              http://www.cairographics.org
 License:          LGPLv2+
 Group:            System Environment/Libraries
@@ -81,6 +81,9 @@ find $RPM_BUILD_ROOT -type f -name "*.la" -exec rm -f {} ';'
 %doc %{_datadir}/devhelp/
 
 %changelog
+* Sat Nov 03 2012 Liu Di <liudidi@gmail.com> - 1.10.0-2
+- 为 Magic 3.0 重建
+
 * Fri Jul 29 2011 Kalev Lember <kalevlember@gmail.com> - 1.10.0-1
 - Update to 1.10.0
 - Have the -doc subpackage depend on the base package
