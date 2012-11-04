@@ -1,5 +1,6 @@
---- ceph-0.21.1/src/init-ceph.in.orig	2010-07-29 15:16:49.000000000 -0500
-+++ ceph-0.21.1/src/init-ceph.in	2010-08-26 14:58:25.328581937 -0500
+diff -up ceph-0.46/src/init-ceph.in.orig ceph-0.46/src/init-ceph.in
+--- ceph-0.46/src/init-ceph.in.orig	2012-04-24 16:06:39.000000000 -0400
++++ ceph-0.46/src/init-ceph.in	2012-05-09 16:41:36.500004052 -0400
 @@ -1,11 +1,11 @@
  #!/bin/sh
  # Start/stop ceph daemons
