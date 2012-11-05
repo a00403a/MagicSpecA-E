@@ -1,5 +1,5 @@
 Name:		chromium-ffmpegsumo
-Version:	14.0.827.10
+Version:	21.0.1180.81
 Release:	1%{?dist}
 Summary:	Media playback library for chromium
 
@@ -50,6 +50,10 @@ pushd %{buildroot}%{_libdir}/chromium-browser/
 ln -s ../libffmpegsumo.so.0.0.0 libffmpegsumo.so
 popd
 
+# HACK
+cp -a config/libavutil/avconfig.h %{buildroot}%{_includedir}/ffmpegsumo/libavutil/
+magic_rpm_clean.sh
+
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
@@ -62,6 +66,21 @@ popd
 %{_includedir}/ffmpegsumo/
 
 %changelog
+* Tue Aug 28 2012 Tom Callaway <spot@fedoraproject.org> - 21.0.1180.81-1
+- sync with chromium 21.0.1180.81
+
+* Thu Jun 14 2012 Tom Callaway <spot@fedoraproject.org> - 19.0.1084.56-2
+- include config header
+
+* Tue Jun 12 2012 Tom Callaway <spot@fedoraproject.org> - 19.0.1084.56-1
+- update to 19.0.1084.56 forked tree
+
+* Mon Feb 13 2012 Tom Callaway <spot@fedoraproject.org> - 17.0.963.46-1
+- update to 17.0.963.46 forked tree
+
+* Sat Feb  4 2012 Tom Callaway <spot@fedoraproject.org> - 14.0.827.10-2
+- rebuild for newer libvpx
+
 * Mon Jul 25 2011 Tom Callaway <spot@fedoraproject.org> - 14.0.827.10-1
 - update to 14.0.827.10 forked tree
 
