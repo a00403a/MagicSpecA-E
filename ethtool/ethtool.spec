@@ -1,12 +1,13 @@
 Name:		ethtool
 Epoch:		2
-Version:	3.2
-Release:	2%{?dist}
+Version:	3.6
+Release:	1%{?dist}
 Summary:	Settings tool for Ethernet NICs
 
 License:	GPLv2
 Group:		Applications/System
-URL:		http://sourceforge.net/projects/gkernel/
+#Old URL:	http://sourceforge.net/projects/gkernel/
+URL:		http://ftp.kernel.org/pub/software/network/%{name}/
 
 # When using tarball from released upstream version:
 # - http://ftp.kernel.org/pub/software/network/%{name}/%{name}-%{version}.tar.bz2
@@ -17,7 +18,7 @@ URL:		http://sourceforge.net/projects/gkernel/
 # - cp -f ChangeLog ChangeLog.old; git log > ChangeLog.git
 # - rm -rf .git; cd ..; tar cvfz ethtool-6.tar.gz ethtool-6
 # - Use the visible date of latest git log entry for %{release} in spec file
-Source0:	http://ftp.kernel.org/pub/software/network/%{name}/%{name}-%{version}.tar.bz2
+Source0:	http://ftp.kernel.org/pub/software/network/%{name}/%{name}-%{version}.tar.xz
 BuildRequires:	automake, autoconf
 Conflicts:      filesystem < 3
 
@@ -49,6 +50,18 @@ magic_rpm_clean.sh
 %{_mandir}/man8/%{name}.8*
 
 %changelog
+* Tue Oct 23 2012 Jaromir Capik <jcapik@redhat.com> 2:3.6-1
+- Update to 3.6 (#863774)
+
+* Tue Sep 25 2012 Jaromir Capik <jcapik@redhat.com> 2:3.5-1
+- Update to 3.5 (#840741)
+
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:3.4.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Thu Jun 28 2012 Jaromir Capik <jcapik@redhat.com> 2:3.4.1-1
+- Update to 3.4.1 (#830263)
+
 * Wed Jan 25 2012 Harald Hoyer <harald@redhat.com> 2:3.2-2
 - install everything in /usr
   https://fedoraproject.org/wiki/Features/UsrMove
