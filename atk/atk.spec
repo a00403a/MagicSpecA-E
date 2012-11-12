@@ -1,14 +1,14 @@
-%define glib2_version 2.6.0
+%define glib2_version 2.31.2
 %define gobject_introspection_version 0.9.6
 
 Summary: Interfaces for accessibility support
 Name: atk
-Version: 2.3.3
-Release: 2%{?dist}
+Version: 2.6.0
+Release: 1%{?dist}
 License: LGPLv2+
 Group: System Environment/Libraries
 #VCS: git:git://git.gnome.org/atk
-Source: http://download.gnome.org/sources/atk/2.1/atk-%{version}.tar.xz
+Source: http://download.gnome.org/sources/atk/2.6/atk-%{version}.tar.xz
 URL: http://developer.gnome.org/projects/gap/
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gnome-doc-utils
@@ -45,7 +45,7 @@ make %{?_smp_mflags}
 make install DESTDIR=$RPM_BUILD_ROOT
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
-
+magic_rpm_clean.sh
 %find_lang atk10
 
 %post -p /sbin/ldconfig
@@ -66,6 +66,33 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 %{_datadir}/gir-1.0
 
 %changelog
+* Tue Sep 25 2012 Kalev Lember <kalevlember@gmail.com> - 2.6.0-1
+- Update to 2.6.0
+
+* Tue Sep 04 2012 Richard Hughes <hughsient@gmail.com> - 2.5.91-1
+- Update to 2.5.91
+
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.5.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Jul 17 2012 Richard Hughes <hughsient@gmail.com> - 2.5.4-1
+- Update to 2.5.4
+
+* Tue Jun 26 2012 Richard Hughes <hughsient@gmail.com> - 2.5.3-1
+- Update to 2.5.3
+
+* Tue Mar 27 2012 Matthias Clasen <mclasen@redhat.com> - 2.4.0-1
+- Update to 2.4.0
+
+* Tue Mar 20 2012 Kalev Lember <kalevlember@gmail.com> - 2.3.95-1
+- Update to 2.3.95
+
+* Sat Mar  9 2012 Matthias Clasen <mclasen@redhat.com> - 2.3.93-1
+- Update to 2.3.93
+
+* Mon Mar  5 2012 Matthias Clasen <mclasen@redhat.com> - 2.3.91-1
+- Update to 2.3.91
+
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.3-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
