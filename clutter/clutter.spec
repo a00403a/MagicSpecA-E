@@ -1,16 +1,16 @@
 Name:          clutter
-Version:       1.11.6
+Version:       1.12.2
 Release:       1%{?dist}
 Summary:       Open Source software library for creating rich graphical user interfaces
 
 Group:         Development/Libraries
 License:       LGPLv2+
 URL:           http://www.clutter-project.org/
-Source0:       http://www.clutter-project.org/sources/%{name}/1.11/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/clutter/1.12/clutter-%{version}.tar.xz
 
 BuildRequires: glib2-devel mesa-libGL-devel pkgconfig pango-devel
 BuildRequires: cairo-gobject-devel gdk-pixbuf2-devel atk-devel
-BuildRequires: cogl-devel >= 1.10.0
+BuildRequires: cogl-devel >= 1.11
 BuildRequires: gobject-introspection-devel >= 0.9.6
 BuildRequires: gtk3-devel
 BuildRequires: json-glib-devel >= 0.12.0
@@ -20,11 +20,23 @@ BuildRequires: libXi-devel
 Requires:      gobject-introspection
 
 # Obsolete clutter packages that have been removed from Fedora
+# F16
 Obsoletes:     clutter-gesture < 0.0.2-3
 Obsoletes:     clutter-gesture-devel < 0.0.2-3
 Obsoletes:     clutter-imcontext < 0.1.6-5
 Obsoletes:     clutter-imcontext-devel < 0.1.6-5
 Obsoletes:     clutter-imcontext-docs < 0.1.6-5
+# F18
+Obsoletes:     clutter-gtk010 < 0.11.4-9
+Obsoletes:     clutter-gtk010-devel < 0.11.4-9
+Obsoletes:     clutter-sharp < 0-0.17
+Obsoletes:     clutter-sharp-devel < 0-0.17
+Obsoletes:     pyclutter < 1.3.2-13
+Obsoletes:     pyclutter-devel < 1.3.2-13
+Obsoletes:     pyclutter-gst < 1.0.0-10
+Obsoletes:     pyclutter-gst-devel < 1.0.0-10
+Obsoletes:     pyclutter-gtk < 0.10.0-14
+Obsoletes:     pyclutter-gtk-devel < 0.10.0-14
 
 %description
 Clutter is an open source software library for creating fast,
@@ -71,7 +83,7 @@ This package contains documentation for clutter.
  fi
 )
 
-make V=1
+make %{?_smp_mflags} V=1
 
 %install
 make install DESTDIR=%{buildroot} INSTALL='install -p'
@@ -103,6 +115,40 @@ magic_rpm_clean.sh
 %{_datadir}/gtk-doc/html/cally
 
 %changelog
+* Wed Oct 17 2012 Kalev Lember <kalevlember@gmail.com> - 1.12.2-1
+- Update to 1.12.2
+
+* Tue Sep 25 2012 Kalev Lember <kalevlember@gmail.com> - 1.12.0-2
+- Obsolete clutter-gtk010 and clutter-sharp as well
+
+* Tue Sep 25 2012 Kalev Lember <kalevlember@gmail.com> - 1.12.0-1
+- Update to 1.12.0
+- Obsolete pyclutter, -gst and -gtk packages
+
+* Tue Sep 18 2012 Kalev Lember <kalevlember@gmail.com> - 1.11.16-1
+- Update to 1.11.16
+
+* Wed Sep 05 2012 Kalev Lember <kalevlember@gmail.com> - 1.11.14-2
+- Rebuilt with gobject-introspection 1.33.10 (bgo #682124)
+
+* Mon Sep  3 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.11.14-1
+- Update to 1.11.12
+
+* Tue Aug 28 2012 Matthias Clasen <mclasen@redhat.com> - 1.11.12-3
+- Rebuild against new cogl
+
+* Tue Aug 21 2012 Richard Hughes <hughsient@gmail.com> - 1.11.12-1
+- Update to 1.11.12
+
+* Tue Aug  7 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.11.10-1
+- Update to 1.11.10
+
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.11.8-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Jul 17 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.11.8-1
+- Update to 1.11.8
+
 * Tue Jun 26 2012 Richard Hughes <hughsient@gmail.com> - 1.11.6-1
 - Update to 1.11.6
 
