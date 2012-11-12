@@ -1,7 +1,10 @@
 #先使用内置的依赖库
 %define use_external_dependence 0
+
+%define _unpackaged_files_terminate_build	0
+
 Name:           clementine
-Version:        0.7.1
+Version:        1.1.0
 Release:        1%{?dist}
 Summary:        A music player and library organiser
 Summary(zh_CN.UTF-8):	一个音乐播放器和曲库管理工具
@@ -24,6 +27,8 @@ BuildRequires:  boost-devel
 BuildRequires:  notification-daemon
 BuildRequires:  cmake
 BuildRequires:  sqlite-devel
+BuildRequires:  protobuf-devel
+BuildRequires:  protobuf-compiler
 
 %if %{use_external_dependence}
 BuildRequires:  qtsingleapplication-devel
@@ -66,7 +71,6 @@ popd
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot} -C %{_target_platform}
 
-
 %check
 desktop-file-validate \
     %{buildroot}%{_datadir}/applications/%{name}.desktop
@@ -76,11 +80,14 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc Changelog COPYING TODO
+%doc Changelog COPYING
 %{_bindir}/clementine
 %{_datadir}/applications/clementine.desktop
-%{_datadir}/clementine/projectm-presets/*
+#%{_datadir}/clementine/projectm-presets/*
 %{_datadir}/icons/hicolor/*/apps/application-x-clementine.*
+%{_bindir}/clementine-spotifyblob
+%{_bindir}/clementine-tagreader
+%{kde4_servicesdir}/clementine-*.protocol
 
 %changelog
 * Mon Nov 07 2011 Liu Di <liudidi@gmail.coM> - 0.7.1-1
