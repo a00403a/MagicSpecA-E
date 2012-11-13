@@ -1,6 +1,6 @@
 Name:          celt
 Version:       0.11.1
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       An audio codec for use in low-delay speech and audio communication
 
 Group:         System Environment/Libraries
@@ -63,3 +63,6 @@ rm %{buildroot}%{_libdir}/*.la
 %{_libdir}/libcelt0.so
 
 %changelog
+* Tue Nov 13 2012 Liu Di <liudidi@gmail.com> - 0.11.1-4
+- 为 Magic 3.0 重建
+
