@@ -1,12 +1,12 @@
 Name:          cogl
-Version:       1.10.0
+Version:       1.12.0
 Release:       1%{?dist}
 Summary:       A library for using 3D graphics hardware to draw pretty pictures
 
 Group:         Development/Libraries
 License:       LGPLv2+
 URL:           http://www.clutter-project.org/
-Source0:       http://www.clutter-project.org/sources/%{name}/1.10/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/cogl/1.12/cogl-%{version}.tar.xz
 
 BuildRequires: cairo-devel
 BuildRequires: gdk-pixbuf2-devel
@@ -20,8 +20,6 @@ BuildRequires: libXfixes-devel
 BuildRequires: mesa-libGL-devel
 BuildRequires: pango-devel
 BuildRequires: pkgconfig
-
-Patch1: cogl-1.8.2-lp-no-framebuffer-blit.patch
 
 %description
 Cogl is a small open source library for using 3D graphics hardware to draw
@@ -62,7 +60,6 @@ This package contains documentation for %{name}.
 
 %prep
 %setup -q
-%patch1 -p1 -b .llvmpipe
 
 %build
 CFLAGS="$RPM_OPT_FLAGS -fPIC"
@@ -79,7 +76,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
 # This gets installed by mistake
 rm %{buildroot}%{_datadir}/cogl/examples-data/crate.jpg
-
+magic_rpm_clean.sh
 %find_lang %{name}
 
 %post -p /sbin/ldconfig
@@ -102,6 +99,32 @@ rm %{buildroot}%{_datadir}/cogl/examples-data/crate.jpg
 %{_datadir}/gtk-doc/html/cogl-2.0-experimental
 
 %changelog
+* Tue Sep 25 2012 Kalev Lember <kalevlember@gmail.com> - 1.12.0-1
+- Update to 1.12.0
+
+* Tue Sep 18 2012 Kalev Lember <kalevlember@gmail.com> - 1.11.6-1
+- Update to 1.11.6
+- Drop upstreamed cogl-1.11.4-mesa-strings.patch
+
+* Mon Sep 17 2012 Adam Jackson <ajax@redhat.com> 1.11.4-2
+- cogl-1.11.4-mesa-strings.patch: Update match strings for Mesa.
+
+* Mon Sep  3 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.11.4-1
+- Update to 1.11.4
+
+* Tue Aug 21 2012 Richard Hughes <hughsient@gmail.com> - 1.11.2-1
+- Update to 1.11.2
+
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.10.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Wed Jul 18 2012 Kalev Lember <kalevlember@gmail.com> - 1.10.4-1
+- Update to 1.10.4
+- Dropped no-framebuffer-blit patch which is included in the release
+
+* Thu Apr 19 2012 Adel Gadllah <adel.gadllah@gmail.com> - 1.10.2-1
+- Update to 1.10.2
+
 * Tue Mar 20 2012 Kalev Lember <kalevlember@gmail.com> - 1.10.0-1
 - Update to 1.10.0
 
