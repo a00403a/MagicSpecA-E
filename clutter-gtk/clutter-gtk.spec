@@ -1,8 +1,8 @@
 %define         clutter_version 1.0
 
 Name:           clutter-gtk
-Version:        1.1.2
-Release:        5%{?dist}
+Version:        1.4.0
+Release:        1%{?dist}
 Summary:        A basic GTK clutter widget
 
 Group:          Development/Languages
@@ -45,7 +45,7 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="%{__install} -p"
 
 #Remove libtool archives.
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
-
+magic_rpm_clean.sh
 %find_lang cluttergtk-1.0
 
 %post -p /sbin/ldconfig
@@ -64,6 +64,21 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/gtk-doc/html/clutter-gtk-1.0
 
 %changelog
+* Fri Oct 19 2012 Peter Robinson <pbrobinson@fedoraproject.org> 1.4.0-1
+- New 1.4.0 stable release
+
+* Fri Aug 17 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.3.2-3
+- Rebuild for new cogl
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.3.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Wed Jun  6 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.3.2-1
+- Update to 1.3.2
+
+* Tue Apr  3 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.2.0-1
+- Update to 1.2.0
+
 * Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 1.1.2-5
 - Rebuild against new cogl
 
