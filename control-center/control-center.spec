@@ -16,18 +16,17 @@
 
 Summary: Utilities to configure the GNOME desktop
 Name: control-center
-Version: 3.5.4
-Release: 2%{?dist}
+Version: 3.6.1
+Release: 1%{?dist}
 Epoch: 1
 License: GPLv2+ and GFDL
-Group: User Interface/Desktops
 #VCS: git:git://git.gnome.org/gnome-control-center
-Source: http://download.gnome.org/sources/gnome-control-center/3.4/gnome-control-center-%{version}.tar.xz
+Source: http://download.gnome.org/sources/gnome-control-center/3.5/gnome-control-center-%{version}.tar.xz
 URL: http://www.gnome.org
 
-# https://bugzilla.gnome.org/show_bug.cgi?id=672682
-# https://bugzilla.redhat.com/show_bug.cgi?id=802381
-Patch0: printers-firewalld1-api.patch
+# Wacom OSD window
+# https://bugzilla.gnome.org/show_bug.cgi?id=683567
+Patch1: 0001-wacom-Add-show-help-window-to-the-list-of-actions.patch
 
 Requires: gnome-settings-daemon >= 2.21.91-3
 Requires: magic-menus >= %{redhat_menus_version}
@@ -40,13 +39,15 @@ Requires: control-center-filesystem = %{epoch}:%{version}-%{release}
 # we need XRRGetScreenResourcesCurrent
 Requires: libXrandr >= %{libXrandr_version}
 # for user accounts
-Requires: accountsservice apg
+Requires: accountsservice
 # For the user languages
 Requires: iso-codes
 # For the sound panel and gnome-sound-applet
 Requires: gnome-icon-theme-symbolic
 # For the printers panel
 Requires: cups-pk-helper
+# For the network panel
+Requires: nm-connection-editor
 
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
@@ -89,11 +90,12 @@ BuildRequires: gnome-online-accounts-devel
 BuildRequires: colord-devel
 BuildRequires: libnotify-devel
 BuildRequires: gnome-doc-utils
-BuildRequires: libwacom-devel
 BuildRequires: systemd-devel
-BuildRequires: libpwquality-devel >= 1.1.1
+BuildRequires: libpwquality-devel
+BuildRequires: ibus-devel
 %ifnarch s390 s390x
 BuildRequires: gnome-bluetooth-devel >= 3.3.4
+BuildRequires: libwacom-devel
 %endif
 
 Requires(post): desktop-file-utils >= %{desktop_file_utils_version}
@@ -118,7 +120,6 @@ properties, screen resolution, and other settings.
 
 %package filesystem
 Summary: GNOME Control Center directories
-Group: Development/Libraries
 # NOTE: this is an "inverse dep" subpackage. It gets pulled in
 # NOTE: by the main package an MUST not depend on the main package
 
@@ -131,7 +132,7 @@ utilities.
 
 %prep
 %setup -q -n gnome-control-center-%{version}
-%patch0 -p1 -b .firewalld1
+%patch1 -p1 -b .wacom-osd-window
 
 %build
 %configure \
@@ -176,21 +177,21 @@ magic_rpm_clean.sh
 
 %post
 /usr/sbin/ldconfig
-update-desktop-database --quiet %{_datadir}/applications
-update-mime-database %{_datadir}/mime > /dev/null
-touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
+/usr/bin/update-desktop-database &> /dev/null || :
+/usr/bin/update-mime-database %{_datadir}/mime &> /dev/null || :
+/usr/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 
 %postun
 /usr/sbin/ldconfig
-update-desktop-database --quiet %{_datadir}/applications
-update-mime-database %{_datadir}/mime > /dev/null
+/usr/bin/update-desktop-database &> /dev/null || :
+/usr/bin/update-mime-database %{_datadir}/mime &> /dev/null || :
 if [ $1 -eq 0 ]; then
-  touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
-  gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
+    /usr/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+    /usr/bin/gtk-update-icon-cache -f %{_datadir}/icons/hicolor &>/dev/null || :
 fi
 
 %posttrans
-gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
+/usr/bin/gtk-update-icon-cache -f %{_datadir}/icons/hicolor &>/dev/null || :
 
 %files -f %{gettext_package}.lang
 %doc AUTHORS COPYING NEWS README
@@ -234,16 +235,60 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_libdir}/control-center-1/panels/libsound.so
 %{_libdir}/control-center-1/panels/libuniversal-access.so
 %{_libdir}/control-center-1/panels/libuser-accounts.so
+%ifnarch s390 s390x
 %{_libdir}/control-center-1/panels/libwacom-properties.so
+%endif
 %{_datadir}/pixmaps/faces
+%{_datadir}/man/man1/gnome-control-center.1.*
+%{_datadir}/polkit-1/rules.d/gnome-control-center.rules
 
 %files filesystem
 %dir %{_datadir}/gnome/wm-properties
 %dir %{_datadir}/gnome-control-center
 %dir %{_datadir}/gnome-control-center/keybindings
+%dir %{_datadir}/gnome-control-center/sounds
 
 
 %changelog
+* Mon Oct 08 2012 Bastien Nocera <bnocera@redhat.com> 3.6.1-1
+- Update to 3.6.1
+
+* Fri Oct  5 2012 Olivier Fourdan <ofourdan@redhat.com> - 1:3.6.0-2
+- Add Wacom OSD window from upstream bug #683567
+
+* Tue Sep 25 2012 Richard Hughes <hughsient@gmail.com> - 1:3.6.0-1
+- Update to 3.6.0
+
+* Wed Sep 19 2012 Richard Hughes <hughsient@gmail.com> - 1:3.5.92-1
+- Update to 3.5.92
+
+* Thu Sep 06 2012 Richard Hughes <hughsient@gmail.com> - 1:3.5.91-1
+- Update to 3.5.91
+
+* Sun Aug 26 2012 Matthias Clasen <mclasen@redhat.com> - 1:3.5.90-2
+- Drop apg dependency, it is no longer used
+
+* Wed Aug 22 2012 Richard Hughes <hughsient@gmail.com> - 1:3.5.90-1
+- Update to 3.5.90
+
+* Sat Aug 18 2012 Debarshi Ray <rishi@fedoraproject.org> - 1:3.5.6-2
+- Add Requires: nm-connection-editor (RH #849268)
+
+* Wed Aug 15 2012 Debarshi Ray <rishi@fedoraproject.org> - 1:3.5.6-1
+- Update to 3.5.6
+
+* Wed Aug 15 2012 Dan Horák <dan[at]danny.cz> - 1:3.5.5-4
+- no wacom support on s390(x)
+
+* Wed Aug 15 2012 Debarshi Ray <rishi@fedoraproject.org> - 1:3.5.5-3
+- Rebuild against newer gnome-bluetooth
+
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.5.5-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Thu Jul 19 2012 Matthias Clasen <mclasen@redhat.com> - 1:3.5.5-1
+- Update to 3.5.5
+
 * Mon Jul 02 2012 Dan Horák <dan[at]danny.cz> - 1:3.5.4-2
 - fix build on s390(x) without Bluetooth
 
