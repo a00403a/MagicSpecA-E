@@ -1,29 +1,21 @@
 Name:           cheese
 Epoch:          2
-Version:        3.5.2
-Release:        4%{?dist}
+Version:        3.6.1
+Release:        1%{?dist}
 Summary:        Application for taking pictures and movies from a webcam
 
 Group:          Amusements/Graphics
 License:        GPLv2+
 URL:            http://projects.gnome.org/cheese/
 #VCS: git:git://git.gnome.org/cheese
-Source0:        http://download.gnome.org/sources/cheese/3.5/%{name}-%{version}.tar.xz
-# https://bugzilla.gnome.org/show_bug.cgi?id=677543
-Patch3: 0003-main-window-ui-Fix-images-missing-from-effect-button.patch
-# https://bugzilla.gnome.org/show_bug.cgi?id=677544
-Patch4: 0004-camera-device-monitor-Don-t-add-NULL-devices-to-the-.patch
-# https://bugzilla.gnome.org/show_bug.cgi?id=677731
-Patch5: 0005-cheese-camera-Don-t-overwrite-camerabin-s-default-fl.patch
-# https://bugzilla.gnome.org/show_bug.cgi?id=677735
-Patch6: 0006-cheese-thumb-view-Don-t-add-0-sized-files-to-the-thu.patch
-# FIXME file upstream bugs for these 2 (gnome bz is down atm)
-Patch7: 0007-cheese-thumb-view-Don-t-set-columns-to-5000-in-horiz.patch
-Patch8: 0008-cheese-optimize-encoding.patch
+Source0:        http://download.gnome.org/sources/cheese/3.6/%{name}-%{version}.tar.xz
+# https://bugzilla.gnome.org/show_bug.cgi?id=678447
+# Patch2: 0002-Setup-vp8enc-in-a-way-suitable-for-realtime-encoding.patch
 
 BuildRequires: gtk3-devel >= 3.0.0
-BuildRequires: gstreamer-devel >= 0.10.23
-BuildRequires: gstreamer-plugins-base-devel >= 0.10.12
+BuildRequires: gstreamer1-devel
+BuildRequires: gstreamer1-plugins-bad-free-devel
+BuildRequires: gstreamer1-plugins-base-devel
 BuildRequires: cairo-devel >= 1.4.0
 BuildRequires: librsvg2-devel >= 2.18.0
 BuildRequires: evolution-data-server-devel
@@ -31,15 +23,13 @@ BuildRequires: libXxf86vm-devel
 BuildRequires: libXtst-devel
 BuildRequires: desktop-file-utils
 BuildRequires: gettext
-BuildRequires: gnome-doc-utils
 BuildRequires: intltool
 BuildRequires: gnome-desktop3-devel >= 2.91.0
 BuildRequires: libgudev1-devel
 BuildRequires: libcanberra-devel
-BuildRequires: scrollkeeper
 BuildRequires: clutter-devel
 BuildRequires: clutter-gtk-devel
-BuildRequires: clutter-gst-devel
+BuildRequires: clutter-gst2-devel
 BuildRequires: libmx-devel
 BuildRequires: vala-devel
 BuildRequires: pkgconfig(gee-1.0)
@@ -49,8 +39,8 @@ BuildRequires: chrpath
 BuildRequires: itstool
 
 Requires: %{name}-libs = %{epoch}:%{version}-%{release}
-Requires: gstreamer-plugins-good >= 0.10.6-2
-Requires: gstreamer-plugins-bad-free
+Requires: gstreamer1-plugins-good
+Requires: gstreamer1-plugins-bad-free
 Requires: gnome-video-effects
 
 %description
@@ -78,12 +68,7 @@ for writing applications that require a webcam display widget.
 
 %prep
 %setup -q
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
+# %patch2 -p1
 
 
 %build
@@ -159,6 +144,33 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/gir-1.0/Cheese-3.0.gir
 
 %changelog
+* Wed Oct 17 2012 Kalev Lember <kalevlember@gmail.com> - 2:3.6.1-1
+- Update to 3.6.1
+
+* Tue Sep 25 2012 Richard Hughes <hughsient@gmail.com> - 2:3.6.0-1
+- Update to 3.6.0
+
+* Wed Sep 19 2012 Richard Hughes <hughsient@gmail.com> - 2:3.5.92-1
+- Update to 3.5.92
+
+* Thu Sep  6 2012 Matthias Clasen <mclasen@redhat.com> - 2:3.5.91-1
+- Update to 3.5.91
+- Drop upstreamed patches
+
+* Tue Aug 28 2012 Matthias Clasen <mclasen@redhat.com> - 2:3.5.5-2
+- Rebuild against new cogl/clutter
+
+* Wed Aug 22 2012 Hans de Goede <hdegoede@redhat.com> - 2:3.5.5-1
+- New upstream release 3.5.5
+- Fix cheese crashing on tvcards which report they can capture 0x0 as
+  minimum resolution (rhbz#850505)
+
+* Tue Aug 21 2012 Brian Pepple <bpepple@fedoraproject.org> - 2:3.5.2-6
+- Rebuild for new libcogl.
+
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2:3.5.2-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Tue Jun 19 2012 Hans de Goede <hdegoede@redhat.com> - 2:3.4.2-3
 - Reduce camerabin pipeline creation time (rhbz#797188, gnome#677731)
 - Don't add 0 byte sized files to the thumb-view (rhbz#830166, gnome#677735)
