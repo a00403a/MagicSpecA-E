@@ -1,5 +1,5 @@
 Name: deadbeef
-Version: 0.5.1
+Version: 0.5.6
 Release: 1%{?dist}
 
 Summary: mp3/ogg/flac/sid/mod/nsf music player based on GTK2
