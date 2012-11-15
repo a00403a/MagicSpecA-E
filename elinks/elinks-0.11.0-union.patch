@@ -1,6 +1,6 @@
 --- elinks-0.11.0/src/config/options.h.union	2006-01-10 09:40:54.000000000 +0100
 +++ elinks-0.11.0/src/config/options.h	2006-01-10 09:48:16.000000000 +0100
-@@ -131,7 +131,7 @@
+@@ -160,7 +160,7 @@ struct option {
  };
  
  #define INIT_OPTION(name, flags, type, min, max, value, desc, capt) \
@@ -9,7 +9,7 @@
  
  extern struct option *config_options;
  extern struct option *cmdline_options;
-@@ -292,40 +292,42 @@
+@@ -323,40 +323,42 @@ extern void register_options(struct option_info info[], struct option *tree);
  extern void unregister_options(struct option_info info[], struct option *tree);
  
  #define NULL_OPTION_INFO \
