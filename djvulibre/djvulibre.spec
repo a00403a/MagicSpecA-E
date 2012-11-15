@@ -1,18 +1,25 @@
 Summary: DjVu viewers, encoders, and utilities
 Name: djvulibre
-Version: 3.5.24
-Release: 1%{?dist}
+Version: 3.5.25.3
+Release: 2%{?dist}
 License: GPLv2+
 Group: Applications/Publishing
 URL: http://djvu.sourceforge.net/
 Source: http://dl.sf.net/djvu/djvulibre-%{version}.tar.gz
 Patch0: djvulibre-3.5.22-cdefs.patch
+Patch1: djvulibre-3.5.25.3-cflags.patch
 
 Requires(post): xdg-utils
 Requires(preun): xdg-utils
+%if (0%{?fedora} > 15 || 0%{?rhel} > 6)
 BuildRequires: libjpeg-turbo-devel
+%else
+BuildRequires: libjpeg-devel
+%endif
 BuildRequires: libtiff-devel
 BuildRequires: xdg-utils chrpath
+BuildRequires: hicolor-icon-theme
+BuildRequires: inkscape
 
 Provides: %{name}-mozplugin = %{version}
 Obsoletes: %{name}-mozplugin < 3.5.24
@@ -50,8 +57,9 @@ Development files for DjVuLibre.
 
 
 %prep
-%setup -q
+%setup -q -n %{name}-3.5.25
 %patch0 -p1 -b .cdefs
+%patch1 -p1 -b .cflags
 
 
 %build 
@@ -60,7 +68,6 @@ Development files for DjVuLibre.
 #sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 #sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 
-#%{__make} OPTS="%{optflags}"
 make %{?_smp_mflags} V=1
 
 
@@ -89,22 +96,47 @@ chrpath --delete $RPM_BUILD_ROOT%{_bindir}/djvudump
 chrpath --delete $RPM_BUILD_ROOT%{_bindir}/djvmcvt
 chrpath --delete $RPM_BUILD_ROOT%{_bindir}/bzz
 
+# MIME types (icons and desktop file) - this installs icon files under
+# /usr/share/icons/hicolor/ and an xml file under /usr/share/mime/image/
+# Taken from {_datadir}/djvu/osi/desktop/register-djvu-mime install
+# See also the README file in the desktopfiles directory of the source distribution
+pushd desktopfiles
+for i in 22 32 48 64 ; do
+    install -d $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/${i}x${i}/mimetypes/
+    cp -a ./hi${i}-djvu.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/${i}x${i}/mimetypes/image-vnd.djvu.mime.png
+#    cp -a ./hi${i}-djvu.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/${i}x${i}/mimetypes/gnome-mime-image-vnd.djvu.png
+done
+popd
+
+magic_rpm_clean.sh
 
 %post
-# Menu entry (icons and desktop file)
-%{_datadir}/djvu/djview3/desktop/register-djview-menu install || :
-# MIME types (icons and desktop file)
-%{_datadir}/djvu/osi/desktop/register-djvu-mime install || :
+# Unregister menu entry for djview3 if it is present as we no longer
+# ship this in favour of the djview4 package. These files were
+# installed in %post by the older djvulibre packages, but not actually
+# owned by the package (packaging bug)
+rm -f %{_datadir}/applications/djvulibre-djview3.desktop || :
+rm -f %{_datadir}/icons/hicolor/32x32/apps/djvulibre-djview3.png || :
+
+/usr/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 
 %preun
-# Removal, not update
+# This is the legacy script, not compliant with current packaging
+# guidelines. However, we leave it in, as the old packages didn't own
+# the icon and xml files, so we want to be sure we remove them
 if [ $1 -eq 0 ]; then
-    # Menu entry (icons and desktop file)
-    %{_datadir}/djvu/djview3/desktop/register-djview-menu uninstall || :
     # MIME types (icons and desktop file)
     %{_datadir}/djvu/osi/desktop/register-djvu-mime uninstall || :
 fi
 
+%postun
+if [ $1 -eq 0 ] ; then
+    /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+    /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+fi
+
+%posttrans
+/usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %post libs -p /sbin/ldconfig
 
@@ -114,13 +146,17 @@ fi
 %files
 %defattr(-,root,root,-)
 %{_bindir}/*
-%{_datadir}/djvu/
 %{_mandir}/man1/*
-%lang(ja) %{_mandir}/ja/man1/*
+%{_datadir}/djvu/
+%{_datadir}/icons/hicolor/22x22/mimetypes/*
+%{_datadir}/icons/hicolor/32x32/mimetypes/*
+%{_datadir}/icons/hicolor/64x64/mimetypes/*
+%{_datadir}/icons/hicolor/48x48/mimetypes/*
+
 
 %files libs
 %defattr(-,root,root,-)
-%doc README COPYRIGHT COPYING NEWS TODO
+%doc README COPYRIGHT COPYING NEWS
 %{_libdir}/*.so.*
 
 %files devel
@@ -133,6 +169,32 @@ fi
 
 
 %changelog
+* Tue Oct  9 2012 Ville Skyttä <ville.skytta@iki.fi> - 3.5.25.3-2
+- Build with $RPM_OPT_FLAGS (#729469).
+
+* Wed Oct  3 2012 Jonathan G. Underwood <jonathan.underwood@gmail.com> - 3.5.25.3-1
+- Update to version 3.5.25.3
+- Add BuildRequires for inkscape
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.5.24-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue May  8 2012 Jonathan G. Underwood <rpmb@mia.theory.phys.ucl.ac.uk> - 3.5.24-4
+- Properly remove the djview3 menu entries
+- Correctly package the icon files
+
+* Sat May  5 2012 Jonathan G. Underwood <rpmb@mia.theory.phys.ucl.ac.uk> - 3.5.24-4
+- Merge in changes from Fedora master branch to el6 branch to bring version 3.5.24
+- Unregister djview3 menu/desktop entry on install if present
+- Replace BuildRequire for libjpeg-turbo-devel with libjpeg-devel
+  depending on fedora/rhel version
+
+* Fri Feb 17 2012 Orion Poplawski <orion@cora.nwra.com> - 3.5.24-3
+- Don't call register-djview-menu since we don't build djview3 anymore (bug 734856)
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.5.24-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Mon Aug  8 2011 Peter Robinson <pbrobinson@gmail.com> 3.5.24-1
 - 3.5.24
 - Obsolete mozplugin, dropped upstream
