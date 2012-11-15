@@ -8,7 +8,7 @@ Summary: DivX for Linux codec binaries
 Summary(zh_CN.UTF-8): Linux下的DivX解码器的二进制代码
 Name: divx4linux
 Version: 6.1.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: Distributable
 Group: System Environment/Libraries
 Group(zh_CN.UTF-8): 系统环境/库
@@ -37,6 +37,7 @@ Summary: Header files, libraries and development documentation for %{name}
 Summary(zh_CN.UTF-8): %{name}的头文件，库和开发文档
 Group: Development/Libraries
 Group(zh_CN.UTF-8): 开发/库
+Autoreq: no
 Requires: %{name} = %{epoch}:%{version}-%{release}
 
 %description devel
@@ -60,12 +61,13 @@ unzip -P h08pzt4 contents.dat
 
 %{__install} -d -m0755 %{buildroot}%{_includedir}/divx
 %{__cp} -rf  include/* %{buildroot}%{_includedir}/divx
+magic_rpm_clean.sh
 
 %post
-/sbin/ldconfig 2>/dev/null
+/usr/sbin/ldconfig 2>/dev/null
 
 %postun
-/sbin/ldconfig 2>/dev/nullx
+/usr/sbin/ldconfig 2>/dev/nullx
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -80,6 +82,9 @@ unzip -P h08pzt4 contents.dat
 %{_includedir}/*
 
 %changelog
+* Thu Nov 15 2012 Liu Di <liudidi@gmail.com> - 1:6.1.1-3
+- 为 Magic 3.0 重建
+
 * Wed Nov 26 2008 Liu Di <liudid@gmail.com> - 6.1.1-0.1%{?dist}
 - 更新到 6.1.1
 
