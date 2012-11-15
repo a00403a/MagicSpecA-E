@@ -1,19 +1,19 @@
 Name:           dia
-Version:        0.97
-Release:        6%{?dist}
+Version:        0.97.2
+Release:        1%{?dist}
 Epoch:          1
 Summary:        Diagram drawing program
 Group:          Applications/Multimedia
 License:        GPLv2+
 URL:            http://www.gnome.org/projects/dia/
-Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/%{version}/%{name}-%{version}.tar.bz2
-Patch0:		dia-export-crash.patch
-Patch1:		dia-0.97-libpng15.patch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/dia/0.97/dia-%{version}.tar.xz
+Patch0:         dia-noglib.patch
+Patch1:         dia-unregister-import.patch
+
 BuildRequires:  libgnomeui-devel pygtk2-devel desktop-file-utils
 BuildRequires:  intltool docbook-utils docbook-style-dsssl docbook-style-xsl
 BuildRequires:  gettext
-BuildRequires:	rarian-compat
+BuildRequires:  rarian-compat
 Requires:       hicolor-icon-theme
 
 %description
@@ -26,8 +26,9 @@ and can export to PostScript(TM).
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
+%patch0 -p0 -b .noglib
+%patch1 -p1 -b .unregister-import
+
 sed -i 's|libdia_la_LDFLAGS = -avoid-version|libdia_la_LDFLAGS = -avoid-version $(shell pkg-config gtk+-2.0 libxml-2.0 libart-2.0 libgnome-2.0 --libs)|' \
   lib/Makefile.*
 chmod -x `find objects/AADL -type f`
@@ -36,14 +37,14 @@ mv usage-layers.xml.UTF-8 doc/en/usage-layers.xml
 
 
 %build
-%configure --enable-gnome --enable-db2html 
+%configure --enable-gnome --enable-db2html
 make %{?_smp_mflags}
  
 
 %install
-rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
-%find_lang %name
+magic_rpm_clean.sh
+%find_lang %{name} --with-man --with-gnome
 
 # Since we're not using the cairo stuff, but a stub plugin still
 # gets built, Dia complains it doesn't have an init function.  So
@@ -72,29 +73,42 @@ if [ -x %{_bindir}/gtk-update-icon-cache ]; then
 fi
 
 
-%clean
-rm -fr $RPM_BUILD_ROOT
-
-
 %files -f %{name}.lang
-%defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog KNOWN_BUGS NEWS README TODO THANKS
 %doc doc/custom-shapes doc/diagram.dtd doc/shape.dtd doc/sheet.dtd samples/
 %{_bindir}/%{name}
 %{_libdir}/%{name}/*.so
-%{_mandir}/*/*
+%{_mandir}/man1/%{name}.1.gz
 %{_datadir}/%{name}
 %{_datadir}/applications/fedora-%{name}.desktop
-%dir %{_datadir}/gnome
-%dir %{_datadir}/gnome/help
 %dir %{_libdir}/%{name}
-%{_datadir}/gnome/help/%{name}
+# find_lang --with-gnome desn't find the following because it's just a symlink
+%{_datadir}/gnome/help/%{name}/C
 %{_datadir}/mime-info/*
 %{_datadir}/icons/hicolor/*/apps/*
-%{_datadir}/omf/%{name}/*.omf
-
 
 %changelog
+* Tue Sep 18 2012 Jiri Popelka <jpopelka@redhat.com> - 1:0.97.2-1
+- 0.97.2
+- unregister vdx, xfig import filter during plugin unloading (#854368)
+- do not own directories owned by filesystem package (#569446)
+
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:0.97.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Sat Feb 25 2012 Bruno Wolff III <bruno@wolff.to> - 1:0.97.1-3
+- A couple of the test programs used glib with the more loose API
+- Use the newer libpng 1.5 API
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:0.97.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Thu Dec  8 2011 Peter Robinson <pbrobinson@fedoraproject.org> - 1:0.97.1-1
+- 0.97.1
+
+* Tue Dec 06 2011 Adam Jackson <ajax@redhat.com> - 1:0.97-7
+- Rebuild for new libpng
+
 * Wed Oct 26 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:0.97-6
 - Rebuilt for glibc bug#747377
 
