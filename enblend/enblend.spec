@@ -1,10 +1,11 @@
 Summary: Image Blending with Multiresolution Splines
 Name: enblend
 Version: 4.0
-Release: 8%{?dist}
+Release: 14%{?dist}
 License: GPLv2+
 Group: Applications/Multimedia
 Source: http://downloads.sourceforge.net/enblend/enblend-enfuse-%{version}.tar.gz
+Patch0: enblend-enfuse-4.0-png14.patch
 URL: http://enblend.sourceforge.net/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtiff-devel boost-devel lcms-devel plotutils-devel
@@ -21,6 +22,8 @@ BuildRequires: xorg-x11-devel
 Requires(post): info
 Requires(preun): info
 
+Provides: bundled(vigra) = 1.4.0
+
 %description
 Enblend is a tool for compositing images, given a set of images that overlap in
 some irregular way, Enblend overlays them in such a way that the seam between
@@ -32,27 +35,29 @@ like Hugin to do that.
 %prep
 %setup -q -n enblend-enfuse-4.0-753b534c819d
 sed -i 's/info.arith_code = TRUE/info.arith_code = FALSE/' src/vigra_impex/jpeg.cxx
+%patch0 -p0
 
 %build
-%configure --disable-static
+%configure --disable-static  LIBS="-lboost_filesystem -lboost_system"
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 rm -f %{buildroot}%{_infodir}/dir
+magic_rpm_clean.sh
 
 %clean
 rm -rf %{buildroot}
 
 %post
-/sbin/install-info %{_infodir}/enblend.info %{_infodir}/dir || :
-/sbin/install-info %{_infodir}/enfuse.info %{_infodir}/dir || :
+/usr/sbin/install-info %{_infodir}/enblend.info %{_infodir}/dir || :
+/usr/sbin/install-info %{_infodir}/enfuse.info %{_infodir}/dir || :
 
 %preun
 if [ $1 = 0 ] ; then
-  /sbin/install-info --delete %{_infodir}/enblend.info %{_infodir}/dir || :
-  /sbin/install-info --delete %{_infodir}/enfuse.info %{_infodir}/dir || :
+  /usr/sbin/install-info --delete %{_infodir}/enblend.info %{_infodir}/dir || :
+  /usr/sbin/install-info --delete %{_infodir}/enfuse.info %{_infodir}/dir || :
 fi
 
 %files
@@ -63,12 +68,29 @@ fi
 %{_bindir}/enblend
 %{_bindir}/enfuse
 %{_mandir}/man1/*
-#因无gnuplot，临时关闭
-#%{_infodir}/enblend.*
-#%{_infodir}/enfuse.*
+%{_infodir}/enblend.*
+%{_infodir}/enfuse.*
 
 
 %changelog
+* Wed Aug 01 2012 Adam Jackson <ajax@redhat.com> - 4.0-14
+- -Rebuild for new glew
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0-13
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0-12
+- Rebuilt for c++ ABI breakage
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0-11
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Wed Dec 07 2011 Bruno Postle <bruno@postle.net> - 4.0-10
+- patch to build with new libpng
+
+* Tue Dec 06 2011 Adam Jackson <ajax@redhat.com> - 4.0-9
+- Rebuild for new libpng
+
 * Mon Jun 20 2011 ajax@redhat.com - 4.0-8
 - Rebuild for new glew soname
 
