@@ -1,6 +1,6 @@
 Name:           clutter-gst
-Version:        1.5.4
-Release:        2%{?dist}
+Version:        1.6.0
+Release:        3%{?dist}
 Summary:        ClutterMedia interface to GStreamer
 
 Group:          Development/Languages
@@ -10,8 +10,9 @@ Source0:        http://ftp.gnome.org/pub/GNOME/sources/%{name}/1.5/%{name}-%{ver
 # http://cgit.freedesktop.org/dolt/commit/?id=b6a7ccd13501ee2099c9819af4b36587f21ca1e0
 # Support Linux on any architecture, and assume -fPIC
 Patch0:         %{name}-1.3.12-dolt.patch
+Patch1:         %{name}-1.6.0-needless-glint.patch
 
-BuildRequires:  clutter-devel >= 1.9.14
+BuildRequires:  clutter-devel >= 1.10.0
 BuildRequires:  gobject-introspection-devel
 BuildRequires:  gstreamer-devel
 BuildRequires:  gstreamer-plugins-base-devel
@@ -35,7 +36,8 @@ clutter-gst
 
 %prep
 %setup -q
-%patch0 -p1 -b .dolt
+#%patch0 -p1 -b .dolt
+%patch1 -p1 -b .glint
 
 %build
 %configure
@@ -46,9 +48,10 @@ make install DESTDIR=%{buildroot} INSTALL="%{__install} -p"
 
 #Remove libtool archives.
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
+magic_rpm_clean.sh
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
+%post -p /usr/sbin/ldconfig
+%postun -p /usr/sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
@@ -67,6 +70,19 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/gir-1.0/ClutterGst-1.0.gir
 
 %changelog
+* Tue Aug 21 2012 Brian Pepple <bpepple@fedoraproject.org> - 1.6.0-3
+- Rebuild for new libcogl.
+- Pull glint patch from upstream to fix build.
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Mon Jun 25 2012 Richard Hughes <hughsient@gmail.com> - 1.6.0-1
+- Update to 1.6.0
+
+* Sun May 27 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.5.6-1
+- Update to 1.5.6
+
 * Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 1.5.4-2
 - Rebuild against new cogl
 
