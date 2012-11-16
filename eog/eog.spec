@@ -1,34 +1,30 @@
-%define gtk3_version 3.0.2
-%define glib2_version 2.29.4
+%define gtk3_version 3.3.6
+%define glib2_version 2.31.0
 %define gnome_desktop_version 2.91.2
 %define gnome_icon_theme_version 2.19.1
 %define desktop_file_utils_version 0.9
-%define gail_version 1.2.0
 %define libexif_version 0.6.14
 
 Summary: Eye of GNOME image viewer
 Name:    eog
-Version: 3.2.1
-Release: 2%{?dist}
+Version: 3.6.1
+Release: 1%{?dist}
 URL: http://projects.gnome.org/eog/
 #VCS: git:git://git.gnome.org/eog
-Source: http://download.gnome.org/sources/eog/3.2/%{name}-%{version}.tar.xz
+Source: http://download.gnome.org/sources/eog/3.6/%{name}-%{version}.tar.xz
 # The GFDL has an "or later version" clause embedded inside the license.
 # There is no need to add the + here.
 License: GPLv2+ and GFDL
 Group: User Interface/Desktops
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
-BuildRequires: gail-devel >= %{gail_version}
 BuildRequires: libexif-devel >= %{libexif_version}
 BuildRequires: exempi-devel
 BuildRequires: lcms2-devel
-BuildRequires: intltool
+BuildRequires: intltool >= 0.50.0-1
 BuildRequires: libjpeg-devel
-BuildRequires: scrollkeeper
 BuildRequires: gettext
 BuildRequires: desktop-file-utils >= %{desktop_file_utils_version}
-BuildRequires: gnome-doc-utils
 BuildRequires: gnome-desktop3-devel >= %{gnome_desktop_version}
 BuildRequires: gnome-icon-theme >= %{gnome_icon_theme_version}
 BuildRequires: libXt-devel
@@ -41,11 +37,11 @@ BuildRequires: gsettings-desktop-schemas-devel
 BuildRequires: dbus-glib-devel
 BuildRequires: gobject-introspection-devel
 BuildRequires: zlib-devel
+BuildRequires: itstool
 Requires:      gsettings-desktop-schemas
 
 Requires(post):   desktop-file-utils >= %{desktop_file_utils_version}
 Requires(postun): desktop-file-utils >= %{desktop_file_utils_version}
-Requires(pre): GConf2
 
 %description
 The Eye of GNOME image viewer (eog) is the official image viewer for the
@@ -69,7 +65,7 @@ functionality to eog.
 %setup -q
 
 %build
-%configure --disable-scrollkeeper
+%configure
 make %{?_smp_mflags}
 
 %install
@@ -78,33 +74,27 @@ make install DESTDIR=$RPM_BUILD_ROOT
 desktop-file-install --vendor gnome --delete-original       \
   --dir $RPM_BUILD_ROOT%{_datadir}/applications             \
   $RPM_BUILD_ROOT%{_datadir}/applications/*
-
+magic_rpm_clean.sh
 %find_lang %{name} --with-gnome
-
-# grr, --disable-scrollkeeper seems broken
-rm -rf $RPM_BUILD_ROOT/var/scrollkeeper
 
 rm -rf $RPM_BUILD_ROOT%{_libdir}/eog/plugins/*.la
 
 
 %post
-update-desktop-database -q
+update-desktop-database >&/dev/null || :
 touch %{_datadir}/icons/hicolor >&/dev/null || :
 
-%pre
-%gconf_schema_obsolete eog
-
 %postun
-update-desktop-database -q
+update-desktop-database >&/dev/null || :
 if [ $1 -eq 0 ]; then
   touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
   gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
-  glib-compile-schemas %{_datadir}/glib-2.0/schemas
+  glib-compile-schemas %{_datadir}/glib-2.0/schemas >&/dev/null || :
 fi
 
 %posttrans
 gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
-glib-compile-schemas %{_datadir}/glib-2.0/schemas
+glib-compile-schemas %{_datadir}/glib-2.0/schemas >&/dev/null || :
 
 %files -f %{name}.lang
 %doc AUTHORS COPYING NEWS README
@@ -123,6 +113,77 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %{_datadir}/gtk-doc/
 
 %changelog
+* Tue Oct 16 2012 Kalev Lember <kalevlember@gmail.com> - 3.6.1-1
+- Update to 3.6.1
+
+* Tue Sep 25 2012 Kalev Lember <kalevlember@gmail.com> - 3.6.0-1
+- Update to 3.6.0
+- Drop upstreamed eog-link-with-libm.patch
+
+* Wed Sep 19 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.92-1
+- Update to 3.5.92
+
+* Tue Sep 04 2012 Richard Hughes <hughsient@gmail.com> - 3.5.91-1
+- Update to 3.5.91
+
+* Tue Aug 21 2012 Richard Hughes <hughsient@gmail.com> - 3.5.90-1
+- Update to 3.5.90
+
+* Tue Aug 07 2012 Richard Hughes <hughsient@gmail.com> - 3.5.4-1
+- Update to 3.5.4
+
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.5.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Wed Jul 18 2012 Kalev Lember <kalevlember@gmail.com> - 3.5.3-1
+- Update to 3.5.3
+
+* Tue Jun 26 2012 Richard Hughes <hughsient@gmail.com> - 3.5.2-1
+- Update to 3.5.2
+
+* Fri Jun  8 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.1-2
+- Rebuild against new gnome-desktop
+
+* Sat May 05 2012 Kalev Lember <kalevlember@gmail.com> - 3.5.1-1
+- Update to 3.5.1
+
+* Fri Apr 27 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-3
+- Removed last traces of gconf handling (#704230)
+
+* Tue Apr 24 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-2
+- Silence rpm scriptlet output
+
+* Tue Apr 17 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-1
+- Update to 3.4.1
+
+* Tue Mar 27 2012 Richard Hughes <hughsient@gmail.com> - 3.4.0-1
+- Update to 3.4.0
+
+* Wed Mar 21 2012 Kalev Lember <kalevlember@gmail.com> - 3.3.92-1
+- Update to 3.3.92
+
+* Tue Mar  6 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.91-1
+- Update to 3.3.91
+
+* Sun Feb 26 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.90-1
+- Update to 3.3.90
+
+* Tue Feb  6 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.5-1
+- Update to 3.3.5
+
+* Tue Jan 17 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.4-1
+- Update to 3.3.4
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.3.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Dec 20 2011 Alon Levy <alevy@redhat.com> - 3.3.3-1
+- Update to 3.3.3
+- requires newer intltool for --no-translations
+
+* Tue Nov 22 2011 Tomas Bzatek <tbzatek@redhat.com> - 3.3.2-1
+- Update to 3.3.2
+
 * Wed Oct 26 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.2.1-2
 - Rebuilt for glibc bug#747377
 
