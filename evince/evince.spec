@@ -2,24 +2,23 @@
 %global glib2_version 2.25.9
 %global dbus_version 0.70
 %global theme_version 2.17.1
+%global gxps_version 0.2.0
 
 Name:           evince
-Version:        3.2.1
-Release:        3%{?dist}
+Version:        3.7.1
+Release:        1%{?dist}
 Summary:        Document viewer
 
 License:        GPLv2+ and GFDL
 Group:          Applications/Publishing
 URL:            http://projects.gnome.org/evince/
-Source0:        http://download.gnome.org/sources/%{name}/3.2/%{name}-%{version}.tar.xz
-# https://bugzilla.redhat.com/show_bug.cgi?id=562648
-Patch2:         evince-t1font-mapping.patch
+Source0:        http://download.gnome.org/sources/%{name}/3.7/%{name}-%{version}.tar.xz
 
 BuildRequires:  gtk3-devel
 BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  poppler-glib-devel >= %{poppler_version}
 BuildRequires:  libXt-devel
-BuildRequires:  gnome-keyring-devel
+BuildRequires:  libgnome-keyring-devel
 BuildRequires:  libglade2-devel
 BuildRequires:  libtiff-devel
 BuildRequires:  libjpeg-devel
@@ -31,12 +30,13 @@ BuildRequires:  desktop-file-utils
 BuildRequires:  gnome-icon-theme >= %{theme_version}
 BuildRequires:  libtool
 BuildRequires:  gtk-doc
+BuildRequires:  yelp-tools
 BuildRequires:  intltool
 BuildRequires:  t1lib-devel
 BuildRequires:  GConf2-devel
 BuildRequires:  gobject-introspection-devel
-# For patch3
-BuildRequires:  automake
+# For autoconf.sh
+BuildRequires:  gnome-common >= 2.26
 
 # for the nautilus properties page
 BuildRequires: nautilus-devel
@@ -44,11 +44,10 @@ BuildRequires: nautilus-devel
 BuildRequires: kpathsea-devel
 # for the djvu backend
 BuildRequires: djvulibre-devel
+# for the xps backend
+BuildRequires:  libgxps-devel >= %{gxps_version}
 
 Requires: %{name}-libs = %{version}-%{release}
-
-Requires(post):   /usr/bin/gtk-update-icon-cache
-Requires(postun): /usr/bin/gtk-update-icon-cache
 
 %description
 Evince is simple multi-page document viewer. It can display and print
@@ -109,20 +108,18 @@ It adds an additional tab called "Document" to the file properties dialog.
 
 %prep
 %setup -q
-%patch2 -p1 -b .t1font-map
 
 %build
-automake
+./autogen.sh
 %configure \
         --disable-static \
         --disable-scrollkeeper \
-        --disable-schemas-install \
         --enable-introspection \
         --enable-comics=yes \
         --enable-dvi=yes \
         --enable-djvu=yes \
-        --enable-t1lib=yes \
-        --with-gtk=3.0
+        --enable-xps=yes \
+        --enable-t1lib=yes
 make %{?_smp_mflags} V=1 LIBTOOL=/usr/bin/libtool
 
 %install
@@ -133,16 +130,16 @@ desktop-file-install --delete-original --vendor="" \
   --remove-category=Application \
   --remove-key=NoDisplay \
   $RPM_BUILD_ROOT%{_datadir}/applications/evince.desktop
-
+magic_rpm_clean.sh
 %find_lang evince --with-gnome
 
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/applications
-/bin/rm -rf $RPM_BUILD_ROOT/var/scrollkeeper
+rm -rf $RPM_BUILD_ROOT/var/scrollkeeper
 # Get rid of static libs and .la files.
 rm -f $RPM_BUILD_ROOT%{_libdir}/nautilus/extensions-3.0/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/nautilus/extensions-3.0/*.a
-rm -f $RPM_BUILD_ROOT%{_libdir}/evince/3/backends/*.la
-rm -f $RPM_BUILD_ROOT%{_libdir}/evince/3/backends/*.a
+rm -f $RPM_BUILD_ROOT%{_libdir}/evince/4/backends/*.la
+rm -f $RPM_BUILD_ROOT%{_libdir}/evince/4/backends/*.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.a
 
@@ -162,16 +159,15 @@ if [ $1 -eq 0 ]; then
   touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
   gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 fi
-glib-compile-schemas %{_datadir}/glib-2.0/schemas ||:
+glib-compile-schemas %{_datadir}/glib-2.0/schemas >&/dev/null ||:
 
 %posttrans
 gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
-glib-compile-schemas %{_datadir}/glib-2.0/schemas ||:
+glib-compile-schemas %{_datadir}/glib-2.0/schemas >&/dev/null ||:
 
 %postun libs -p /sbin/ldconfig
 
 %files -f evince.lang
-%defattr(-,root,root,-)
 %{_bindir}/*
 %{_datadir}/%{name}/
 %{_datadir}/applications/%{name}.desktop
@@ -184,26 +180,26 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas ||:
 %{_datadir}/thumbnailers/evince.thumbnailer
 
 %files libs
-%defattr(-,root,root,-)
 %doc README COPYING NEWS AUTHORS
 %{_libdir}/libevview3.so.*
 %{_libdir}/libevdocument3.so.*
 %dir %{_libdir}/evince
-%dir %{_libdir}/evince/3
-%dir %{_libdir}/evince/3/backends
-%{_libdir}/evince/3/backends/libpdfdocument.so
-%{_libdir}/evince/3/backends/pdfdocument.evince-backend
-%{_libdir}/evince/3/backends/libpsdocument.so
-%{_libdir}/evince/3/backends/psdocument.evince-backend
-%{_libdir}/evince/3/backends/libtiffdocument.so
-%{_libdir}/evince/3/backends/tiffdocument.evince-backend
-%{_libdir}/evince/3/backends/libcomicsdocument.so
-%{_libdir}/evince/3/backends/comicsdocument.evince-backend
+%dir %{_libdir}/evince/4
+%dir %{_libdir}/evince/4/backends
+%{_libdir}/evince/4/backends/libpdfdocument.so
+%{_libdir}/evince/4/backends/pdfdocument.evince-backend
+%{_libdir}/evince/4/backends/libpsdocument.so
+%{_libdir}/evince/4/backends/psdocument.evince-backend
+%{_libdir}/evince/4/backends/libtiffdocument.so
+%{_libdir}/evince/4/backends/tiffdocument.evince-backend
+%{_libdir}/evince/4/backends/libcomicsdocument.so
+%{_libdir}/evince/4/backends/comicsdocument.evince-backend
+%{_libdir}/evince/4/backends/libxpsdocument.so
+%{_libdir}/evince/4/backends/xpsdocument.evince-backend
 %{_libdir}/girepository-1.0/EvinceDocument-3.0.typelib
 %{_libdir}/girepository-1.0/EvinceView-3.0.typelib
 
 %files devel
-%defattr(-,root,root,-)
 %{_datadir}/gtk-doc/html/evince/
 %{_datadir}/gtk-doc/html/libevview-3.0
 %{_datadir}/gtk-doc/html/libevdocument-3.0
@@ -217,20 +213,97 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas ||:
 %{_datadir}/gir-1.0/EvinceView-3.0.gir
 
 %files dvi
-%defattr(-,root,root,-)
-%{_libdir}/evince/3/backends/libdvidocument.so*
-%{_libdir}/evince/3/backends/dvidocument.evince-backend
+%{_libdir}/evince/4/backends/libdvidocument.so*
+%{_libdir}/evince/4/backends/dvidocument.evince-backend
 
 %files djvu
-%defattr(-,root,root,-)
-%{_libdir}/evince/3/backends/libdjvudocument.so
-%{_libdir}/evince/3/backends/djvudocument.evince-backend
+%{_libdir}/evince/4/backends/libdjvudocument.so
+%{_libdir}/evince/4/backends/djvudocument.evince-backend
 
 %files nautilus
-%defattr(-,root,root,-)
 %{_libdir}/nautilus/extensions-3.0/libevince-properties-page.so
 
 %changelog
+* Tue Oct 23 2012 Marek Kasik <mkasik@redhat.com> - 3.7.1-1
+- Update to 3.7.1
+
+* Mon Oct 15 2012 Marek Kasik <mkasik@redhat.com> - 3.6.1-1
+- Update to 3.6.1
+
+* Sun Oct  7 2012 Jindrich Novy <jnovy@redhat.com> - 3.6.0-2
+- rebuild against new kpathsea in TeX Live 2012
+
+* Tue Sep 25 2012 Marek Kasik <mkasik@redhat.com> - 3.6.0-1
+- Update to 3.6.0
+
+* Tue Sep 18 2012 Marek Kasik <mkasik@redhat.com> - 3.5.92-1
+- Update to 3.5.92
+
+* Tue Aug 21 2012 Richard Hughes <hughsient@gmail.com> - 3.5.90-1
+- Update to 3.5.90
+
+* Wed Aug  8 2012 Marek Kasik <mkasik@redhat.com> - 3.5.5-1
+- Update to 3.5.5
+
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.5.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Jul 17 2012 Marek Kasik <mkasik@redhat.com> - 3.5.4-1
+- Update to 3.5.4
+
+* Thu Jun 28 2012 Kalev Lember <kalevlember@gmail.com> - 3.5.3-2
+- Fix the build by backporting a GIR generation fix
+
+* Wed Jun 27 2012 Richard Hughes <hughsient@gmail.com> - 3.5.3-1
+- Update to 3.5.3
+
+* Wed Jun  6 2012 Marek Kasik <mkasik@redhat.com> - 3.5.2-1
+- Update to 3.5.2
+
+* Wed May 16 2012 Marek Kasik <mkasik@redhat.com> - 3.4.0-3
+- Rebuild (poppler-0.20.0)
+
+* Tue Apr 24 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.0-2
+- Silence glib-compile-schemas output
+
+* Tue Mar 27 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.0-1
+- Update to 3.4.0
+
+* Wed Mar 21 2012 Richard Hughes <rhughes@redhat.com> - 3.3.92-1
+- Update to 3.3.92
+
+* Wed Feb 22 2012 Marek Kasik <mkasik@redhat.com> - 3.3.90-1
+- Update to 3.3.90
+
+* Tue Feb  7 2012 Marek Kasik <mkasik@redhat.com> - 3.3.5-1
+- Update to 3.3.5
+- Remove evince-t1font-mapping.patch (committed upstream)
+- Solve build issues by running autogen.sh
+
+* Thu Jan 26 2012 Tomas Bzatek <tbzatek@redhat.com> - 3.3.4-2
+- Rebuilt for new libarchive
+
+* Tue Jan 17 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.4
+- Update to 3.3.4
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.3.3.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Dec 27 2011 Ville Skyttä <ville.skytta@iki.fi> - 3.3.3.1-3
+- Really enable XPS support, drop obsolete build options.
+
+* Fri Dec 23 2011 Matthias Clasen <mclasen@redhat.com> - 3.3.3.1-2
+- Enable xps support
+
+* Thu Dec 22 2011 Matthias Clasen <mclasen@redhat.com> - 3.3.3.1-1
+- Update to 3.3.3.1
+
+* Tue Dec 20 2011 Matthias Clasen <mclasen@redhat.com> - 3.3.3-1
+- Update to 3.3.3
+
+* Wed Nov 23 2011 Marek Kasik <mkasik@redhat.com> - 3.3.2-1
+- Update to 3.3.2
+
 * Fri Oct 28 2011 Rex Dieter <rdieter@fedoraproject.org> - 3.2.1-3
 - rebuild(poppler)
 
@@ -551,7 +624,7 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas ||:
 * Sat Oct 25 2008 Matthias Clasen  <mclasen@redhat.com> - 2.24.1-3
 - Require dbus-glib-devel, not just dbus-devel (#465281, Dan Winship)
 
-* Sat Oct 25 2008 Ville Skyttä <ville.skytta at iki.fi> - 2.24.1-2
+* Sat Oct 25 2008 Ville Skyttä <ville.skytta@iki.fi> - 2.24.1-2
 - Drop dependency on desktop-file-utils (#463048).
 
 * Mon Oct 20 2008 Matthias Clasen  <mclasen@redhat.com> - 2.24.1-1
