@@ -1,15 +1,16 @@
 Name:           evas
-Version:        1.0.1
-Release:        1%{?dist}
+Version:        1.2.1
+Release:        2%{?dist}
 Summary:        Hardware-accelerated state-aware canvas API
 Group:          System Environment/Libraries
 License:        MIT
 URL:            http://web.enlightenment.org/p.php?p=about/efl&l=en
-Source0:        http://download.enlightenment.org/releases/%{name}-%{version}.tar.gz
-BuildRequires:  eet-devel libeina-devel
+Source0:        http://download.enlightenment.org/releases/%{name}-%{version}.tar.bz2
+BuildRequires:  eet-devel 
+BuildRequires:	libeina-devel >= 1.2.1
 BuildRequires:  freetype-devel pth-devel libX11-devel libXext-devel
 BuildRequires:  libXrender-devel fontconfig-devel libjpeg-devel libpng-devel
-BuildRequires:  librsvg2-devel libtiff-devel giflib-devel
+BuildRequires:  librsvg2-devel libtiff-devel giflib-devel fribidi-devel
 BuildRequires:  mesa-libGL-devel mesa-libGLU-devel chrpath doxygen pkgconfig
 
 %description
@@ -33,6 +34,8 @@ developing applications that use %{name}.
 
 %build
 %configure --disable-static --enable-gl-x11 -enable-fb
+sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 make %{?_smp_mflags}
 cd doc; make doc %{?_smp_mflags}
 
@@ -55,6 +58,10 @@ chmod -x doc/html/*
 
 mkdir -p %{buildroot}%{_mandir}/man3
 install -Dpm0644 doc/man/man3/* %{buildroot}%{_mandir}/man3
+mv %{buildroot}%{_mandir}/man3/authors.3 %{buildroot}%{_mandir}/man3/%{name}-authors.3
+mv %{buildroot}%{_mandir}/man3/deprecated.3 %{buildroot}%{_mandir}/man3/%{name}-deprecated.3
+mv %{buildroot}%{_mandir}/man3/Examples.3 %{buildroot}%{_mandir}/man3/%{name}-Examples.3
+magic_rpm_clean.sh
 
 %post -p /sbin/ldconfig
 
@@ -76,6 +83,27 @@ install -Dpm0644 doc/man/man3/* %{buildroot}%{_mandir}/man3
 
 
 %changelog
+* Wed Aug  8 2012 Tom Callaway <spot@fedoraproject.org> - 1.2.1-2
+- rename "Examples.3" to something non-conflicting
+
+* Thu Aug  2 2012 Tom Callaway <spot@fedoraproject.org> - 1.2.1-1
+- update to 1.2.1
+
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri May 25 2012 Tom Callaway <spot@fedoraproject.org> - 1.2.0-2
+- rename authors.3 and deprecated.3 manpages to avoid conflict
+
+* Mon May  7 2012 Tom Callaway <spot@fedoraproject.org> - 1.2.0-1
+- update to 1.2.0
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Dec 06 2011 Adam Jackson <ajax@redhat.com> - 1.0.1-2
+- Rebuild for new libpng
+
 * Thu Jul 14 2011 Tom Callaway <spot@fedoraproject.org> - 1.0.1-1
 - update to 1.0.1
 
