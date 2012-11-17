@@ -1,32 +1,36 @@
 ## Minimum required versions.
-%global	gtk3_min_version	3.0.2
-%global	glib2_min_version	2.28.0
-%global	tp_mc_min_version	5.0.0
-%global	tp_glib_min_version	0.16.0
+%global	gtk3_min_version	3.5.1
+%global	glib2_min_version	2.33.3
+%global	tp_mc_min_version	5.12.0
+%global	tp_glib_min_version	0.19.9
 %global	enchant_version		1.2.0
 %global network_manager_version 0.7.0
 %global libcanberra_version     0.4
 %global webkit_version          1.3.13
+%global goa_version		3.5.1
 %global libnotify_version       0.7.0
-%global libchamplain_version    0.7.1
-%global folks_version           0.6.2
+%global libchamplain_version    0.12.1
+%global folks_version           0.7.3
+%global gstreamer_version       0.10.32
+%global libsecret_version       0.5
+%global gcr_version             2.91.4
 
 Name:		empathy
-Version:	3.3.1
+Version:	3.6.1
 Release:	3%{?dist}
 Summary:	Instant Messaging Client for GNOME
 
-Group:		Applications/Communications
 License:	GPLv2+
 URL:		http://live.gnome.org/Empathy
 
-Source0:	http://download.gnome.org/sources/%{name}/3.3/%{name}-%{version}.tar.xz
+Source0:	http://download.gnome.org/sources/%{name}/3.6/%{name}-%{version}.tar.xz
 Source1:	%{name}-README.ConnectionManagers
+Patch0:         0001-empathy-call-Clean-up-the-TfChannel-before-resetting.patch
+Patch1:         0002-empathy-call-Free-the-FsElementAddedNotifiers-on-fs-.patch
 
 BuildRequires:	enchant-devel >= %{enchant_version}
 BuildRequires:	iso-codes-devel
 BuildRequires:	desktop-file-utils
-BuildRequires:	evolution-data-server-devel
 BuildRequires:	gettext
 BuildRequires:	glib2-devel >= %{glib2_min_version}
 BuildRequires:	gnome-doc-utils >= 0.17.3
@@ -38,31 +42,33 @@ BuildRequires:	libxml2-devel
 BuildRequires:	scrollkeeper
 BuildRequires:	gsettings-desktop-schemas-devel
 BuildRequires:	telepathy-glib-devel >= %{tp_glib_min_version}
-BuildRequires:	telepathy-farsight-devel
+BuildRequires:  telepathy-farstream-devel >= 0.2.1
 BuildRequires:	libnotify-devel >= %{libnotify_version}
 BuildRequires:	NetworkManager-glib-devel >= %{network_manager_version}
-BuildRequires:	gnome-keyring-devel
 BuildRequires:  libchamplain-gtk-devel >= %{libchamplain_version}
-BuildRequires:  clutter-gtk-devel
-BuildRequires:  geoclue-devel >= 0.11
+BuildRequires:  clutter-gtk-devel >= 1.1.2
+BuildRequires:  geoclue-devel >= 0.12
 BuildRequires:	nautilus-sendto-devel
-BuildRequires:  telepathy-logger-devel >= 0.2.10
+BuildRequires:  telepathy-logger-devel >= 0.4.0
 BuildRequires:	folks-devel >= 1:%{folks_version}
-BuildRequires:	gstreamer-devel >= 0.10.32
+BuildRequires:	clutter-gst2-devel
+BuildRequires:	gstreamer1-devel >= %{gstreamer_version}
 BuildRequires:	cheese-libs-devel
 BuildRequires:	pulseaudio-libs-devel
 BuildRequires:	libgudev1-devel
 BuildRequires:	telepathy-mission-control-devel
-BuildRequires:	gnome-online-accounts-devel
+BuildRequires:	gnome-online-accounts-devel >= %{goa_version}
+BuildRequires:	libsecret-devel >= %{libsecret_version}
+BuildRequires:	gcr-devel >= %{gcr_version}
+BuildRequires:  itstool
 
 Requires:	telepathy-filesystem
 Requires:	telepathy-mission-control >= %{tp_mc_min_version}
 ## We install the following connection managers by default.
-Requires:	telepathy-gabble
-Requires:	telepathy-salut
+Requires:	telepathy-gabble >= 0.16.0
+Requires:	telepathy-salut >= 0.8.0
 Requires:	telepathy-idle
-Requires:	telepathy-butterfly
-Requires:	telepathy-haze
+Requires:	telepathy-haze >= 0.6.0
 
 Requires(post): /usr/bin/gtk-update-icon-cache
 Requires(postun): /usr/bin/gtk-update-icon-cache
@@ -79,14 +85,14 @@ It is built on top of the Telepathy framework.
 # force this to be regenerated
 rm data/empathy.desktop
 
+%patch0 -p1
+%patch1 -p1
+
 
 %build
 ## GCC complains about some unused functions, so we forcibly show those as
 ## simple warnings instead of build-halting errors.
 %configure --disable-static
-## RPATHs are yucky.
-sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 # Parallel builds are broken.
 make
 install -m 0644 %{SOURCE1} ./README.ConnectionManagers
@@ -94,27 +100,22 @@ install -m 0644 %{SOURCE1} ./README.ConnectionManagers
 
 %install
 rm -rf $RPM_BUILD_ROOT
-export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 make install DESTDIR=$RPM_BUILD_ROOT
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 ## Remove telepathy-yell devel files until it's a seperate tarball.
 rm -f $RPM_BUILD_ROOT/%{_libdir}/pkgconfig/telepathy-yell.pc
 rm -Rf $RPM_BUILD_ROOT/%{_includedir}/*
+magic_rpm_clean.sh
+%find_lang %{name} --with-gnome
 
-%find_lang %{name}
-
-desktop-file-install --vendor fedora --delete-original	\
+desktop-file-install --vendor magic --delete-original	\
 	--dir %{buildroot}%{_datadir}/applications	\
 	%{buildroot}%{_datadir}/applications/%{name}.desktop
-
-desktop-file-install --vendor fedora --delete-original	\
-	--dir %{buildroot}%{_datadir}/applications	\
-	%{buildroot}%{_datadir}/applications/%{name}-accounts.desktop
 
 
 %post
 touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
-/sbin/ldconfig
+/usr/sbin/ldconfig
 
 %postun
 if [ $1 -eq 0 ]; then
@@ -122,7 +123,7 @@ if [ $1 -eq 0 ]; then
    gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
    glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 fi
-/sbin/ldconfig
+/usr/sbin/ldconfig
 
 
 %posttrans
@@ -131,35 +132,229 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 
 
 %files -f %{name}.lang
-%defattr(-,root,root,-)
 %doc AUTHORS COPYING README README.ConnectionManagers NEWS
+%doc COPYING-DOCS COPYING.LGPL COPYING.SHARE-ALIKE
 %{_bindir}/%{name}
 %{_bindir}/%{name}-accounts
 %{_bindir}/%{name}-debugger
+%dir %{_libdir}/%{name}
+%{_libdir}/%{name}/libempathy-%{version}.so
+%{_libdir}/%{name}/libempathy-gtk-%{version}.so
+%{_libdir}/%{name}/libempathy-gtk.so
+%{_libdir}/%{name}/libempathy.so
 %{_libdir}/nautilus-sendto/plugins/libnstempathy.so
 %{_libdir}/mission-control-plugins.0/mcp-account-manager-goa.so
 %{_datadir}/empathy/
-%{_datadir}/applications/fedora-%{name}*.desktop
-%{_datadir}/gnome/help/%{name}/
+%{_datadir}/applications/magic-%{name}*.desktop
 %{_datadir}/icons/hicolor/*/apps/%{name}*
+%{_datadir}/dbus-1/services/org.freedesktop.Telepathy.Client.Empathy.Call.service
 %{_datadir}/dbus-1/services/org.freedesktop.Telepathy.Client.Empathy.Chat.service
-%{_datadir}/dbus-1/services/org.freedesktop.Telepathy.Client.Empathy.AudioVideo.service
 %{_datadir}/dbus-1/services/org.freedesktop.Telepathy.Client.Empathy.Auth.service
-#%{_datadir}/dbus-1/services/org.freedesktop.Telepathy.Client.Empathy.Call.service
 %{_datadir}/dbus-1/services/org.freedesktop.Telepathy.Client.Empathy.FileTransfer.service
 %{_datadir}/GConf/gsettings/empathy.convert
 %{_datadir}/glib-2.0/schemas/org.gnome.Empathy.gschema.xml
+%{_datadir}/telepathy/clients/Empathy.Call.client
 %{_datadir}/telepathy/clients/Empathy.Chat.client
-%{_datadir}/telepathy/clients/Empathy.AudioVideo.client
 %{_datadir}/telepathy/clients/Empathy.Auth.client
-#%{_datadir}/telepathy/clients/Empathy.Call.client
 %{_datadir}/telepathy/clients/Empathy.FileTransfer.client
 %{_mandir}/man1/empathy*.1.gz
-%{_libexecdir}/empathy-av
 %{_libexecdir}/empathy-auth-client
+%{_libexecdir}/empathy-call
 %{_libexecdir}/empathy-chat
+%dir %{_datadir}/adium
+%dir %{_datadir}/adium/message-styles
+%dir %{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle
+%dir %{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle/Contents
+%dir %{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle/Contents/Resources
+%{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle/Contents/Info.plist
+%{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle/Contents/Resources/Incoming/Content.html
+%{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle/Contents/Resources/Incoming/NextContent.html
+%{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle/Contents/Resources/Status.html
+%{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle/Contents/Resources/Variants/Blue.css
+%{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle/Contents/Resources/Variants/Clean.css
+%{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle/Contents/Resources/Variants/Simple.css
+%{_datadir}/adium/message-styles/Boxes.AdiumMessageStyle/Contents/Resources/main.css
+%dir %{_datadir}/adium/message-styles/Classic.AdiumMessageStyle
+%dir %{_datadir}/adium/message-styles/Classic.AdiumMessageStyle/Contents
+%dir %{_datadir}/adium/message-styles/Classic.AdiumMessageStyle/Contents/Resources
+%{_datadir}/adium/message-styles/Classic.AdiumMessageStyle/Contents/Info.plist
+%{_datadir}/adium/message-styles/Classic.AdiumMessageStyle/Contents/Resources/Content.html
+%{_datadir}/adium/message-styles/Classic.AdiumMessageStyle/Contents/Resources/Status.html
+%{_datadir}/adium/message-styles/Classic.AdiumMessageStyle/Contents/Resources/main.css
+%dir %{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle
+%dir %{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents
+%dir %{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents/Resources
+%{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents/Info.plist
+%{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents/Resources/Images/corners.png
+%{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents/Resources/Images/horizontal.png
+%{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents/Resources/Images/nipple.png
+%{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents/Resources/Images/vertical.png
+%{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents/Resources/Incoming/Content.html
+%{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents/Resources/Incoming/NextContent.html
+%{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents/Resources/Status.html
+%{_datadir}/adium/message-styles/PlanetGNOME.AdiumMessageStyle/Contents/Resources/main.css
 
 %changelog
+* Wed Oct 31 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.6.1-3
+- Rebuild against latest telepathy-logger
+
+* Thu Oct 18 2012 Debarshi Ray <rishi@fedoraproject.org> - 3.6.1-2
+- Fix GNOME #686311 and #686314
+
+* Mon Oct 15 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.6.1-1
+- Update to 3.6.1
+
+* Mon Oct  8 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.6.0.3-1
+- Update to 3.6.0.3.
+
+* Thu Oct  4 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.6.0.1-2
+- Build with gstreamer-1.0 support.
+
+* Wed Oct  3 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.6.0.1-1
+- Update to 3.6.0.1
+
+* Wed Sep 26 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.6.0-2
+- Rebuild against new tp-glib
+
+* Tue Sep 25 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.6.0-1
+- Update to 3.6.0.
+
+* Wed Sep 19 2012 Kalev Lember <kalevlember@gmail.com> - 3.5.92-2
+- Rebuilt for new libcheese-gtk
+
+* Wed Sep 19 2012 Richard Hughes <hughsient@gmail.com> - 3.5.92-1
+- Update to 3.5.92
+
+* Fri Sep  7 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.5.91.1-1
+- Update to 3.5.91.1.
+
+* Tue Sep 04 2012 Richard Hughes <hughsient@gmail.com> - 3.5.91-1
+- Update to 3.5.91
+
+* Thu Aug 30 2012 Debarshi Ray <rishi@fedoraproject.org> - 3.5.90-3
+- Do not remove the rpaths. They are needed to pick up the private libraries.
+  (RH #846908)
+
+* Tue Aug 28 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.90-2
+- Rebuild against new cogl/clutter
+
+* Wed Aug 22 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.5.90-1
+- Update to 3.5.90.
+- Remove bits for accounts desktop file. No longer shipped.
+
+* Sun Aug 19 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.5.5-2
+- Rebuild for new libcogl.
+
+* Mon Aug  6 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.5.5-1
+- Update to 3.5.5.
+- Bump minimum version of tp-glib.
+- Add BR on libsecret-devel
+
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.5.4.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Jul 24 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.5.4.1-1
+- Update to 3.5.4.1.
+- Bump minimum version of tp-glib needed.
+
+* Mon Jul 16 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.5.4-1
+- Update to 3.5.4.
+- Bump minimum versions of tp-glib and glib2 needed.
+
+* Tue Jun 26 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.5.3-2
+- Bump minimum version of tp-glib and folks.
+- Drop BR on eds-devel.
+
+* Tue Jun 26 2012 Richard Hughes <hughsient@gmail.com> - 3.5.3-1
+- Update to 3.5.3
+
+* Tue Jun  5 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.5.2-1
+- Update to 3.5.2.
+- Bump minimum version of gtk3, tp-glib, goa, and clutter-gtk.
+
+* Mon Apr 30 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.5.1-1
+- Update to 3.5.1.
+- Update source url.
+
+* Mon Apr 16 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.4.1-1
+- Update to 3.4.1.
+- Update source url.
+
+* Fri Apr  6 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.4.0.2-1
+- Update to 3.4.0.2.
+
+* Thu Apr 05 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.4.0.1-2
+- Rebuild against tp-farstream
+
+* Thu Apr  5 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.4.0.1-1
+- Update to 3.4.0.1.
+
+* Thu Apr 05 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.4.0-3
+- Rebuild against new tp-farstream
+
+* Tue Apr 03 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.4.0-2
+- Rebuild against new tp-glib.
+
+* Mon Mar 26 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.4.0-1
+- Update to 3.4.0.
+
+* Tue Mar 20 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.92-1
+- Update to 3.3.92.
+
+* Wed Mar 14 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.91-3
+- Rebuild for cogl
+
+* Wed Mar 07 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.91-2
+- Rebuild for cogl
+
+* Tue Mar  6 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.91-1
+- Update to 3.3.91.
+- Remove en_GB and zh_CN help files until they can be properly handled.
+
+* Mon Mar  5 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.90.2-1
+- Update to 3.3.90.2.
+- Add BR on telepathy-farstream-devel, gstreamer-devel and itstool.
+- Drop BR on tp-farsight.
+- Bump minimum version of tp-glib.
+- Drop requires on tp-butterfly. MSN will use tp-gabble from now on.
+
+* Tue Feb 7 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.5-1
+- Update to 3.3.5.
+
+* Mon Feb 6 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.4-3
+- Rebuild against new eds.
+
+* Thu Jan 19 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.4-2
+- Rebuild against new cogl
+
+* Mon Jan 16 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.4-1
+- Update to 3.3.4.
+- Add BR on gcr and remove old BR on gnome-keyring.
+
+* Mon Jan 09 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.3-3
+- Rebuild for new gcc.
+
+* Mon Dec 19 2011 Brian Pepple <bpepple@fedoraproject.org> - 3.3.3-2
+- Build with call logging support.
+
+* Mon Dec 19 2011 Brian Pepple <bpepple@fedoraproject.org> - 3.3.3-1
+- Update to 3.3.3.
+- Bump minimum version of tp-glib, goa, glib2, and folks.
+
+* Sun Nov 27 2011 Peter Robinson <pbrobinson@fedoraproject.org> - 3.3.2-3
+- Fix build by commenting out GOA integration until GOA 3.3.x is released
+
+* Thu Nov 24 2011 Matthias Clasen <mclasen@redhat.com> - 3.3.2-2
+- Rebuild against new clutter
+
+* Thu Nov 24 2011 Brian Pepple <bpepple@fedoraproject.org> - 3.3.2-1
+- Update to 3.3.2.
+- Bump minimum version of tp-glib needed.
+- Add minimum version of GOA needed.
+
+* Tue Nov 22 2011 Brian Pepple <bpepple@fedoraproject.org> - 3.3.1-4
+- Rebuild against new eds
+
 * Wed Nov 02 2011 Brian Pepple <bpepple@fedoraproject.org> - 3.3.1-3
 - Rebuld against tp-logger.
 
