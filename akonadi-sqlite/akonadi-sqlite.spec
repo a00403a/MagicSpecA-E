@@ -8,7 +8,7 @@ Summary: PIM Storage Service
 Summary(zh_CN.UTF-8): 个人信息管理存储服务
 Name:    %{real_name}-sqlite
 Version: 1.8.0
-Release: 1%{?dist}
+Release: 3%{?dist}
 
 Group:   System Environment/Libraries
 Group(zh_CN.UTF-8): 系统环境/库
@@ -188,5 +188,11 @@ fi
 
 
 %changelog
+* Sat Nov 17 2012 Liu Di <liudidi@gmail.com> - 1.8.0-3
+- 为 Magic 3.0 重建
+
+* Sat Nov 17 2012 Liu Di <liudidi@gmail.com> - 1.8.0-2
+- 为 Magic 3.0 重建
+
 * Thu Oct 27 2011 Liu Di <liudidi@gmail.com> - 1.6.2-3
 - 升级到 1.6.2
