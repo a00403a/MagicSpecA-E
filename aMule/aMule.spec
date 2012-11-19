@@ -10,7 +10,7 @@ Name: aMule
 Version:	 2.3.1
 #Release: 0.cvs%{date}.2mgc
 %if %{svn}
-Release: 0.svn.%{svn}.1%{?dist}
+Release: 0.svn.%{svn}.1%{?dist}.2
 %endif
 %if 0%{_rc}
 Release: 0.1%{?_dotrc}.%{?dist}
@@ -250,6 +250,7 @@ install -m 600 %{SOURCE10} %{buildroot}%{_sharedstatedir}/amuled/.aMule/addresse
 # ed2k 初始化服务器地址列表
 install -m 600 %{SOURCE11} %{buildroot}%{_sharedstatedir}/amuled/.aMule/server.met
 
+%define _initdir %{_sysconfdir}/init.d
 mkdir -p %{buildroot}%{_initdir}
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0755 %{SOURCE4} %{buildroot}%{_initdir}/amuled
@@ -286,6 +287,7 @@ done
 %{_mandir}/man1/ed2k.1.gz
 %{_datadir}/pixmaps/amule.xpm
 %{_sysconfdir}/skel/.aMule/*
+%{_bindir}/plasmamule-engine-feeder
 
 %files common
 %defattr(-,root,root,-)
@@ -344,6 +346,12 @@ done
 %{_mandir}/man1/xas.1.gz
 
 %changelog
+* Sat Nov 17 2012 Liu Di <liudidi@gmail.com> - 2.3.1-1
+- 为 Magic 3.0 重建
+
+* Sat Nov 17 2012 Liu Di <liudidi@gmail.com> - 2.3.1-1
+- 为 Magic 3.0 重建
+
 * Tue Jan 24 2012 Liu Di <liudidi@gmail.com> - 2.3.1-1
 - 更新到 2.3.1
 - 细分包
