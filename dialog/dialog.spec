@@ -2,7 +2,7 @@ Summary: A utility for creating TTY dialog boxes
 Name: dialog
 %define dialogsubversion 20110707
 Version: 1.1
-Release: 14.%{dialogsubversion}%{?dist}
+Release: 15.%{dialogsubversion}%{?dist}
 License: LGPLv2
 Group: Applications/System
 URL: http://invisible-island.net/dialog/dialog.html
@@ -61,7 +61,7 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 chmod 755 $RPM_BUILD_ROOT%{_libdir}/libdialog.so.*.*.*
 rm -f $RPM_BUILD_ROOT%{_libdir}/libdialog.{,l}a
-
+magic_rpm_clean.sh
 %find_lang %{name}
 
 %clean
@@ -86,6 +86,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/dialog.*
 
 %changelog
+* Mon Nov 19 2012 Liu Di <liudidi@gmail.com> - 1.1-15.20110707
+- 为 Magic 3.0 重建
+
 * Wed Oct 26 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1-14.20110707
 - Rebuilt for glibc bug#747377
 
