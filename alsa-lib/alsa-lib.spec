@@ -4,12 +4,14 @@
 
 Summary: The Advanced Linux Sound Architecture (ALSA) library
 Name:    alsa-lib
-Version: 1.0.25
-Release: 4%{?prever_dot}%{?dist}
+Version: 1.0.26
+Release: 1%{?prever_dot}%{?dist}
 License: LGPLv2+
 Group:   System Environment/Libraries
 Source:  ftp://ftp.alsa-project.org/pub/lib/%{name}-%{version}%{?prever}%{?postver}.tar.bz2
 Source10: asound.conf
+Source11: modprobe-dist-alsa.conf
+Source12: modprobe-dist-oss.conf
 Patch0:  alsa-lib-1.0.24-config.patch
 Patch2:  alsa-lib-1.0.14-glibc-open.patch
 Patch4:	 alsa-lib-1.0.16-no-dox-date.patch
@@ -57,9 +59,22 @@ make doc
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
 
+%if 0
+# We need the library to be available even before /usr might be mounted
+mkdir -p %{buildroot}/%{_lib}
+mv %{buildroot}%{_libdir}/libasound.so.* %{buildroot}/%{_lib}
+ln -snf ../../%{_lib}/libasound.so.2 %{buildroot}%{_libdir}/libasound.so
+%endif
+
 # Install global configuration files
 mkdir -p -m 755 %{buildroot}/etc
 install -p -m 644 %{SOURCE10} %{buildroot}/etc
+
+# Install the modprobe files for ALSA
+mkdir -p -m 755 %{buildroot}/usr/lib/modprobe.d/
+install -p -m 644 %{SOURCE11} %{buildroot}/usr/lib/modprobe.d/dist-alsa.conf
+install -p -m 644 %{SOURCE12} %{buildroot}/usr/lib/modprobe.d/dist-oss.conf
+magic_rpm_clean.sh
 
 %clean
 rm -rf %{buildroot}
@@ -70,12 +85,15 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc COPYING ChangeLog TODO doc/asoundrc.txt
+%doc COPYING TODO doc/asoundrc.txt
+# file is as old as 0.2.0 / Red Hat bugzilla #510212
+#doc Changelog
 %config %{_sysconfdir}/asound.conf
 %{_libdir}/libasound.so.*
 %{_bindir}/aserver
 %{_libdir}/alsa-lib/
 %{_datadir}/alsa/
+/usr/lib/modprobe.d/dist-*
 
 %files devel
 %defattr(-,root,root,-)
@@ -88,8 +106,17 @@ rm -rf %{buildroot}
 %{_datadir}/aclocal/alsa.m4
 
 %changelog
-* Thu Apr 12 2012 Liu Di <liudidi@gmail.com> - 1.0.25-4
-- 为 Magic 3.0 重建
+* Thu Sep  6 2012 Jaroslav Kysela <jkysela@redhat.com> - 1.0.26-1
+- Updated to 1.0.26
+
+* Thu Jul 26 2012 Michael Schwendt <mschwendt@fedoraproject.org> - 1.0.25-6
+- Don't package ancient ChangeLog that ends at alsa-lib 0.2.0 (#510212).
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.25-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Wed May  2 2012 Josh Boyer <jwboyer@redhat.com> - 1.0.25-4
+- Install ALSA related module conf files
 
 * Wed Feb  1 2012 Jaroslav Kysela <jkysela@redhat.com> - 1.0.25-3
 - Remove the pulse audio configuration from /etc/asound.conf
