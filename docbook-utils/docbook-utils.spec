@@ -1,6 +1,6 @@
 Name: docbook-utils
 Version: 0.6.14
-Release: 28%{?dist}
+Release: 32%{?dist}
 Group: Applications/Text
 
 Summary: Shell scripts for managing DocBook documents
@@ -91,6 +91,7 @@ install -p -m 644 %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/sgml/docbook/utils-%{ver
 install -p -m 755 %{SOURCE3} $RPM_BUILD_ROOT%{_datadir}/sgml/docbook/utils-%{version}/helpers/docbook2man-spec.pl
 
 rm -rf $RPM_BUILD_ROOT/tmp
+magic_rpm_clean.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -138,6 +139,24 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/docbook2ps.*
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.6.14-32
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Wed May 30 2012 Ondrej Vasik <ovasik@redhat.com> 0.6.14-31
+- fix escaping of double-quotes in docbook2man (#826139)
+- fix the wrong format of C-style functions in docbook2man (#662869)
+- fix stray .fi at the end of funcsynopsis section (#662869)
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.6.14-30
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Fri Nov 25 2011 Ondrej Vasik <ovasik@redhat.com> 0.6.14-29
+- improve handling of jw options in db2html,respect
+  --output (#756928)
+
+* Fri Nov 25 2011 Ondrej Vasik <ovasik@redhat.com> 0.6.14-28
+- cleanup output dir for empty db2html input (#756930)
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.6.14-27
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 

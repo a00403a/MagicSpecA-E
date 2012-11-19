@@ -193,7 +193,7 @@ sub fold_string
 	$_ = shift;
 	
 	s/\\/\\\\/g;
-	s/"/\\\&"/g;
+	s/"/""/g;
 
 	# Change tabs and newlines to spaces
 	# The newlines will be swallowed later while trimming
@@ -483,8 +483,8 @@ man_sgml('<FUNCSYNOPSIS>', sub {
 	bold_on();
 });
 man_sgml('</FUNCSYNOPSIS>', sub {
+	man_output("\n.fi");
 	font_off();
-	man_output "\n.fi";
 });
 
 man_sgml('<CMDSYNOPSIS>', "\n.sp\n");
@@ -493,9 +493,22 @@ man_sgml('</CMDSYNOPSIS>', "\n");
 man_sgml('<FUNCPROTOTYPE>', "\n.sp\n");
 
 # Arguments to functions.  This is C convention.
-man_sgml('<PARAMDEF>', '(');
-man_sgml('</PARAMDEF>', ");\n");
-man_sgml('<VOID>', "(void);\n");
+#man_sgml('<PARAMDEF>', '(');
+#man_sgml('</PARAMDEF>', ");\n");
+#man_sgml('<VOID>', "(void);\n");
+sub paramdef
+{
+	if($_[0]->parent->ext->{'inparams'}) {
+		output ', ';
+	} else {
+		output ' (';
+		$_[0]->parent->ext->{'inparams'} = 1;
+	}
+}
+man_sgml('<PARAMDEF>', \&paramdef);
+man_sgml('</FUNCPROTOTYPE>', ");\n");
+man_sgml('<VOID>', "(void");
+man_sgml('<VARARGS>', "(...");
 
 
 sub arg_start
