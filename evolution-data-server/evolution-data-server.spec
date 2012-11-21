@@ -4,19 +4,20 @@
 %define nntp_support 1
 %define largefile_support 1
 
-%define glib2_version 2.30.0
+%define glib2_version 2.32.0
 %define gtk3_version 3.2.0
 %define gcr_version 3.4
 %define gtk_doc_version 1.9
 %define intltool_version 0.35.5
+%define libsecret_version 0.5
 %define libgdata_version 0.10.0
 %define libgweather_version 3.5.0
 %define libical_version 0.46
 %define liboauth_version 0.9.4
-%define soup_version 2.31.2
+%define libsoup_version 2.38.1
 %define sqlite_version 3.5
 
-%define eds_base_version 3.6
+%define eds_base_version 3.8
 
 %define camel_provider_dir %{_libdir}/evolution-data-server/camel-providers
 %define ebook_backends_dir %{_libdir}/evolution-data-server/addressbook-backends
@@ -26,14 +27,14 @@
 ### Abstract ###
 
 Name: evolution-data-server
-Version: 3.5.90
+Version: 3.7.1
 Release: 1%{?dist}
 Group: System Environment/Libraries
 Summary: Backend data server for Evolution
 License: LGPLv2+
 URL: http://projects.gnome.org/evolution/
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-Source: http://download.gnome.org/sources/%{name}/3.5/%{name}-%{version}.tar.xz
+Source: http://download.gnome.org/sources/%{name}/3.7/%{name}-%{version}.tar.xz
 
 Provides: evolution-webcal = %{version}
 Obsoletes: evolution-webcal < 2.24.0
@@ -63,7 +64,8 @@ BuildRequires: libgnome-keyring-devel
 BuildRequires: libgweather-devel >= %{libgweather_version}
 BuildRequires: libical-devel >= %{libical_version}
 BuildRequires: liboauth-devel >= %{liboauth_version}
-BuildRequires: libsoup-devel >= %{soup_version}
+BuildRequires: libsecret-devel >= %{libsecret_version}
+BuildRequires: libsoup-devel >= %{libsoup_version}
 BuildRequires: libtool
 BuildRequires: nspr-devel
 BuildRequires: nss-devel
@@ -105,6 +107,7 @@ Requires: libgnome-keyring-devel
 Requires: libgweather-devel
 Requires: libical-devel
 Requires: liboauth-devel
+Requires: libsecret-devel
 Requires: libsoup-devel
 Requires: sqlite-devel
 
@@ -234,10 +237,10 @@ magic_rpm_clean.sh
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /usr/sbin/ldconfig
+%post -p /sbin/ldconfig
 
 %postun
-/usr/sbin/ldconfig
+/sbin/ldconfig
 if [ $1 -eq 0 ] ; then
     glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 fi
@@ -323,7 +326,7 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{ecal_backends_dir}/libecalbackendweather.so
 %{modules_dir}/module-cache-reaper.so
 %{modules_dir}/module-google-backend.so
-%{modules_dir}/module-online-accounts.so
+%{modules_dir}/module-gnome-online-accounts.so
 %{modules_dir}/module-yahoo-backend.so
 
 %files devel
@@ -367,6 +370,15 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/gtk-doc/html/libedataserverui
 
 %changelog
+* Mon Oct 22 2012 Milan Crha <mcrha@redhat.com> - 3.7.1-1
+- Update to 3.7.1
+
+* Mon Sep 17 2012 Milan Crha <mcrha@redhat.com> - 3.5.92-1
+- Update to 3.5.92
+
+* Mon Sep 03 2012 Milan Crha <mcrha@redhat.com> - 3.5.91-1
+- Update to 3.5.91
+
 * Mon Aug 20 2012 Milan Crha <mcrha@redhat.com> - 3.5.90-1
 - Update to 3.5.90
 
