@@ -3,7 +3,7 @@
 Summary: Automatic API documentation generation tool for Python
 Name: epydoc
 Version: 3.0.1
-Release: 10%{?dist}
+Release: 12%{?dist}
 Group: Development/Tools
 License: MIT
 URL: http://epydoc.sourceforge.net/
@@ -15,8 +15,8 @@ Patch2: epydoc-3.0.1-new-docutils.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires: tkinter
 # Needed for some outputs, like --pdf (#522249)
-Requires: texlive-dvips
-Requires: texlive-latex
+Requires: tex(dvips)
+Requires: tex(latex)
 BuildRequires: python-devel
 BuildRequires: desktop-file-utils
 BuildArch: noarch
@@ -77,8 +77,14 @@ desktop-file-install \
 
 
 %changelog
-* Fri Nov 18 2011 Liu Di <liudidi@gmail.com> - 3.0.1-10
-- 为 Magic 3.0 重建
+* Sun Jul 22 2012 Rex Dieter <rdieter@fedoraproject.org> 3.0.1-12
+- Requires: tex(dvips) tex(latex)
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.0.1-11
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.0.1-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.0.1-9
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
