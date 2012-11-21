@@ -3,7 +3,7 @@ Summary: GNU Emacs text editor
 Name: emacs
 Epoch: 1
 Version: 24.2
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPLv3+
 URL: http://www.gnu.org/software/emacs/
 Group: Applications/Editors
@@ -201,7 +201,7 @@ ln -s ../configure .
 %define toolkit gtk3
 %endif
 
-%configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg \
+%configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg --without-sound \
            --with-tiff --with-xft --with-xpm --with-x-toolkit=%{toolkit} --with-gpm=no \
 	   --with-wide-int
 env MALLOC_PERTURB_=0 MALLOC_CHECK_=0 make bootstrap
@@ -211,7 +211,7 @@ cd ..
 # Build binary without X support
 mkdir build-nox && cd build-nox
 ln -s ../configure .
-%configure --with-x=no
+%configure --with-x=no --without-sound
 env MALLOC_PERTURB_=0 MALLOC_CHECK_=0 %{setarch} make %{?_smp_mflags}
 cd ..
 
@@ -426,6 +426,9 @@ update-desktop-database &> /dev/null || :
 %dir %{_datadir}/emacs/site-lisp/site-start.d
 
 %changelog
+* Tue Nov 20 2012 Liu Di <liudidi@gmail.com> - 1:24.2-6
+- 为 Magic 3.0 重建
+
 * Thu Sep 20 2012 Karel Klíč <kklic@redhat.com> - 1:24.2-5
 - Add BSD to emacs-common licenses because of etags.
 
