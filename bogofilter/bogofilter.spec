@@ -9,7 +9,7 @@ Group(zh_CN): 应用程序/互联网
 URL: http://bogofilter.sourceforge.net/
 Source: http://downloads.sourceforge.net/bogofilter/bogofilter-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: flex db4-devel gsl-devel
+BuildRequires: flex libdb-devel gsl-devel
 BuildRequires: /usr/bin/iconv
 
 %description
