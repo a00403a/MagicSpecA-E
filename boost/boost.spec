@@ -25,7 +25,7 @@ Name: boost
 Summary: The free peer-reviewed portable C++ source libraries
 Version: 1.50.0
 %define version_enc 1_50_0
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: Boost and MIT and Python
 
 %define toplev_dirname %{name}_%{version_enc}
@@ -970,6 +970,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/bjam.1*
 
 %changelog
+* Thu Nov 22 2012 Liu Di <liudidi@gmail.com> - 1.50.0-5
+- 为 Magic 3.0 重建
+
 * Wed Aug 15 2012 Petr Machata <pmachata@redhat.com> - 1.50.0-4
 - Override boost_thread-mt.so with a linker script that brings in
   Boost.System DSO as well.
