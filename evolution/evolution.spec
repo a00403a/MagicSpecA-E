@@ -1,20 +1,21 @@
-%define dbus_version 1.0
-%define glib2_version 2.30.0
+%define glib2_version 2.32.0
+%define gtk3_version 3.4.0
+%define gtkhtml_version 4.5.2
 %define gnome_desktop_version 2.91.3
 %define gnome_doc_utils_version 0.8.0
 %define gnome_icon_theme_version 2.30.2.1
-%define gtk3_version 3.2.0
-%define gtkhtml_version 4.3.1
 %define intltool_version 0.35.5
 %define libgdata_version 0.10.0
-%define libgweather_version 2.91.0
+%define libgweather_version 3.5.0
+%define libsoup_version 2.38.1
 %define clutter_gtk_version 0.10
-%define soup_version 2.4.0
+%define webkit_version 1.8.0
 
-%define evo_base_version 3.4
+%define evo_base_version 3.8
 
 %define last_anjal_version 0.3.2-3
 %define last_libgal2_version 2:2.5.3-2
+%define last_evo_nm_version 3.5.0
 
 %define inline_audio_support 1
 %define ldap_support 1
@@ -27,17 +28,18 @@
 ### Abstract ###
 
 Name: evolution
-Version: 3.3.5
-Release: 1%{?dist}
+Version: 3.7.1
+Release: 2%{?dist}
 Group: Applications/Productivity
 Summary: Mail and calendar client for GNOME
 License: GPLv2+ and GFDL
 URL: http://projects.gnome.org/evolution/
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-Source: http://download.gnome.org/sources/%{name}/3.3/%{name}-%{version}.tar.xz
+Source: http://download.gnome.org/sources/%{name}/3.7/%{name}-%{version}.tar.xz
 
 Obsoletes: anjal <= %{last_anjal_version}
 Obsoletes: libgal2 <= %{last_libgal2_version}
+Obsoletes: evolution-NetworkManager < %{last_evo_nm_version}
 
 ### Patches ###
 
@@ -49,25 +51,19 @@ Patch02: evolution-2.30.1-help-contents.patch
 
 ## Dependencies ###
 
-Requires(pre): GConf2
-Requires(post): GConf2
-Requires(preun): GConf2
-
-Requires: evolution-data-server >= %{version}
 Requires: gnome-icon-theme >= %{gnome_icon_theme_version}
 Requires: gvfs
+Requires: highlight
 
 ### Build Dependencies ###
 
-BuildRequires: GConf2-devel
-BuildRequires: NetworkManager-devel
 BuildRequires: atk-devel
 BuildRequires: autoconf >= 2.59
 BuildRequires: automake >= 1.9
 BuildRequires: bison
 BuildRequires: cairo-gobject-devel
 BuildRequires: clutter-gtk-devel >= %{clutter_gtk_version}
-BuildRequires: dbus-devel >= %{dbus_version}
+BuildRequires: dbus-glib-devel
 BuildRequires: desktop-file-utils
 BuildRequires: evolution-data-server-devel >= %{version}
 BuildRequires: gettext
@@ -80,23 +76,26 @@ BuildRequires: gnutls-devel
 BuildRequires: gtk-doc
 BuildRequires: gtk3-devel >= %{gtk3_version}
 BuildRequires: gtkhtml3-devel >= %{gtkhtml_version}
+BuildRequires: highlight
 BuildRequires: intltool >= %{intltool_version}
+BuildRequires: itstool
 BuildRequires: libcanberra-devel
 BuildRequires: libgdata-devel >= %{libgdata_version}
 BuildRequires: libgweather-devel >= %{libgweather_version}
 BuildRequires: libpst-devel
 BuildRequires: libSM-devel
-BuildRequires: libsoup-devel >= %{soup_version}
+BuildRequires: libsoup-devel >= %{libsoup_version}
 BuildRequires: libtool >= 1.5
 BuildRequires: libxml2-devel
 BuildRequires: nspr-devel
 BuildRequires: nss-devel
 BuildRequires: pkgconfig
 BuildRequires: rarian-compat
-BuildRequires: unique3-devel
+BuildRequires: webkitgtk3-devel >= %{webkit_version}
+BuildRequires: yelp-tools
 
 %if %{inline_audio_support}
-BuildRequires: gstreamer-devel
+BuildRequires: gstreamer1-devel
 %endif
 
 %if %{ldap_support}
@@ -134,7 +133,7 @@ Requires: gtk3-devel >= %{gtk3_version}
 Requires: gtkhtml3-devel >= %{gtkhtml_version}
 Requires: libgdata-devel >= %{libgdata_version}
 Requires: libgweather-devel >= %{libgweather_version}
-Requires: libsoup-devel >= %{soup_version}
+Requires: libsoup-devel >= %{libsoup_version}
 Requires: libxml2-devel
 Obsoletes: libgal2-devel <= %{last_libgal2_version}
 
@@ -156,25 +155,17 @@ Group: Applications/Productivity
 Summary: Bogofilter plugin for Evolution
 Requires: %{name} = %{version}-%{release}
 Requires: bogofilter
+BuildRequires: bogofilter
 
 %description bogofilter
 This package contains the plugin to filter junk mail using Bogofilter.
-
-%package NetworkManager
-Group: Applications/Productivity
-Summary: NetworkManager plugin for Evolution
-Requires: %{name} = %{version}-%{release}
-Requires: NetworkManager
-
-%description NetworkManager
-This package contains the plugin to monitor network availability using
-NetworkManager.
 
 %package spamassassin
 Group: Applications/Productivity
 Summary: SpamAssassin plugin for Evolution
 Requires: %{name} = %{version}-%{release}
 Requires: spamassassin
+BuildRequires: spamassassin
 
 %description spamassassin
 This package contains the plugin to filter junk mail using SpamAssassin.
@@ -296,32 +287,15 @@ unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 
 # remove libtool archives for importers and the like
 find $RPM_BUILD_ROOT/%{_libdir}/evolution -name '*.la' -exec rm {} \;
-find $RPM_BUILD_ROOT/%{_libdir} -name 'libemail-engine.la' -exec rm {} \;
-find $RPM_BUILD_ROOT/%{_libdir} -name 'libemail-utils.la' -exec rm {} \;
 
 # remove statically built libraries:
 find $RPM_BUILD_ROOT/%{_libdir}/evolution -name '*.a' -exec rm {} \;
-find $RPM_BUILD_ROOT/%{_libdir} -name 'libemail-engine.a' -exec rm {} \;
-find $RPM_BUILD_ROOT/%{_libdir} -name 'libemail-utils.a' -exec rm {} \;
-
-# remove old GConf schemas
-find $RPM_BUILD_ROOT/%{_sysconfdir}/gconf/schemas -name '*.schemas' -exec rm {} \;
 
 # remove additional things we don't want
 %if ! %{inline_audio_support}
-%{__rm} -f $RPM_BUILD_ROOT%{evo_plugin_dir}/org-gnome-audio-inline.eplug \
-           $RPM_BUILD_ROOT%{evo_plugin_dir}/liborg-gnome-audio-inline.so
+%{__rm} -f $RPM_BUILD_ROOT%{_libdir}/evolution/%{evo_base_version}/modules/module-audio-inline.so
 %endif
-
-rm -f $RPM_BUILD_ROOT%{_datadir}/mime-info/evolution.keys
-rm -f $RPM_BUILD_ROOT%{_datadir}/mime-info/evolution.mime
-
-# Remove the 'email-settings' capplet.  The thing was added for MeeGo
-# to complement Express mode and, frankly, looks horrible.  It doesn't
-# belong on a GNOME 3 desktop.
-rm $RPM_BUILD_ROOT%{_bindir}/evolution-settings
-rm $RPM_BUILD_ROOT%{_datadir}/applications/evolution-settings.desktop
-
+magic_rpm_clean.sh
 %find_lang evolution-%{evo_base_version} --all-name --with-gnome
 
 grep "/usr/share/locale" evolution-%{evo_base_version}.lang > translations.lang
@@ -329,19 +303,21 @@ grep -v "/usr/share/locale" evolution-%{evo_base_version}.lang > help.lang
 
 %post
 /sbin/ldconfig
+/usr/bin/update-desktop-database &> /dev/null || :
 touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 
 %postun
 /sbin/ldconfig
+/usr/bin/update-desktop-database &> /dev/null || :
 if [ $1 -eq 0 ] ; then
-    touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+    touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
     gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
-    glib-compile-schemas %{_datadir}/glib-2.0/schemas
+    glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 fi
 
 %posttrans
 gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
-glib-compile-schemas %{_datadir}/glib-2.0/schemas
+glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -362,14 +338,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/glib-2.0/schemas/org.gnome.evolution.bogofilter.gschema.xml
 %{_datadir}/glib-2.0/schemas/org.gnome.evolution.spamassassin.gschema.xml
 %{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.attachment-reminder.gschema.xml
-%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.face-picture.gschema.xml
-%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.mail-notification.gschema.xml
-%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.templates.gschema.xml
-%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.email-custom-header.gschema.xml
 %{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.autocontacts.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.email-custom-header.gschema.xml
 %{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.external-editor.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.face-picture.gschema.xml
 %{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.itip.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.mail-notification.gschema.xml
 %{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.prefer-plain.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.publish-calendar.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.evolution.plugin.templates.gschema.xml
 
 # The main executable
 %{_bindir}/evolution
@@ -392,49 +369,70 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/evolution/%{evo_base_version}
 
 # Modules:
-# These must be listed individually because the NetworkManager
-# module is split off into a separate NetworkManager subpackage.
 %dir %{_libdir}/evolution
 %dir %{_libdir}/evolution/%{evo_base_version}
 %dir %{_libdir}/evolution/%{evo_base_version}/modules
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-addressbook.so
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-calendar.so
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-composer-autosave.so
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-mail.so
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-mailto-handler.so
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-mdn.so
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-offline-alert.so
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-online-accounts.so
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-plugin-lib.so
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-plugin-manager.so
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-startup-wizard.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-addressbook.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-backup-restore.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-book-config-google.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-book-config-ldap.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-book-config-local.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-book-config-webdav.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-cal-config-caldav.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-cal-config-contacts.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-cal-config-google.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-cal-config-local.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-cal-config-weather.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-cal-config-webcal.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-calendar.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-composer-autosave.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-imap-features.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-itip-formatter.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-mail-config.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-mail.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-mailto-handler.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-mdn.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-offline-alert.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-online-accounts.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-prefer-plain.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-plugin-lib.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-plugin-manager.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-startup-wizard.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-text-highlight.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-tnef-attachment.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-vcard-inline.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-web-inspector.so
+
+%if %{inline_audio_support}
+%{_libdir}/evolution/%{evo_base_version}/modules/module-audio-inline.so
+%endif
 
 # Shared libraries:
-%{_libdir}/libemail-engine.so.*
-%{_libdir}/libemail-utils.so.*
-%{_libdir}/evolution/%{evo_base_version}/libcomposer.so.*
-%{_libdir}/evolution/%{evo_base_version}/libeabutil.so.*
-%{_libdir}/evolution/%{evo_base_version}/libecontacteditor.so.*
-%{_libdir}/evolution/%{evo_base_version}/libecontactlisteditor.so.*
-%{_libdir}/evolution/%{evo_base_version}/libemformat.so.*
-%{_libdir}/evolution/%{evo_base_version}/libemiscwidgets.so.*
-%{_libdir}/evolution/%{evo_base_version}/libeshell.so.*
-%{_libdir}/evolution/%{evo_base_version}/libessmime.so.*
-%{_libdir}/evolution/%{evo_base_version}/libetable.so.*
-%{_libdir}/evolution/%{evo_base_version}/libetext.so.*
-%{_libdir}/evolution/%{evo_base_version}/libetimezonedialog.so.*
-%{_libdir}/evolution/%{evo_base_version}/libeutil.so.*
-%{_libdir}/evolution/%{evo_base_version}/libevolution-a11y.so.*
-%{_libdir}/evolution/%{evo_base_version}/libevolution-addressbook-importers.so.*
-%{_libdir}/evolution/%{evo_base_version}/libevolution-calendar.so.*
-%{_libdir}/evolution/%{evo_base_version}/libevolution-calendar-importers.so.*
-%{_libdir}/evolution/%{evo_base_version}/libevolution-mail-importers.so.*
-%{_libdir}/evolution/%{evo_base_version}/libevolution-mail.so.*
-%{_libdir}/evolution/%{evo_base_version}/libevolution-mail-settings.so.*
-%{_libdir}/evolution/%{evo_base_version}/libevolution-smime.so.*
-%{_libdir}/evolution/%{evo_base_version}/libfilter.so.*
-%{_libdir}/evolution/%{evo_base_version}/libgnomecanvas.so.*
-%{_libdir}/evolution/%{evo_base_version}/libmenus.so.*
+%{_libdir}/evolution/%{evo_base_version}/libcomposer.so
+%{_libdir}/evolution/%{evo_base_version}/libeabutil.so
+%{_libdir}/evolution/%{evo_base_version}/libecontacteditor.so
+%{_libdir}/evolution/%{evo_base_version}/libecontactlisteditor.so
+%{_libdir}/evolution/%{evo_base_version}/libemail-engine.so
+%{_libdir}/evolution/%{evo_base_version}/libemail-utils.so
+%{_libdir}/evolution/%{evo_base_version}/libemformat.so
+%{_libdir}/evolution/%{evo_base_version}/libemiscwidgets.so
+%{_libdir}/evolution/%{evo_base_version}/libeshell.so
+%{_libdir}/evolution/%{evo_base_version}/libessmime.so
+%{_libdir}/evolution/%{evo_base_version}/libetable.so
+%{_libdir}/evolution/%{evo_base_version}/libetext.so
+%{_libdir}/evolution/%{evo_base_version}/libetimezonedialog.so
+%{_libdir}/evolution/%{evo_base_version}/libeutil.so
+%{_libdir}/evolution/%{evo_base_version}/libevolution-a11y.so
+%{_libdir}/evolution/%{evo_base_version}/libevolution-addressbook-importers.so
+%{_libdir}/evolution/%{evo_base_version}/libevolution-calendar.so
+%{_libdir}/evolution/%{evo_base_version}/libevolution-calendar-importers.so
+%{_libdir}/evolution/%{evo_base_version}/libevolution-mail-importers.so
+%{_libdir}/evolution/%{evo_base_version}/libevolution-mail.so
+%{_libdir}/evolution/%{evo_base_version}/libevolution-smime.so
+%{_libdir}/evolution/%{evo_base_version}/libevolution-utils.so
+%{_libdir}/evolution/%{evo_base_version}/libfilter.so
+%{_libdir}/evolution/%{evo_base_version}/libgnomecanvas.so
+%{_libdir}/evolution/%{evo_base_version}/libmenus.so
 
 # Various libexec programs:
 %dir %{_libexecdir}/evolution
@@ -452,34 +450,8 @@ rm -rf $RPM_BUILD_ROOT
 # are built as part of specific plugins but which are currently packaged using 
 # globs above; the purpose of the separation below is to be more explicit about
 # which plugins we ship)
-%{evo_plugin_dir}/org-gnome-addressbook-file.eplug
-%{evo_plugin_dir}/liborg-gnome-addressbook-file.so
-
 %{evo_plugin_dir}/org-gnome-evolution-attachment-reminder.eplug
 %{evo_plugin_dir}/liborg-gnome-evolution-attachment-reminder.so
-
-%if %{inline_audio_support}
-%{evo_plugin_dir}/org-gnome-audio-inline.eplug
-%{evo_plugin_dir}/liborg-gnome-audio-inline.so
-%endif
-
-%{evo_plugin_dir}/org-gnome-backup-restore.eplug
-%{evo_plugin_dir}/liborg-gnome-backup-restore.so
-
-%{evo_plugin_dir}/org-gnome-evolution-caldav.eplug
-%{evo_plugin_dir}/liborg-gnome-evolution-caldav.so
-
-%{evo_plugin_dir}/org-gnome-calendar-file.eplug
-%{evo_plugin_dir}/liborg-gnome-calendar-file.so
-
-%{evo_plugin_dir}/org-gnome-calendar-http.eplug
-%{evo_plugin_dir}/liborg-gnome-calendar-http.so
-
-%{evo_plugin_dir}/org-gnome-calendar-weather.eplug
-%{evo_plugin_dir}/liborg-gnome-calendar-weather.so
-
-%{evo_plugin_dir}/org-gnome-default-source.eplug
-%{evo_plugin_dir}/liborg-gnome-default-source.so
 
 %{evo_plugin_dir}/org-gnome-email-custom-header.eplug
 %{evo_plugin_dir}/liborg-gnome-email-custom-header.so
@@ -487,17 +459,11 @@ rm -rf $RPM_BUILD_ROOT
 %{evo_plugin_dir}/org-gnome-evolution-bbdb.eplug
 %{evo_plugin_dir}/liborg-gnome-evolution-bbdb.so
 
-%{evo_plugin_dir}/org-gnome-evolution-google.eplug
-%{evo_plugin_dir}/liborg-gnome-evolution-google.so
+%{evo_plugin_dir}/org-gnome-external-editor.eplug
+%{evo_plugin_dir}/liborg-gnome-external-editor.so
 
 %{evo_plugin_dir}/org-gnome-face.eplug
 %{evo_plugin_dir}/liborg-gnome-face.so
-
-#%{evo_plugin_dir}/org-gnome-image-inline.eplug
-#%{evo_plugin_dir}/liborg-gnome-image-inline.so
-
-%{evo_plugin_dir}/org-gnome-imap-features.eplug
-%{evo_plugin_dir}/liborg-gnome-imap-features.so
 
 %{evo_plugin_dir}/org-gnome-itip-formatter.eplug
 %{evo_plugin_dir}/liborg-gnome-itip-formatter.so
@@ -526,12 +492,6 @@ rm -rf $RPM_BUILD_ROOT
 %{evo_plugin_dir}/org-gnome-templates.eplug
 %{evo_plugin_dir}/liborg-gnome-templates.so
 
-%{evo_plugin_dir}/org-gnome-vcard-inline.eplug
-%{evo_plugin_dir}/liborg-gnome-vcard-inline.so
-
-%{evo_plugin_dir}/org-gnome-evolution-webdav.eplug
-%{evo_plugin_dir}/liborg-gnome-evolution-webdav.so
-
 %{evo_plugin_dir}/org-gnome-dbx-import.eplug
 %{evo_plugin_dir}/liborg-gnome-dbx-import.so
 
@@ -546,47 +506,19 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/evolution-shell-3.0.pc
 %{_libdir}/pkgconfig/libemail-engine.pc
 %{_libdir}/pkgconfig/libemail-utils.pc
-%{_libdir}/libemail-engine.so
-%{_libdir}/libemail-utils.so
-%{_libdir}/evolution/%{evo_base_version}/libcomposer.so
-%{_libdir}/evolution/%{evo_base_version}/libeabutil.so
-%{_libdir}/evolution/%{evo_base_version}/libecontacteditor.so
-%{_libdir}/evolution/%{evo_base_version}/libecontactlisteditor.so
-%{_libdir}/evolution/%{evo_base_version}/libemformat.so
-%{_libdir}/evolution/%{evo_base_version}/libemiscwidgets.so
-%{_libdir}/evolution/%{evo_base_version}/libeshell.so
-%{_libdir}/evolution/%{evo_base_version}/libessmime.so
-%{_libdir}/evolution/%{evo_base_version}/libetable.so
-%{_libdir}/evolution/%{evo_base_version}/libetext.so
-%{_libdir}/evolution/%{evo_base_version}/libetimezonedialog.so
-%{_libdir}/evolution/%{evo_base_version}/libeutil.so
-%{_libdir}/evolution/%{evo_base_version}/libevolution-a11y.so
-%{_libdir}/evolution/%{evo_base_version}/libevolution-addressbook-importers.so
-%{_libdir}/evolution/%{evo_base_version}/libevolution-calendar.so
-%{_libdir}/evolution/%{evo_base_version}/libevolution-calendar-importers.so
-%{_libdir}/evolution/%{evo_base_version}/libevolution-mail-importers.so
-%{_libdir}/evolution/%{evo_base_version}/libevolution-mail.so
-%{_libdir}/evolution/%{evo_base_version}/libevolution-mail-settings.so
-%{_libdir}/evolution/%{evo_base_version}/libevolution-smime.so
-%{_libdir}/evolution/%{evo_base_version}/libfilter.so
-%{_libdir}/evolution/%{evo_base_version}/libgnomecanvas.so
-%{_libdir}/evolution/%{evo_base_version}/libmenus.so
+%{_libdir}/pkgconfig/libevolution-utils.pc
 
 %files help -f help.lang
 %defattr(-, root, root)
-%dir %{_datadir}/gnome/help/evolution
+%dir %{_datadir}/help/*/evolution
 
 %files bogofilter
 %defattr(-, root, root)
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-bogofilter.so
-
-%files NetworkManager
-%defattr(-, root, root)
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-network-manager.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-bogofilter.so
 
 %files spamassassin
 %defattr(-, root, root)
-%{_libdir}/evolution/%{evo_base_version}/modules/libevolution-module-spamassassin.so
+%{_libdir}/evolution/%{evo_base_version}/modules/module-spamassassin.so
 
 %files perl
 %defattr(-, root, root)
@@ -600,6 +532,93 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Fri Nov 09 2012 Matthew Barnes <mbarnes@redhat.com> - 3.7.1-2
+- Drop unique3-devel BR, it's an ancient artifact.
+
+* Mon Oct 22 2012 Milan Crha <mcrha@redhat.com> - 3.7.1-1
+- Update to 3.7.1
+
+* Mon Sep 24 2012 Matthew Barnes <mbarnes@redhat.com> - 3.6.0-1
+- Update to 3.6.0
+- Remove patch for GNOME #678408 (fixed upstream).
+
+* Mon Sep 24 2012 Bastien Nocera <bnocera@redhat.com> 3.5.92-4
+- Use GStreamer 1.0 instead of 0.10
+
+* Sat Sep 22 2012 Adam Williamson <awilliam@redhat.com> - 3.5.92-3
+- backport fix for BGO #678408 (broken message display)
+
+* Wed Sep 19 2012 Kalev Lember <kalevlember@gmail.com> - 3.5.92-2
+- Fix evolution-NetworkManager obsoletes
+
+* Mon Sep 17 2012 Milan Crha <mcrha@redhat.com> - 3.5.92-1
+- Update to 3.5.92
+
+* Mon Sep 03 2012 Milan Crha <mcrha@redhat.com> - 3.5.91-1
+- Update to 3.5.91
+
+* Mon Aug 20 2012 Milan Crha <mcrha@redhat.com> - 3.5.90-1
+- Update to 3.5.90
+- Remove patches for BGO #678408 and #681321 (fixed upstream)
+- Add itstool and yelp-tools into BuildRequires
+
+* Wed Aug 15 2012 Adam Williamson <awilliam@redhat.com> - 3.5.5-2
+- backport the fix for BGO #678408 and #681321 (libxml2 build)
+
+* Mon Aug 06 2012 Milan Crha <mcrha@redhat.com> - 3.5.5-1
+- Update to 3.5.5
+
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.5.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Mon Jul 16 2012 Milan Crha <mcrha@redhat.com> - 3.5.4-1
+- Update to 3.5.4
+- Enable weather plugin (fixed upstream)
+
+* Wed Jun 27 2012 Matthias Clasen <mclasen@redhat.com> - 2.5.3.1-4
+- Temporarily disable weather plugin (not ported to new libgweather yet)
+
+* Tue Jun 26 2012 Matthew Barnes <mbarnes@redhat.com> - 2.5.3.1-3
+- Temporarily change e-d-s req in devel subpackage.
+
+* Tue Jun 26 2012 Matthew Barnes <mbarnes@redhat.com> - 3.5.3.1-2
+- Remove unnecessary Requires: evolution-data-server.
+
+* Mon Jun 25 2012 Matthew Barnes <mbarnes@redhat.com> - 3.5.3.1-1
+- Update to 3.5.3.1 (3.5.3, no build for you!)
+
+* Mon Jun 25 2012 Matthew Barnes <mbarnes@redhat.com> - 3.5.3-1
+- Update to 3.5.3
+- Drop BR: GConf2-devel  \o/
+
+* Fri Jun  8 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.2-2
+- Rebuild against new gnome-desktop
+
+* Mon Jun 04 2012 Milan Crha <mcrha@redhat.com> - 3.5.2-1
+- Update to 3.5.2
+
+* Sun Apr 29 2012 Matthew Barnes <mbarnes@redhat.com> - 3.5.1-1
+- Update to 3.5.1
+- Add BR: webkitgtk3-devel
+
+* Tue Apr 24 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-2
+- Silence rpm scriptlet output
+
+* Mon Apr 16 2012 Milan Crha <mcrha@redhat.com> - 3.4.1-1
+- Update to 3.4.1
+
+* Tue Mar 27 2012 Milan Crha <mcrha@redhat.com> - 3.4.0.1-1
+- Update to 3.4.0.1
+
+* Mon Mar 19 2012 Milan Crha <mcrha@redhat.com> - 3.3.92-1
+- Update to 3.3.92
+
+* Tue Mar 06 2012 Milan Crha <mcrha@redhat.com> - 3.3.91-1
+- Update to 3.3.91
+
+* Mon Feb 20 2012 Milan Crha <mcrha@redhat.com> - 3.3.90-1
+- Update to 3.3.90
+
 * Mon Feb 06 2012 Milan Crha <mcrha@redhat.com> - 3.3.5-1
 - Update to 3.3.5
 
