@@ -1,3 +1,44 @@
+* Fri Mar 12 2010 Ville Skyttä <ville.skytta@iki.fi> - 1:1.1-7
+- Autoinstall dpkg and dselect completions.
+
+* Thu Mar 11 2010 Todd Zullinger <tmz@pobox.com> - 1:1.1-6
+- Apply upstream post 1.1 service argument fix (#572794).
+
+* Sat Dec 26 2009 Ville Skyttä <ville.skytta@iki.fi> - 1:1.1-5
+- Apply upstream post 1.1 generic vncviewer fixes.
+- Autoinstall vncviewer completion also on tigervnc.
+- Autoinstall chsh completion also on util-linux.
+
+* Tue Dec 15 2009 Ville Skyttä <ville.skytta@iki.fi> - 1:1.1-4
+- Fix autoinstall of completions named other than the package (#546905).
+- Use environment-modules upstream completion instead of ours if available.
+- Autoinstall mysqladmin completion also on MySQL-client-community.
+
+* Tue Nov 17 2009 Ville Skyttä <ville.skytta@iki.fi> - 1:1.1-3
+- Prepare for smooth coexistence with yum upstream completion.
+
+* Sun Nov  8 2009 Ville Skyttä <ville.skytta@iki.fi> - 1:1.1-2
+- Use yum-utils completion instead of ours if available.
+
+* Mon Oct 19 2009 Ville Skyttä <ville.skytta@iki.fi> - 1:1.1-1
+- Update to 1.1.
+- bash 4 quoting fix, mock and repomanage completions included upstream.
+
+* Sun Sep 20 2009 Ville Skyttä <ville.skytta@iki.fi> - 1:1.0-5
+- Use svn completion from subversion instead of ours if available (#496456).
+
+* Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:1.0-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
+* Sat Apr 18 2009 Ville Skyttä <ville.skytta@iki.fi> - 1:1.0-3
+- Do not install cowsay completion, an updated version is shipped with it.
+
+* Tue Apr  7 2009 Ville Skyttä <ville.skytta@iki.fi> - 1:1.0-2
+- Apply upstream patch to fix quoting issues with bash 4.x (#490322).
+
+* Mon Apr  6 2009 Ville Skyttä <ville.skytta@iki.fi> - 1:1.0-1
+- 1.0.
+
 * Mon Mar 23 2009 Ville Skyttä <ville.skytta@iki.fi> - 20080705-4.20090314gitf4f0984
 - Add dependency on coreutils for triggers (#490768).
 - Update and improve mock completion.
@@ -92,7 +133,7 @@
 - Work around potential login problem in profile.d snippet (#174355).
 
 * Sat Nov 26 2005 Ville Skyttä <ville.skytta@iki.fi>
-- Don't mark the main source file as %%config.
+- Don't mark the main source file as %config.
 - Make profile.d snippet non-executable (#35714) and noreplace.
 - Add mock, plague-client and repomanage completion.
 - Allow "cvs stat" completion.
@@ -153,13 +194,13 @@
 
 * Fri Jan  2 2004 Ville Skyttä <ville.skytta@iki.fi> 0:0.0-0.fdr.2.20040101
 - Update to 20040101.
-- Update %%description.
+- Update %description.
 
 * Sat Dec 27 2003 Ville Skyttä <ville.skytta@iki.fi> 0:0.0-0.fdr.2.20031225
 - Update to 20031225.
 
 * Sat Dec 20 2003 Ville Skyttä <ville.skytta@iki.fi> 0:0.0-0.fdr.2.20031215
-- Don't pull in *.rpm* from %%{_sysconfdir}/bash_completion.d.
+- Don't pull in *.rpm* from %{_sysconfdir}/bash_completion.d.
 
 * Mon Dec 15 2003 Ville Skyttä <ville.skytta@iki.fi> 0:0.0-0.fdr.1.20031215
 - Update to 20031215.
