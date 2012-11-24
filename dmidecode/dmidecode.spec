@@ -1,7 +1,7 @@
 Summary:        Tool to analyse BIOS DMI data
 Name:           dmidecode
 Version:        2.11
-Release:        6%{?dist}
+Release:        9%{?dist}
 Epoch:          1
 Group:          System Environment/Base
 License:        GPLv2+
@@ -9,6 +9,10 @@ Source0:        %{name}-%{version}.tar.bz2
 URL:            http://www.nongnu.org/dmidecode/
 Patch0:         dmidecode-2.11-type16-fix.patch
 Patch1:         dmidecode-2.11-smbios-271.patch
+Patch2:         dmidecode-2.11-chassis_fix.patch
+Patch3:         dmidecode-2.11-dmidecode_fix.patch
+Patch4:         dmidecode-2.11-dmioem_hp_fix.patch
+Patch5:         dmidecode-2.11-manpage_update.patch
 Buildroot:      %{_tmppath}/%{name}-%{version}-root
 BuildRequires:  automake autoconf
 ExclusiveArch:  %{ix86} x86_64 ia64
@@ -28,6 +32,10 @@ I/O ports (e.g. serial, parallel, USB).
 %setup -q
 %patch0 -p1 -b .type16_fix
 %patch1 -p1 -b .smbios271
+%patch2 -p1 -b .chassis_fix
+%patch3 -p1 -b .dmidecode_fix
+%patch4 -p1 -b .dmioem_hp_fix
+%patch5 -p1 -b .manpage_update
 
 %build
 make %{?_smp_mflags} CFLAGS="$RPM_OPT_FLAGS"
@@ -51,9 +59,27 @@ rm -rf ${buildroot}
 %{_mandir}/man8/*
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:2.11-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Mon Mar 26 2012 Anton Arapov <anton@redhat.com> - 1:2.11-8
+- Update dmidecode.8 manpage
+
+* Mon Mar 12 2012 Anton Arapov <anton@redhat.com> - 1:2.11-7
+- Add "PXE" to HP OEM Type 209 record output
+- Properly print the hexadecimal value of invalid string characters
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:2.11-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Mon Nov 14 2011 Anton Arapov <anton@redhat.com> - 1:2.11-5
+- Fix the wrong call of the dmi_chassis_type function call. Thus fix
+  an issue on the systems with the chassis lock available, application
+  doesn't fall out with the out of spec error anymore.
+
 * Tue May 03 2011 Anton Arapov <anton@redhat.com> - 1:2.11-4
-- update to SMBIOS 2.7.1
-- fix the boundaries check in type16
+- Update to SMBIOS 2.7.1
+- Fix the boundaries check in type16
 
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:2.11-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
