@@ -1,16 +1,16 @@
 %define glib2_version 2.27.2
-%define vala_version 0.17.0
+%define vala_version 0.11.7
 
 Name:           dconf
-Version:        0.13.0
-Release:        2%{?dist}
+Version:        0.15.0
+Release:        3%{?dist}
 Summary:        A configuration system
 
 Group:          System Environment/Base
-License:        LGPLv2+
+License:        LGPLv2+ and GPLv2+ and GPLv3+
 URL:            http://live.gnome.org/dconf
 #VCS:           git:git://git.gnome.org/dconf
-Source0:        http://download.gnome.org/sources/dconf/0.12/dconf-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/dconf/0.15/dconf-%{version}.tar.xz
 
 BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  gtk3-devel
@@ -18,6 +18,7 @@ BuildRequires:  libxml2-devel
 BuildRequires:  dbus-devel
 BuildRequires:  vala-devel >= %{vala_version}
 BuildRequires:  gtk-doc
+BuildRequires:  intltool
 
 Requires:       dbus
 
@@ -54,14 +55,17 @@ make %{?_smp_mflags}
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
-magic_rpm_clean.sh
+
+%find_lang dconf
 
 %post
+/sbin/ldconfig
+gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
 touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
 
 %postun
+/sbin/ldconfig
 if [ $1 -eq 0 ] ; then
-  /usr/sbin/ldconfig
   gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
   glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
   touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
@@ -69,13 +73,10 @@ if [ $1 -eq 0 ] ; then
 fi
 
 %posttrans
-/usr/sbin/ldconfig
-gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
 glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 
-
-%files
+%files -f dconf.lang
 %doc COPYING
 %{_libdir}/gio/modules/libdconfsettings.so
 %{_libexecdir}/dconf-service
@@ -83,9 +84,11 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_bindir}/dconf
 %{_libdir}/libdconf.so.*
 %{_libdir}/libdconf-dbus-1.so.*
-%dir %{_sysconfdir}/bash_completion.d
-%{_sysconfdir}/bash_completion.d/dconf-bash-completion.sh
+%{_datadir}/bash-completion/completions/dconf
 %{_datadir}/glib-2.0/schemas/ca.desrt.dconf-editor.gschema.xml
+%{_mandir}/man1/dconf-service.1.gz
+%{_mandir}/man1/dconf.1.gz
+%{_mandir}/man7/dconf.7.gz
 
 %files devel
 %{_includedir}/dconf
@@ -104,8 +107,41 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_datadir}/dconf-editor/dconf-editor.ui
 %{_datadir}/dconf-editor/dconf-editor-menu.ui
 %{_datadir}/icons/hicolor/*/apps/dconf-editor.png
+%{_mandir}/man1/dconf-editor.1.gz
 
 %changelog
+* Fri Nov 09 2012 Kalev Lember <kalevlember@gmail.com> - 0.15.0-3
+- Move some of the rpm scriptlets back to %%posttrans
+  (glib-compile-schemas, icon cache)
+
+* Thu Nov  8 2012 Marek Kasik <mkasik@redhat.com> - 0.15.0-2
+- Move dconf-editor's man page to the dconf-editor sub-package
+
+* Wed Nov  7 2012 Marek Kasik <mkasik@redhat.com> - 0.15.0-1
+- Update to 0.15.0
+- Remove upstreamed patch
+
+* Wed Nov  7 2012 Marek Kasik <mkasik@redhat.com> - 0.14.0-4
+- Move %%posttrans commands to %%post (rpmlint related)
+
+* Wed Nov  7 2012 Marek Kasik <mkasik@redhat.com> - 0.14.0-3
+- Update License field
+- Update Source URL
+- Add link of corresponding bug for the memory leak patch
+
+* Wed Nov  7 2012 Marek Kasik <mkasik@redhat.com> - 0.14.0-2.1
+- Merge spec-file fixes from f18 branch
+
+* Sun Oct 21 2012 Matthias Clasen <mclasen@redhat.com> - 0.14.0-2
+- Fix a memory leak
+- Update to 0.14.0
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.13.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Jul 17 2012 Richard Hughes <hughsient@gmail.com> - 0.13.4-1
+- Update to 0.13.4
+
 * Thu Jun 07 2012 Richard Hughes <hughsient@gmail.com> - 0.13.0-2
 - Add missing file to file list.
 
