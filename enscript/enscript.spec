@@ -1,7 +1,7 @@
 Summary: A plain ASCII to PostScript converter
 Name: enscript
-Version: 1.6.5.2
-Release: 5%{?dist}
+Version: 1.6.6
+Release: 1%{?dist}
 License: GPLv3+
 Group: Applications/Publishing
 URL: http://www.gnu.org/software/enscript
@@ -14,17 +14,16 @@ Source1: enscript-ruby-1.6.4.tar.gz
 Source2: enscript-php-1.6.4.st
 #http://home.raxnet.net/downloads/viewcvs/php.st
 
-# RH #177336
-Patch1: enscript-1.6.4-hilight.patch
 # RH #61294
 Patch3: enscript-1.6.1-locale.patch
 
 # RH #224548
 Patch8: enscript-wrap_header.patch
 
-Patch9: enscript-1.6.4-rh457719.patch
 Patch10:enscript-1.6.4-rh457720.patch
 Patch12:enscript-rh477382.patch
+Patch13:enscript-build.patch
+
 Requires(preun): /sbin/install-info
 Requires(post): /sbin/install-info
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -43,18 +42,18 @@ includes many options for customizing printouts
 
 %prep
 %setup -q
-%patch1 -p1 -b .hilight
 %patch3 -p1 -b .locale
 %patch8 -p1 -b .wrap_header
-%patch9 -p1 -b .rh457719
 %patch10 -p1 -b .rh457720
 %patch12 -p1 -b .rh477382
+%patch13 -p1 -b .build
 
 %{__tar} -C states/hl -zxf %{SOURCE1} ruby.st
 install -pm 644 %{SOURCE2} states/hl/php.st
 
 %build
 autoreconf -fiv
+export CPPFLAGS='-DPROTOTYPES'
 %configure --with-media=Letter
 make %{?_smp_mflags}
 
@@ -109,8 +108,17 @@ fi
 %config(noreplace) %{_sysconfdir}/enscript.cfg
 
 %changelog
-* Thu Nov 17 2011 Liu Di <liudidi@gmail.com> - 1.6.5.2-5
-- 为 Magic 3.0 重建
+* Wed Sep 26 2012 Adam Tkac <atkac redhat com> - 1.6.6-1
+- update to 1.6.6
+- paches merged
+  - enscript-1.6.4-hilight.patch
+  - enscript-1.6.4-rh457719.patch
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.5.2-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.5.2-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.5.2-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
