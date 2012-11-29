@@ -201,7 +201,7 @@ ln -s ../configure .
 %define toolkit gtk3
 %endif
 
-%configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg --without-sound \
+%configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg --with-sound \
            --with-tiff --with-xft --with-xpm --with-x-toolkit=%{toolkit} --with-gpm=no \
 	   --with-wide-int
 env MALLOC_PERTURB_=0 MALLOC_CHECK_=0 make bootstrap
@@ -211,7 +211,7 @@ cd ..
 # Build binary without X support
 mkdir build-nox && cd build-nox
 ln -s ../configure .
-%configure --with-x=no --without-sound
+%configure --with-x=no --with-sound
 env MALLOC_PERTURB_=0 MALLOC_CHECK_=0 %{setarch} make %{?_smp_mflags}
 cd ..
 
