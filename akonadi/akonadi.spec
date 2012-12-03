@@ -1,11 +1,11 @@
 
 ## Can be either MYSQL(uptsream default), SQLITE, or POSTGRES(untested)
-%global database_backend MYSQL 
+%global database_backend SQLITE
 
 Summary: PIM Storage Service
 Summary(zh_CN.UTF-8): 个人信息管理存储服务
 Name:    akonadi
-Version: 1.8.0
+Version: 1.8.80
 Release: 2%{?dist}
 
 Group:   System Environment/Libraries
@@ -164,7 +164,7 @@ fi
 %{_datadir}/dbus-1/services/org.freedesktop.Akonadi.*.service
 %{_datadir}/mime/packages/akonadi-mime.xml
 %{_datadir}/akonadi/
-%{_qt4_plugindir}/sqldrivers/libqsqlite3.so
+%{_libdir}/plugins/sqldrivers/libqsqlite3.so
 
 %files devel
 %defattr(-,root,root,-)
