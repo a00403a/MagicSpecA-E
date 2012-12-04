@@ -5,7 +5,7 @@
 Summary: The Advanced Linux Sound Architecture (ALSA) library
 Name:    alsa-lib
 Version: 1.0.26
-Release: 2%{?prever_dot}%{?dist}
+Release: 3%{?prever_dot}%{?dist}
 License: LGPLv2+
 Group:   System Environment/Libraries
 Source:  ftp://ftp.alsa-project.org/pub/lib/%{name}-%{version}%{?prever}%{?postver}.tar.bz2
@@ -106,6 +106,9 @@ rm -rf %{buildroot}
 %{_datadir}/aclocal/alsa.m4
 
 %changelog
+* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 1.0.26-3
+- 为 Magic 3.0 重建
+
 * Thu Nov 29 2012 Liu Di <liudidi@gmail.com> - 1.0.26-2
 - 为 Magic 3.0 重建
 
