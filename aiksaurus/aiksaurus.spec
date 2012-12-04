@@ -1,6 +1,6 @@
 Name: 		aiksaurus
 Version: 	1.2.1
-Release: 	21%{?dist}
+Release: 	22%{?dist}
 Summary: 	An English-language thesaurus library
 Summary(zh_CN.UTF-8): 英语同义词库
 
@@ -152,6 +152,9 @@ update-desktop-database &> /dev/null ||:
 
 
 %changelog
+* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 1:1.2.1-22
+- 为 Magic 3.0 重建
+
 * Sun Oct 28 2012 Liu Di <liudidi@gmail.com> - 1:1.2.1-21
 - 为 Magic 3.0 重建
 
