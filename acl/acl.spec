@@ -1,7 +1,7 @@
 Summary: Access control list utilities
 Name: acl
 Version: 2.2.51
-Release: 6%{?dist}
+Release: 7%{?dist}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: gawk
 BuildRequires: gettext
@@ -123,6 +123,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libacl.so.*
 
 %changelog
+* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 2.2.51-7
+- 为 Magic 3.0 重建
+
 * Thu Mar 08 2012 Liu Di <liudidi@gmail.com> - 2.2.51-6
 - 为 Magic 3.0 重建
 
