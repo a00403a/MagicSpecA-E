@@ -1,7 +1,7 @@
 
 Name:           accountsservice
 Version:        0.6.17
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        D-Bus interfaces for querying and manipulating user account information
 
 Group:          System Environment/Daemons
@@ -96,4 +96,7 @@ magic_rpm_clean.sh
 #%{_datadir}/vala/vapi/*
 
 %changelog
+* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 0.6.17-2
+- 为 Magic 3.0 重建
+
 
