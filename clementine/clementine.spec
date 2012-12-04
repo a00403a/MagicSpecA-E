@@ -4,7 +4,7 @@
 %define _unpackaged_files_terminate_build	0
 
 Name:           clementine
-Version:        1.1.0
+Version:        1.1.1
 Release:        1%{?dist}
 Summary:        A music player and library organiser
 Summary(zh_CN.UTF-8):	一个音乐播放器和曲库管理工具
