@@ -6,7 +6,7 @@
 
 Name:           alsa-plugins
 Version:        1.0.26
-Release:        2%{?dist}
+Release:        5%{?dist}
 Summary:        The Advanced Linux Sound Architecture (ALSA) Plugins
 # All packages are LGPLv2+ with the exception of samplerate which is GPLv2+
 # pph plugin is BSD-like licensed
@@ -24,6 +24,8 @@ Source5:        50-upmix.conf
 Source6:        97-vdownmix.conf
 Source8:        50-arcamav.conf
 Source9:        98-maemo.conf
+Patch1:		alsa-plugins-1.0.25-avcodec54.patch
+Patch2:		alsa-plugins-1.0.25-glibc-2.16.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  alsa-lib-devel
@@ -146,6 +148,7 @@ ALSA native applications can run over DSP Gateway and use DSP PCM task nodes.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prever}
+%patch1 -p1
 
 %build
 %configure --disable-static \
@@ -272,6 +275,15 @@ rm -rf $RPM_BUILD_ROOT
    /usr/lib/alsa-lib/libasound_module_rate_lavcrate_higher.so
 
 %changelog
+* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 1.0.26-5
+- 为 Magic 3.0 重建
+
+* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 1.0.26-4
+- 为 Magic 3.0 重建
+
+* Sun Dec 02 2012 Liu Di <liudidi@gmail.com> - 1.0.26-3
+- 为 Magic 3.0 重建
+
 * Thu Sep  6 2012 Jaroslav Kysela <jkysela@redhat.com> - 1.0.26-2
 - Changed dependency on pulseaudio-lib-devel to pulseaudio-libs-devel
 
