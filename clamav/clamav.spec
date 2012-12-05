@@ -53,7 +53,7 @@ Requires(postun):	 /usr/bin/systemctl\
 Summary:	End-user tools for the Clam Antivirus scanner
 Name:		clamav
 Version:	0.97.6
-Release:	%release_func 1900
+Release:	%release_func 1901
 License:	%{?with_unrar:proprietary}%{!?with_unrar:GPLv2}
 Group:		Applications/File
 URL:		http://www.clamav.net
@@ -858,6 +858,9 @@ test "$1" != "0" || /sbin/initctl -q stop clamav-milter || :
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.97.6-1901
+- 为 Magic 3.0 重建
+
 * Sat Sep 22 2012 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0.97.6-1900
 - updated to 0.97.6
 - use %%systemd macros
