@@ -2,7 +2,7 @@ Summary: Fast anti-spam filtering by Bayesian statistical analysis
 Summary(zh_CN): 使用贝叶斯统计分析的快速反垃圾过滤器
 Name: bogofilter
 Version: 1.2.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2
 Group: Applications/Internet
 Group(zh_CN): 应用程序/互联网
@@ -89,5 +89,8 @@ iconv -f iso-8859-1 -t utf-8 \
 %exclude %{_mandir}/man1/bogoupgrade*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.2.2-2
+- 为 Magic 3.0 重建
+
 * Thu Nov 03 2011 Liu Di <liudidi@gmail.com> - 1.2.2-1
 - 更新到 1.2.2
