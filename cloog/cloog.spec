@@ -1,7 +1,7 @@
 Name:           cloog
 %define         tarball_name %{name}-ppl
 Version:        0.15.11
-Release:        3%{?dist}.1
+Release:        4%{?dist}.1
 Summary:        The Chunky Loop Generator
 
 Group:          System Environment/Libraries
@@ -90,6 +90,9 @@ fi
 %postun ppl -p /sbin/ldconfig
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.15.11-4.1
+- 为 Magic 3.0 重建
+
 * Tue Mar 06 2012 Liu Di <liudidi@gmail.com> - 0.15.11-3.1
 - 为 Magic 3.0 重建
 
