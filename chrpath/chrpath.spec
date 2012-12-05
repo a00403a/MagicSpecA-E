@@ -1,7 +1,7 @@
 Summary: Modify rpath of compiled programs
 Name: chrpath
 Version: 0.13
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: GPL+
 Group: Development/Tools
 URL: ftp://ftp.hungry.com/pub/hungry/chrpath/
@@ -40,6 +40,9 @@ rm -rf %{buildroot}
 %{_mandir}/man1/chrpath.1*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.13-10
+- 为 Magic 3.0 重建
+
 * Wed Jul 25 2012 Liu Di <liudidi@gmail.com> - 0.13-9
 - 为 Magic 3.0 重建
 
