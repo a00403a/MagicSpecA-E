@@ -1,6 +1,6 @@
 Name: cfitsio
 Version: 3.290
-Release: 4%{?dist}
+Release: 5%{?dist}
 Summary: Library for manipulating FITS data files
 Group: Development/Libraries
 License: MIT
@@ -142,6 +142,9 @@ cp -p f{,un}pack %{buildroot}%{_bindir}/
 %{_bindir}/funpack
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 3.290-5
+- 为 Magic 3.0 重建
+
 * Mon Jan 16 2012 Orion Poplawski <orion@cora.nwra.com> - 3.290-4
 - Drop incluedir mod in package config file (bug #782213)
 
