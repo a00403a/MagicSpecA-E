@@ -2,7 +2,7 @@ Summary: Spell checker
 Summary(zh_CN.UTF-8): 拼写检查器
 Name: aspell
 Version: 0.60.6.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 12
 # LGPLv2+ .. aspell-0.60.6/misc/po-filter.c, ltmain.sh, modules/speller/default/affix.cpp
 # GPLv2+  .. aspell-0.60.6/misc/po-filter.c, aspell-0.60.6/ltmain.sh
@@ -153,6 +153,9 @@ fi
 %{_mandir}/man1/pspell-config.1*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 12:0.60.6.1-2
+- 为 Magic 3.0 重建
+
 * Mon Oct 31 2011 Liu Di <liudidi@gmail.com> - 12:0.60.6.1-1
 - 升级到 0.60.6.1
 
