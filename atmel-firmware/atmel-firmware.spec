@@ -1,6 +1,6 @@
 %define name atmel-firmware
 %define version 1.3
-%define release 3%{?dist}
+%define release 4%{?dist}
 %define url http://www.thekelleys.org.uk/
 
 Name:		%{name}
@@ -50,5 +50,8 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 /lib/firmware/*.bin
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.3-4
+- 为 Magic 3.0 重建
+
 * Mon Oct 31 2011 Liu Di <liudidi@gmail.com> - 1.3-3
 - 为 Magic 3.0 重建　
