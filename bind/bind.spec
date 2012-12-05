@@ -22,7 +22,7 @@ Summary:  The Berkeley Internet Name Domain (BIND) DNS (Domain Name System) serv
 Name:     bind
 License:  ISC
 Version:  9.8.1
-Release:  3%{?dist}
+Release:  4%{?dist}
 Epoch:    32
 Url:      http://www.isc.org/products/BIND/
 Buildroot:%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -761,6 +761,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %endif
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 32:9.8.1-4
+- 为 Magic 3.0 重建
+
 * Mon Sep 26 2011 Adam Tkac <atkac redhat com> 32:9.8.1-3
 - remove deps filter, it is no longer needed (#739663)
 
