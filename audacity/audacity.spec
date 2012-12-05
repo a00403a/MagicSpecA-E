@@ -6,7 +6,7 @@
 Name: audacity
 
 Version: 2.0.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: Multitrack audio editor
 Group:   Applications/Multimedia
 License: GPLv2
@@ -179,6 +179,9 @@ update-desktop-database &> /dev/null || :
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.0.2-3
+- 为 Magic 3.0 重建
+
 * Tue Sep 04 2012 Dan Horák <dan[at]danny.cz> - 2.0.2-2
 - fix build on non-x86 arches
 
