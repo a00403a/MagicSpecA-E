@@ -15,7 +15,7 @@ Summary:        Specialist tools for ALSA
 Summary(zh_CN.UTF-8): ALSA 相关的工具
 Name:           alsa-tools
 Version:        1.0.24.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 
 License:        GPLv2+
 Group:          Applications/Multimedia
@@ -227,6 +227,9 @@ install -m 644 %{SOURCE5} ${RPM_BUILD_ROOT}%{_sysconfdir}/udev/rules.d
 %endif
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.0.24.1-4
+- 为 Magic 3.0 重建
+
 * Fri Oct 28 2011 Liu Di <liudidi@gmail.com> - 1.0.24.1-3
 - 为 Magic 3.0 重建
 
