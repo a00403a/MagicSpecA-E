@@ -50,7 +50,7 @@ ln -s %{_fontconfig_templatedir}/%{fontconf} \
 %doc COPYING NEWS README
 
 %changelog
-* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 0.0.9-2
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.0.9-2
 - 为 Magic 3.0 重建
 
 * Mon Jun 11 2012 Richard Hughes <hughsient@gmail.com> - 0.0.9-1
