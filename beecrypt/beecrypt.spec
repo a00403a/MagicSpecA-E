@@ -4,7 +4,7 @@ Summary:	An open source cryptography library
 Summary(zh_CN.UTF-8): 一个开源的加密算法库
 Name:		beecrypt
 Version:	4.2.1
-Release:	4%{?dist}
+Release:	5%{?dist}
 License:	LGPLv2+
 Group:		System Environment/Libraries
 Group(zh_CN.UTF-8): 系统环境/库
@@ -120,3 +120,6 @@ rm -rf $RPM_BUILD_ROOT
 %{python_sitelib}/_bc.so
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 4.2.1-5
+- 为 Magic 3.0 重建
+
