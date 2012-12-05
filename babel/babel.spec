@@ -4,7 +4,7 @@
 
 Name:           babel
 Version:        0.9.6
-Release:        2%{?dist}
+Release:        4%{?dist}
 Summary:        Tools for internationalizing Python applications
 
 Group:          Development/Languages
@@ -97,6 +97,8 @@ popd
 
 %{__python} setup.py install --skip-build --no-compile --root %{buildroot}
 
+magic_rpm_clean.sh
+
 %clean
 rm -rf %{buildroot}
 
@@ -120,6 +122,12 @@ rm -rf %{buildroot}
 %endif
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.9.6-4
+- 为 Magic 3.0 重建
+
+* Fri Oct 19 2012 Liu Di <liudidi@gmail.com> - 0.9.6-3
+- 为 Magic 3.0 重建
+
 * Mon Jan 16 2012 Liu Di <liudidi@gmail.com> - 0.9.6-2
 - 为 Magic 3.0 重建
 
