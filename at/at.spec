@@ -3,7 +3,7 @@
 Summary:	Job spooling tools
 Name:		at
 Version:	3.1.13
-Release:	10%{dist}
+Release:	11%{dist}
 # parsetime.pl is under ISC
 License:	GPLv2+ and ISC
 Group:		System Environment/Daemons
@@ -184,6 +184,9 @@ chown daemon:daemon %{_localstatedir}/spool/at/.SEQ
 %attr(0755,root,root)		%{_initrddir}/atd
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 3.1.13-11
+- 为 Magic 3.0 重建
+
 * Thu Nov  1 2012 Marcela Mašláňová <mmaslano@redhat.com> - 3.1.13-10
 - fix license field
 - fix systemd macros in scriptlets part of the specfile
