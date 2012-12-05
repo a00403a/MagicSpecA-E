@@ -6,7 +6,7 @@ Summary:		Utilities to Manipulate aufs Components
 Summary(zh_CN.UTF-8): 	处理 aufs 组件的工具
 Name:			aufs-util
 Version:			3
-Release:			0.git%{gitdate}%{?dist}
+Release:			0.git%{gitdate}%{?dist}.1
 License:			GPL
 Group:			System Environment/Base
 Group(zh_CN.UTF-8):		系统环境/基本
@@ -89,6 +89,9 @@ fi
 %{_libdir}/libau.so.2.6
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 3-0.git20120620.1
+- 为 Magic 3.0 重建
+
 * Fri Nov 14 2008 Liu Di <liudidi@gmail.com> - cvs20081114-1mgc
 - 更新到 cvs20081114
 - 在 2.6.25.20 上编译
