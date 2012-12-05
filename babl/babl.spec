@@ -6,7 +6,7 @@
 Summary:	A dynamic, any to any, pixel format conversion library
 Name:		babl
 Version:	0.1.10
-Release:	5%{?dist}
+Release:	6%{?dist}
 
 # Compute some version related macros
 # Ugly hack, you need to get your quoting backslashes/percent signs straight
@@ -118,6 +118,9 @@ rm -rf %{buildroot}
 %doc %{develdocdir}
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.1.10-6
+- 为 Magic 3.0 重建
+
 * Sat Oct 20 2012 Nils Philippsen <nils@redhat.com> - 0.1.10-5
 - report problematic checks being skipped
 
