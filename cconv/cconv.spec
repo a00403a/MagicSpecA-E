@@ -3,7 +3,7 @@ Name: cconv
 Summary: a iconv based simplified-traditional chinese conversion tool 
 Summary(zh_CN.UTF-8): 简繁中文转换程序
 Version: 0.6.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL
 Group: Applications/Text
 Group(zh_CN.UTF-8): 应用程序/文本
@@ -63,5 +63,8 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %{_includedir}
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.6.2-2
+- 为 Magic 3.0 重建
+
 * Fri Nov 04 2011 Liu Di <liudidi@gmail.com> - 0.6.2-1
 - 更新到 0.6.2
