@@ -2,7 +2,7 @@ Summary: ACPI Event Daemon
 Summary(zh_CN.UTF-8): ACPI 事件服务
 Name: acpid
 Version: 2.0.12
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2+
 Group: System Environment/Daemons
 Group(zh_CN): 系统环境/服务
@@ -136,5 +136,8 @@ fi
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.0.12-2
+- 为 Magic 3.0 重建
+
 * Thu Oct 27 2011 Liu Di <liudidi@gmail.com> - 2.0.12-1
 - 升级到 2.0.12
