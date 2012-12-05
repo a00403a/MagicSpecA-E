@@ -3,7 +3,7 @@
 %define version 3.3.2
 %define testver %{nil}
 %if 0%{testver}
-%define release 0.%{testver}.1%{?dist}.1
+%define release 0.%{testver}.1%{?dist}.3
 %else
 %define release 1%{?dist}
 %endif
@@ -64,6 +64,12 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %{_datadir}/locale/*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 3.3.2-1
+- 为 Magic 3.0 重建
+
+* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 3.3.2-1
+- 为 Magic 3.0 重建
+
 * Mon Dec 03 2012 Liu Di <liudidi@gmail.com> - 3.3.2-1
 - 为 Magic 3.0 重建
 
