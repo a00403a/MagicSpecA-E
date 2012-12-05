@@ -2,7 +2,7 @@ Summary: A collection of CD/DVD utilities
 Summary(zh_CN.UTF-8): CD/DVD 的一个工具集
 Name: cdrkit
 Version: 1.1.11
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2
 Group: Applications/System
 Group(zh_CN.UTF-8): 应用程序/系统
@@ -227,6 +227,9 @@ fi
 %{_mandir}/man1/readmult.*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.1.11-2
+- 为 Magic 3.0 重建
+
 * Mon Feb 02 2009 Liu Di <liudidi@gmail.com> - 1.1.9-1
 - 更新到 1.1.9
 
