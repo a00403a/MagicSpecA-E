@@ -2,7 +2,7 @@ Summary: A library that performs asynchronous DNS operations
 Summary(zh_CN): 操作同步 DNS 的库
 Name: c-ares
 Version: 1.7.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: MIT
 Group: System Environment/Libraries
 Group(zh_CN): 系统环境/库
@@ -68,5 +68,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/ares_*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.7.5-2
+- 为 Magic 3.0 重建
+
 * Sun Oct 30 2011 Liu Di <liudidi@gmail.com> - 1.7.5-1
 - 升级到 1.7.5
