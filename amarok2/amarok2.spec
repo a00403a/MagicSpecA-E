@@ -16,7 +16,7 @@ Group(zh_CN.UTF-8): 系统/GUI/KDE
 URL: http://amarok.kde.org/
 Version: 2.6.0
 %if %{enable_svn}
-Release: 0.svn%rversion.1%{?dist}.3
+Release: 0.svn%rversion.1%{?dist}.5
 %else
 Release: 3%{?dist}
 %endif
@@ -273,6 +273,12 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %{kde4_servicesdir}/amarok_service_opmldirectory.desktop
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.6.0-3
+- 为 Magic 3.0 重建
+
+* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 2.6.0-3
+- 为 Magic 3.0 重建
+
 * Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 2.6.0-3
 - 为 Magic 3.0 重建
 
