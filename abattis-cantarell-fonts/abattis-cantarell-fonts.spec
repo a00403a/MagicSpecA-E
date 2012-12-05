@@ -8,7 +8,7 @@
 
 Name: %{fontname}-fonts
 Version: 0.0.9
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: Cantarell, a Humanist sans-serif font family
 
 Group: User Interface/X
@@ -50,6 +50,9 @@ ln -s %{_fontconfig_templatedir}/%{fontconf} \
 %doc COPYING NEWS README
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.0.9-3
+- 为 Magic 3.0 重建
+
 * Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.0.9-2
 - 为 Magic 3.0 重建
 
