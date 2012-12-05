@@ -4,7 +4,7 @@ Summary: Text based document generation
 Summary(zh_CN.UTF-8): 基于文本的文档生成器
 Name: asciidoc
 Version: 8.4.5
-Release: 8%{?dist}
+Release: 9%{?dist}
 # The python code does not specify a version.
 # The javascript example code is GPLv2+.
 License: GPL+ and GPLv2+
@@ -84,6 +84,9 @@ rm -rf %{buildroot}
 %doc README BUGS CHANGELOG COPYRIGHT
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 8.4.5-9
+- 为 Magic 3.0 重建
+
 * Thu Jul 26 2012 Liu Di <liudidi@gmail.com> - 8.4.5-8
 - 为 Magic 3.0 重建
 
