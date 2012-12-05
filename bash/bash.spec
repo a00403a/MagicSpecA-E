@@ -6,7 +6,7 @@
 Version: %{baseversion}%{patchleveltag}
 Name: bash
 Summary: The GNU Bourne Again shell
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group: System Environment/Shells
 License: GPLv3+
 Url: http://www.gnu.org/software/bash
@@ -358,6 +358,9 @@ end
 #%doc doc/*.ps doc/*.0 doc/*.html doc/article.txt
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 4.2.29-3
+- 为 Magic 3.0 重建
+
 * Thu May 31 2012 Roman Rakus <rrakus@redhat.com> - 4.2.29-2
 - Patchlevel 29
 - Also keep release at -2, so we are newer then f16 and f17
