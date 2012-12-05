@@ -2,7 +2,7 @@ Summary: ALSA OSS Compatible Library
 Summary(zh_CN.UTF-8): ALSA的OSS兼容库
 Name: alsa-oss
 Version: 1.0.17
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPL
 Group: System Environment/Base
 Group(zh_CN.UTF-8): 系统环境/基本
@@ -56,6 +56,9 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.0.17-4
+- 为 Magic 3.0 重建
+
 * Fri Oct 28 2011 Liu Di <liudidi@gmail.com> - 1.0.17-3
 - 为 Magic 3.0 重建
 
