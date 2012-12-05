@@ -4,7 +4,7 @@
 Name:           arora
 Version:        0.11.1
 %if 0%{git}
-Release:	0.git%{git_date}.%{?dist}
+Release:	0.git%{git_date}.%{?dist}.1
 %else
 Release:        1%{?dist}
 %endif
@@ -94,4 +94,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/man/man1
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com>
+- 为 Magic 3.0 重建
+
 
