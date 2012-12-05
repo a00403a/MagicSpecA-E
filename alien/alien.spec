@@ -1,7 +1,7 @@
 
 %define name alien
 %define version 8.85
-%define release 1%{?dist}
+%define release 2%{?dist}
 
 
 Summary:	Install Debian and Slackware Packages with RPM
@@ -56,6 +56,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 8.85-2
+- 为 Magic 3.0 重建
+
 * Thu Oct 27 2011 Liu Di <liudidi@gmail.com> - 8.85-1
 - 升级到 8.85
 
