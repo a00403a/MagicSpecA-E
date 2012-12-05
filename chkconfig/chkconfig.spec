@@ -1,7 +1,7 @@
 Summary: A system tool for maintaining the /etc/rc*.d hierarchy
 Name: chkconfig
 Version: 1.3.59
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPLv2
 Group: System Environment/Base
 Source: http://fedorahosted.org/releases/c/h/chkconfig/%{name}-%{version}.tar.bz2
@@ -80,6 +80,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/ntsysv.8*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.3.59-3
+- 为 Magic 3.0 重建
+
 * Sun Apr 15 2012 Liu Di <liudidi@gmail.com> - 1.3.59-2
 - 为 Magic 3.0 重建
 
