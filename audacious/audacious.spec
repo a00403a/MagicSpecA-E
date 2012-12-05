@@ -2,7 +2,7 @@
 %define version 3.3.2
 %define testver %{nil}
 %if 0%{?testver}
-%define release 0.%{testver}.1%{?dist}
+%define release 0.%{testver}.1%{?dist}.2
 %else
 %define release 1%{?dist}
 %endif
@@ -87,6 +87,12 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %{_libdir}/pkgconfig/*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 3.3.2-1
+- 为 Magic 3.0 重建
+
+* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 3.3.2-1
+- 为 Magic 3.0 重建
+
 * Tue Nov 01 2011 Liu Di <liudidi@gmail.com> - 3.1-0.beta3.1
 - 更新到 3.1 beta3
 
