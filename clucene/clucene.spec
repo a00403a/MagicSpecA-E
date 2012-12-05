@@ -1,7 +1,7 @@
 Summary:	A C++ port of Lucene
 Name:		clucene
 Version:	2.3.3.4
-Release:	2%{?dist}
+Release:	4%{?dist}
 License:	LGPLv2+ or ASL 2.0
 Group:		Development/System
 URL:		http://www.sourceforge.net/projects/clucene
@@ -60,6 +60,7 @@ cd fedora
 make DESTDIR=%{buildroot} install
 
 rm -rf %{buildroot}%{_libdir}/CLuceneConfig.cmake
+magic_rpm_clean.sh
 
 %check
 cd fedora
@@ -90,6 +91,12 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/libclucene-core.pc
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.3.3.4-4
+- 为 Magic 3.0 重建
+
+* Wed Oct 10 2012 Liu Di <liudidi@gmail.com> - 2.3.3.4-3
+- 为 Magic 3.0 重建
+
 * Thu Jun 02 2011 Deji Akingunola <dakingun@gmail.com> - 2.3.3.4-1
 - Update to version 2.3.3.4
 
