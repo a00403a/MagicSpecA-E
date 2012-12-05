@@ -5,7 +5,7 @@
 
 Name:           afpfs-ng
 Version:        0.8.1
-Release:        11%{?dist}.3
+Release:        12%{?dist}.3
 Summary:        Apple Filing Protocol client
 
 Group:          System Environment/Base
@@ -114,6 +114,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.8.1-12.3
+- 为 Magic 3.0 重建
+
 * Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 0.8.1-11.3
 - 为 Magic 3.0 重建
 
