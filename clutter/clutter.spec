@@ -1,6 +1,6 @@
 Name:          clutter
 Version:       1.12.2
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Open Source software library for creating rich graphical user interfaces
 
 Group:         Development/Libraries
@@ -115,6 +115,9 @@ magic_rpm_clean.sh
 %{_datadir}/gtk-doc/html/cally
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.12.2-2
+- 为 Magic 3.0 重建
+
 * Wed Oct 17 2012 Kalev Lember <kalevlember@gmail.com> - 1.12.2-1
 - Update to 1.12.2
 
