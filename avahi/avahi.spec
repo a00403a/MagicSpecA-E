@@ -10,7 +10,7 @@
 
 Name:           avahi
 Version:        0.6.30
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        Local network service discovery
 Group:          System Environment/Base
 License:        LGPLv2
@@ -658,6 +658,9 @@ fi
 %endif
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.6.30-9
+- 为 Magic 3.0 重建
+
 * Fri Apr 13 2012 Liu Di <liudidi@gmail.com> - 0.6.30-8
 - 为 Magic 3.0 重建
 
