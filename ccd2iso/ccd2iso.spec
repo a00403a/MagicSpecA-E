@@ -1,6 +1,6 @@
 %define name ccd2iso
 %define version 0.3
-%define release 2%{?dist}
+%define release 3%{?dist}
 
 Summary: CloneCD image to ISO image file converter
 Summary(zh_CN.UTF-8): CloneCD 镜像到 ISO 镜像的转换器
@@ -48,4 +48,7 @@ rm -rf $RPM_BUILD_ROOT
 %_bindir/ccd2iso
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.3-3
+- 为 Magic 3.0 重建
+
 
