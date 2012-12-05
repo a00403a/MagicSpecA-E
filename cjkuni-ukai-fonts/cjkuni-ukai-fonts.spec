@@ -13,7 +13,7 @@ the CJK Unifonts project.
 
 Name:           %{fontname}-fonts
 Version:        0.2.20080216.1
-Release:        49%{?dist}
+Release:        50%{?dist}
 Summary:        Chinese Unicode TrueType font in Kai face
 
 Group:          User Interface/X
@@ -76,6 +76,9 @@ ln -s %{_fontdir}/ %{buildroot}%{catalogue}/%{name}
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.2.20080216.1-50
+- 为 Magic 3.0 重建
+
 * Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.2.20080216.1-49
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
