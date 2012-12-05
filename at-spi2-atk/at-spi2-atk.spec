@@ -1,6 +1,6 @@
 Name:           at-spi2-atk
 Version:        2.5.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A GTK+ module that bridges ATK to D-Bus at-spi
 
 Group:          System Environment/Libraries
@@ -87,6 +87,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.5.3-2
+- 为 Magic 3.0 重建
+
 * Tue Jun 26 2012 Richard Hughes <hughsient@gmail.com> - 2.5.3-1
 - Update to 2.5.3
 
