@@ -1,6 +1,6 @@
 Name:		chromium-ffmpegsumo
 Version:	21.0.1180.81
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Media playback library for chromium
 
 Group:		System Environment/Libraries
@@ -66,6 +66,9 @@ magic_rpm_clean.sh
 %{_includedir}/ffmpegsumo/
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 21.0.1180.81-2
+- 为 Magic 3.0 重建
+
 * Tue Aug 28 2012 Tom Callaway <spot@fedoraproject.org> - 21.0.1180.81-1
 - sync with chromium 21.0.1180.81
 
