@@ -2,7 +2,7 @@
 
 Name: cdparanoia
 Version: 10.2
-Release: 4%{?dist}
+Release: 5%{?dist}
 # the app is GPLv2, everything else is LGPLv2
 License: GPLv2 and LGPLv2
 Group: Applications/Multimedia
@@ -121,6 +121,9 @@ fi
 %{_libdir}/*.a
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 10.2-5
+- 为 Magic 3.0 重建
+
 * Fri Nov 21 2008 Liu Di <liudidi@gmail.com> - 10.2-1%{?dist}
 - 更新到 10.2
 
