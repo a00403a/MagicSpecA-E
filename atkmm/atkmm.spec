@@ -4,7 +4,7 @@
 
 Name:           atkmm
 Version:        2.22.6
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        C++ interface for the ATK library
 
 Group:          System Environment/Libraries
@@ -88,6 +88,9 @@ magic_rpm_clean.sh
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.22.6-3
+- 为 Magic 3.0 重建
+
 * Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.22.6-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
