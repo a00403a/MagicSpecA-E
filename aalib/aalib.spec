@@ -114,7 +114,7 @@ fi
 %{_datadir}/aclocal/aalib.m4
 
 %changelog
-* Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 1.4.0-14
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.4.0-14
 - 为 Magic 3.0 重建
 
 * Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 1.4.0-13
