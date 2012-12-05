@@ -10,7 +10,7 @@
 Summary: A Japanese character set input system.
 Name: Canna
 Version: 3.7p3
-Release: 30%{?dist}
+Release: 31%{?dist}
 # lib/RKindep/cksum.c is licensed under 4-clause BSD, otherwise MIT.
 License: MIT and BSD with advertising
 Group: System Environment/Libraries
@@ -331,6 +331,9 @@ fi
 %{_libdir}/libcanna16.so.*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 3.7p3-31
+- 为 Magic 3.0 重建
+
 * Mon Jan 18 2010 Akira TAGOH <tagoh@redhat.com> - 3.7p3-29
 - Remove the static libraries. (#556034)
 
