@@ -2,7 +2,7 @@ Summary: Library for decoding ATSC A/52 (aka AC-3) audio streams
 Summary(zh_CN.UTF-8): 解码 ATSC A/52(aka AC-3) 声音流的开发库
 Name: a52dec
 Version: 0.7.4
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: GPL
 Group: Applications/Multimedia
 Group(zh_CN.UTF-8): 应用程序/多媒体
@@ -91,6 +91,9 @@ magic_rpm_clean.sh
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.7.4-5
+- 为 Magic 3.0 重建
+
 * Mon Oct 24 2011 Liu Di <liudidi@gmail.com> - 0.7.4-4
 - Rebuild
 
