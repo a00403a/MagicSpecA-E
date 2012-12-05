@@ -5,7 +5,7 @@
 
 Name:           bash-completion
 Version:        2.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Epoch:          1
 Summary:        Programmable completion for Bash
 
@@ -76,6 +76,9 @@ exit $result
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1:2.0-3
+- 为 Magic 3.0 重建
+
 * Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:2.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
