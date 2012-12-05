@@ -1,6 +1,6 @@
 Name:       cmake-fedora
 Version:    0.8.3
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    CMake helper modules for fedora developers
 License:    BSD
 Group:      System Environment/Libraries
@@ -64,6 +64,9 @@ helper macros and targets for fedora developers.
 %config %{_sysconfdir}/cmake-fedora.conf
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.8.3-2
+- 为 Magic 3.0 重建
+
 * Mon Feb 27 2012 Ding-Yi Chen <dchen at redhat.com> - 0.8.3-1
 - New command: koji-build-scratch.sh for scratch build on all supported
   releases.
