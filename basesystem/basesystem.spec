@@ -2,7 +2,7 @@ Summary: The skeleton package which defines a simple Magic Linux system.
 Summary(zh_CN.UTF-8): 一个定义了简单 Magic Linux 系统的框架
 Name: basesystem
 Version: 30
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: public domain
 Group: System Environment/Base
 Group(zh_CN.UTF-8): 系统环境/基本
@@ -23,5 +23,8 @@ Basesystem定义了基本Magic Linux系统中的组件，这个包应该是系�
 %files
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 30-2
+- 为 Magic 3.0 重建
+
 * Fri Oct 01 2006 Liu Di <liudidi@gmail.com> - 8.0-5mgc
 - rebuild
