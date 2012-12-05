@@ -4,7 +4,7 @@ Summary:    A GNU tool for automatically creating Makefiles
 Summary(zh_CN.UTF-8): 一套自动建立 Makefile 的 GNU 工具
 Name:       automake
 Version:    %{api_version}.4
-Release:    7%{?dist}
+Release:    8%{?dist}
 License:    GPLv2+ and GFDL
 Group:      Development/Tools
 Group(zh_CN.UTF-8): 开发/工具
@@ -96,6 +96,9 @@ fi
 %{_mandir}/man1/*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.11.4-8
+- 为 Magic 3.0 重建
+
 * Fri Apr 13 2012 Liu Di <liudidi@gmail.com> - 1.11.4-7
 - 为 Magic 3.0 重建
 
