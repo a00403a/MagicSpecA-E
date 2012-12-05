@@ -6,7 +6,7 @@
 Summary: Windows Media Audio (WMA) playback plugin for the Beep Media Player
 Name: bmp-wma
 Version: 0.1.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL
 Group: Applications/Multimedia
 URL: http://bmp-plugins.berlios.de/
@@ -49,6 +49,9 @@ on Winamp 2.x skins, and is based on ("forked off") XMMS.
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.1.1-2
+- 为 Magic 3.0 重建
+
 * Thu Jul 21 2005 Matthias Saou <http://freshrpms.net/> 0.1.1-2
 - Include bmp-wma-0.1.1-gcc4.patch with the "usual" ffmpeg common.h change.
 
