@@ -5,7 +5,7 @@
 Summary:	A 2D graphics library
 Name:		cairo
 Version:	1.10.2
-Release:	5%{?dist}
+Release:	6%{?dist}
 URL:		http://cairographics.org
 #VCS:		git:git://git.freedesktop.org/git/cairo
 Source0:	http://cairographics.org/snapshots/%{name}-%{version}.tar.gz
@@ -167,6 +167,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/cairo/
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.10.2-6
+- 为 Magic 3.0 重建
+
 * Tue Dec 06 2011 Liu Di <liudidi@gmail.com> - 1.10.2-5
 - 为 Magic 3.0 重建
 
