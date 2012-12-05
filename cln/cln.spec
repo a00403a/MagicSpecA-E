@@ -1,6 +1,6 @@
 Name:           cln
 Version:        1.3.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Class Library for Numbers
 Summary(zh_CN.UTF-8): 数字类库
 
@@ -90,6 +90,9 @@ fi
 %exclude %{_libdir}/*.la
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.3.2-4
+- 为 Magic 3.0 重建
+
 * Sun Mar 25 2012 Liu Di <liudidi@gmail.com> - 1.3.2-3
 - 为 Magic 3.0 重建
 
