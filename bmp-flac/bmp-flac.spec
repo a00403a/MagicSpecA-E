@@ -2,7 +2,7 @@
 
 Name:           bmp-flac
 Version:        2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        FLAC playback plugin for the Beep Media Player
 Summary(zh_CN):	bmp 的 FLAC 插件
 
@@ -50,3 +50,6 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2-3
+- 为 Magic 3.0 重建
+
