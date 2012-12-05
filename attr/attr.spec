@@ -1,7 +1,7 @@
 Summary: Utilities for managing filesystem extended attributes
 Name: attr
 Version: 2.4.46
-Release: 6%{?dist}
+Release: 7%{?dist}
 Conflicts: xfsdump < 2.0.0
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Source: http://download.savannah.gnu.org/releases-noredirect/attr/attr-%{version}.src.tar.gz
@@ -146,6 +146,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libattr.so.*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.4.46-7
+- 为 Magic 3.0 重建
+
 * Thu Mar 08 2012 Liu Di <liudidi@gmail.com> - 2.4.46-6
 - 为 Magic 3.0 重建
 
