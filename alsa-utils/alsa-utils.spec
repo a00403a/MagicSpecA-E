@@ -4,7 +4,7 @@
 Summary: Advanced Linux Sound Architecture (ALSA) utilities
 Name:    alsa-utils
 Version: %{baseversion}%{?fixversion}
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPLv2+
 Group:   Applications/Multimedia
 URL:     http://www.alsa-project.org/
@@ -105,6 +105,9 @@ if [ -s /etc/asound.state -a ! -s /var/lib/alsa/asound.state ] ; then
 fi
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.0.26-3
+- 为 Magic 3.0 重建
+
 * Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 1.0.26-2
 - 为 Magic 3.0 重建
 
