@@ -4,7 +4,7 @@ Summary:	A GNU tool for automatically creating Makefiles.
 Summary(zh_CN.UTF-8): 一套自动建立Makefile的GNU工具
 Name:		automake17
 Version:	%{api_version}.9
-Release:   	8%{?dist}
+Release:   	9%{?dist}
 License:	GPL
 Group:		Development/Tools
 Group(zh_CN.UTF-8):   开发/工具
@@ -80,6 +80,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir %{_datadir}/aclocal
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.7.9-9
+- 为 Magic 3.0 重建
+
 * Mon Oct 02 2006 Liu Di <liudidi@gmail.com> - 1.7.9-6mgc
 - rebuild for Magic
 
