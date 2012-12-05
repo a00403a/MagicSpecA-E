@@ -1,0 +1,121 @@
+# kflavour access only in lirc, deprecated
+
+%kmdl_kernelsrcdir	/lib/modules/%(uname -r)/build
+%_kernel		%(echo -e 'include Makefile\\nlkjh:\\n\\techo $(KERNELVERSION)\\n' | make -f /dev/stdin -sC %{kmdl_kernelsrcdir} lkjh)
+
+%kmdl_userland		%(test "%{_kpkgname}" = "%%{_kpkgname}" && echo 1 || echo 0)
+
+%_kflavour	%(echo %{_kernel} | grep -E '(smp|bigmem|hugemem|largesmp|xen0|xenU|xen|kdump|debug|PAE|PAEdebug)' | sed -e's/^.*\\(smp\\|bigmem\\|hugemem\\|largesmp\\|xen0\\|xenU\\|xen\\|kdump\\|debug\\|PAE\\|PAEdebug\\).*$/\\1/')
+
+%_kversion1	%(echo %{_kernel} | sed -e's/^\\(.*\\)\\(smp\\|bigmem\\|hugemem\\|largesmp\\|xen0\\|xenU\\|xen\\|kdump\\|debug\\|PAE\\|PAEdebug\\).*$/\\1/')
+%_kversion	%(echo %{expand:%%_kversion_%{distid}} | grep '^%' > /dev/null && echo %{_kversion1} || echo %{expand:%%_kversion_%{distid}})
+%_kversion_f10	%(echo %{_kernel} | sed -e's/^\\(.*\\)\.[^.]*\.\\(smp\\|bigmem\\|hugemem\\|largesmp\\|xen0\\|xenU\\|xen\\|kdump\\|debug\\|PAE\\|PAEdebug\\).*$/\\1/')
+%_kversion_f11	%(echo %{_kernel} | sed -e's/^\\(.*\\)\.[^.]*\.\\(smp\\|bigmem\\|hugemem\\|largesmp\\|xen0\\|xenU\\|xen\\|kdump\\|debug\\|PAE\\|PAEdebug\\).*$/\\1/')
+%_kversion_f12	%(echo %{_kernel} | sed -e's/^\\(.*\\)\.[^.]*\.\\(smp\\|bigmem\\|hugemem\\|largesmp\\|xen0\\|xenU\\|xen\\|kdump\\|debug\\|PAE\\|PAEdebug\\).*$/\\1/')
+%_kversion_f13	%(echo %{_kernel} | sed -e's/^\\(.*\\)\.[^.]*\.\\(smp\\|bigmem\\|hugemem\\|largesmp\\|xen0\\|xenU\\|xen\\|kdump\\|debug\\|PAE\\|PAEdebug\\).*$/\\1/')
+%_kversion_f14	%(echo %{_kernel} | sed -e's/^\\(.*\\)\.[^.]*\.\\(smp\\|bigmem\\|hugemem\\|largesmp\\|xen0\\|xenU\\|xen\\|kdump\\|debug\\|PAE\\|PAEdebug\\).*$/\\1/')
+
+%_kernelnoarch		%(echo %{expand:%%_kernelnoarch_%{distid}} | grep '^%' > /dev/null && echo %{_kernel} || echo %{expand:%%_kernelnoarch_%{distid}})
+%_kernelnoarch_f10	%(echo %{_kernel} | sed -e's/\\.%{_target_cpu}//')
+%_kernelnoarch_f11	%(echo %{_kernel} | sed -e's/\\.%{_target_cpu}//')
+%_kernelnoarch_f12	%(echo %{_kernel} | sed -e's/\\.%{_target_cpu}//')
+%_kernelnoarch_f13	%(echo %{_kernel} | sed -e's/\\.%{_target_cpu}//')
+%_kernelnoarch_f14	%(echo %{_kernel} | sed -e's/\\.%{_target_cpu}//')
+
+# The name of the kernel with flavour ("kernel", "kernel-smp", ...)
+%_kname		%(echo kernel-%{_kflavour} | sed -e's/-$//')
+
+# "kernel": the output of "uname -r" of the kernel to build for
+# (default: the running one)
+# "_kernelsrcdir": The directory of the sources used to build "kernel"
+# (default: /lib/modules/%{_kernel}/build)
+
+#
+%kmdl_name_with_arch %{_kpkgname}-kmdl-%{_kernel}
+%kmdl_name %{_kpkgname}-kmdl-%{_kernelnoarch}
+%kmdl_nameof() %1-kmdl-%{_kernel}
+%kmdl_namepure %{_kpkgname}-kmdl
+%kmdl_namepureof() %1-kmdl
+#
+%kmdl_name_old kernel-module-%{_kpkgname}-%{_kernel}
+%kmdl_nameof_old() kernel-module-%1-%{_kernel}
+%kmdl_namepure_old kernel-module-%{_kpkgname}
+%kmdl_namepureof_old() kernel-module-%1
+
+%_kernelbuildreq %{nil}
+
+%kmdl() \
+%{expand:%%global _kpkgname %1} \
+%_kernelbuildreq \
+%{nil}
+
+%kmdl_parentdependencies\
+Requires: %{kmdl_namepure}-%{evr}
+
+%kmdl_dependencies\
+#Requires: atrpms-kmdl-helper \
+#Requires: strictdep-%{_kname}-%{_target_cpu} = %{_kversion}\
+Requires: /boot/vmlinuz-%{_kernel}\
+#Doesn't work with kernel-suspend2\
+#Requires: %{_kname} = %{_kversion}\
+Requires: /sbin/depmod, modutils >= 2.4.14\
+BuildRequires: %_kernelcompiler\
+Provides: %kmdl_namepure-%{evr}\
+Provides: %kmdl_namepure-%_kernel = %{evr}\
+Provides: %kmdl_name_with_arch\
+#\
+# backward compatibility kernel-module-foo\
+#Provides: %kmdl_namepure_old-%{evr}\
+#Provides: %kmdl_namepure_old-%_kernel = %{evr}\
+Obsoletes: %kmdl_namepure_old-%{evr}, %kmdl_namepure_old-%_kernel <= %{evr}
+
+# Some distributions use a different compiler than the default one for
+# building the kernel
+%_kernelcompiler %(echo %{expand:%%_kernelcompiler_%{distid}} | grep '^%' > /dev/null && echo /usr/bin/gcc || echo %{expand:%%_kernelcompiler_%{distid}})
+%_kernelcompiler_fc1 /usr/bin/gcc32
+
+%kmdl_moduledir /lib/modules/%{_kernel}/updates
+
+%kmdl_config\
+export CC=%_kernelcompiler
+
+%kmdl_desc\
+This package contains the %kmdl_name kernel modules for the Linux kernel package:\
+%{_kname}-%{_kversion}.%{_target_cpu}.rpm.
+
+%_kernelname %{_kname}-%{_kversion}.%{_target_cpu}.rpm
+
+%kmdl_install\
+#%{_datadir}/atrpms/addcustomkmdl '/lib/modules/`uname -r`/updates'\
+depmod -ae -F /boot/System.map-%{_kernel} %{_kernel} > /dev/null 2>&1 || :
+
+%kmdl_remove\
+depmod -ae -F /boot/System.map-%{_kernel} %{_kernel} > /dev/null 2>&1 || :
+
+## Note^2: A modified copy to reflect different debuginfo packages for kmdls
+%debuginfoname %(test "%{kmdl_userland}" = 1 && echo debuginfo || echo "-n %{kmdl_name}-debuginfo")
+
+#	Template for debug information sub-package.
+# NOTE: This is a copy from rpm to get the ifnarch noarch fix, it can be removed later
+%debug_package \
+%ifnarch noarch\
+%global __debug_package 1\
+%package %{debuginfoname} \
+Summary: Debug information for package %{name}\
+Group: Development/Debug\
+%description %{debuginfoname}\
+This package provides debug information for package %{name}.\
+Debug information is useful when developing applications that use this\
+package or when debugging this package.\
+%files %{debuginfoname} -f debugfiles.list\
+%defattr(-,root,root)\
+%endif\
+%{nil}
+
+#
+#       Path to script that creates debug symbols in a /usr/lib/debug
+#       shadow tree.
+%__debug_install_post   \
+   /usr/lib/rpm/atrpms/find-debuginfo.sh %{_builddir}/%{?buildsubdir}\
+%{nil}
+
