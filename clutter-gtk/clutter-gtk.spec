@@ -2,7 +2,7 @@
 
 Name:           clutter-gtk
 Version:        1.4.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A basic GTK clutter widget
 
 Group:          Development/Languages
@@ -64,6 +64,9 @@ magic_rpm_clean.sh
 %{_datadir}/gtk-doc/html/clutter-gtk-1.0
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.4.0-2
+- 为 Magic 3.0 重建
+
 * Fri Oct 19 2012 Peter Robinson <pbrobinson@fedoraproject.org> 1.4.0-1
 - New 1.4.0 stable release
 
