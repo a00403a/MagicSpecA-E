@@ -4,7 +4,7 @@ Summary:        ASCII art library
 Summary(zh_CN.UTF-8): ASCII 艺术库
 Name:           aalib
 Version:        1.4.0
-Release:        14%{dist}
+Release:        15%{dist}
 License:        LGPL
 Group:          System Environment/Libraries
 Group(zh_CN.UTF-8):	系统环境/库
@@ -114,6 +114,9 @@ fi
 %{_datadir}/aclocal/aalib.m4
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.4.0-15
+- 为 Magic 3.0 重建
+
 * Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.4.0-14
 - 为 Magic 3.0 重建
 
