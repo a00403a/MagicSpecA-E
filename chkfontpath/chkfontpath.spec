@@ -2,7 +2,7 @@ Summary: Simple interface for editing the font path for the X font server.
 Summary(zh_CN.UTF-8): 为X字体服务编辑字体路径的简单接口。
 Name: chkfontpath
 Version: 1.10.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPL
 Group: System Environment/Base
 Group(zh_CN.UTF-8): 系统环境/基本
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.10.1-4
+- 为 Magic 3.0 重建
+
 * Thu Oct 05 2006 Liu Di <liudidi@gmail.com> - 1.10.1-1mgc
 - update to 1.10.1
 
