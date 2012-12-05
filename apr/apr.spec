@@ -6,7 +6,7 @@
 Summary: Apache Portable Runtime library
 Name: apr
 Version: 1.4.6
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: ASL 2.0
 Group: System Environment/Libraries
 URL: http://apr.apache.org/
@@ -127,6 +127,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*.m4
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.4.6-3
+- 为 Magic 3.0 重建
+
 * Tue Apr 17 2012 Liu Di <liudidi@gmail.com> - 1.4.6-2
 - 为 Magic 3.0 重建
 
