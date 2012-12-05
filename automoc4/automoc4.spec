@@ -4,7 +4,7 @@ Summary: automoc4
 Summary(zh_CN.UTF-8): 自动 moc 文件生成工具
 Name: automoc4
 Version: 0.9.88
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: LGPL v2.1 or later
 Group: Development/Tools
 Group(zh_CN.UTF-8): 开发/工具
@@ -53,6 +53,9 @@ cd build
 %{_libdir}/automoc4/*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.9.88-4
+- 为 Magic 3.0 重建
+
 * Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 0.9.88-3
 - 为 Magic 3.0 重建
 
