@@ -27,12 +27,13 @@
       test $apu_has_ldap = 1 && objs="$objs ldap/apr_ldap_init.lo"
       test $apu_has_ldap = 1 && objs="$objs ldap/apr_ldap_option.lo"
       test $apu_has_ldap = 1 && objs="$objs ldap/apr_ldap_rebind.lo"
-@@ -65,10 +85,8 @@ AC_DEFUN([APU_CHECK_UTIL_DSO], [
-      fi
+@@ -81,11 +81,9 @@
  
+      APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_crypto_openssl $LDADD_crypto_nss"
       APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_dbd_pgsql $LDADD_dbd_sqlite2 $LDADD_dbd_sqlite3 $LDADD_dbd_oracle $LDADD_dbd_mysql $LDADD_dbd_freetds $LDADD_dbd_odbc"
 -     APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_dbm_db $LDADD_dbm_gdbm $LDADD_dbm_ndbm"
       APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_ldap"
+      APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_crypto_openssl $LDADD_crypto_nss"
       APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_dbd_pgsql $LDADD_dbd_sqlite2 $LDADD_dbd_sqlite3 $LDADD_dbd_oracle $LDADD_dbd_mysql $LDADD_dbd_freetds $LDADD_dbd_odbc"
 -     APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_dbm_db $LDADD_dbm_gdbm $LDADD_dbm_ndbm"
       APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_ldap"

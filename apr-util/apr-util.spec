@@ -4,7 +4,7 @@
 Summary: Apache Portable Runtime Utility library
 Name: apr-util
 Version: 1.4.1
-Release: 2%{?dist}
+Release: 4%{?dist}
 License: ASL 2.0
 Group: System Environment/Libraries
 URL: http://apr.apache.org/
@@ -152,6 +152,8 @@ sed -ri '/^dependency_libs/{s,-l(pq|sqlite[0-9]|rt|dl|uuid) ,,g}' \
 # Trim libtool DSO cruft
 rm -f $RPM_BUILD_ROOT%{_libdir}/apr-util-%{apuver}/*.*a
 
+magic_rpm_clean.sh
+
 %check
 # Run the less verbose test suites
 export MALLOC_CHECK_=2 MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
@@ -218,6 +220,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*.m4
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.4.1-4
+- 为 Magic 3.0 重建
+
+* Wed Aug 01 2012 Liu Di <liudidi@gmail.com> - 1.4.1-3
+- 为 Magic 3.0 重建
+
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.4.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
