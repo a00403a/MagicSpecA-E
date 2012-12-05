@@ -1,6 +1,6 @@
 Name:           clutter-gst
 Version:        1.6.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        ClutterMedia interface to GStreamer
 
 Group:          Development/Languages
@@ -70,6 +70,9 @@ magic_rpm_clean.sh
 %{_datadir}/gir-1.0/ClutterGst-1.0.gir
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.6.0-4
+- 为 Magic 3.0 重建
+
 * Tue Aug 21 2012 Brian Pepple <bpepple@fedoraproject.org> - 1.6.0-3
 - Rebuild for new libcogl.
 - Pull glint patch from upstream to fix build.
