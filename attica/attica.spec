@@ -1,7 +1,7 @@
 
 Name:           attica
 Version:        0.4.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Implementation of the Open Collaboration Services API
 Summary(zh_CN.UTF-8): 开放式协作服务 API 的实现 
 
@@ -87,6 +87,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.4.0-2
+- 为 Magic 3.0 重建
+
 * Mon Oct 31 2011 Liu Di <liudidi@gmail.com> - 0.2.0-2
 - 为 Magic 3.0 重建 
 
