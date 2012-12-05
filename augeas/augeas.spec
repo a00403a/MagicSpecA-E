@@ -1,6 +1,6 @@
 Name:           augeas
 Version:        0.10.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        A library for changing configuration files
 
 Group:          System Environment/Libraries
@@ -101,6 +101,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/augeas.pc
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.10.0-6
+- 为 Magic 3.0 重建
+
 * Thu Aug  9 2012 David Lutterkort <lutter@redhat.com> - 0.10.0-5
 - Add patch augeas-0.10.0-03-no-gets; FTBFS on F18 if gets is mentioned
 
