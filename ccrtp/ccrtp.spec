@@ -1,7 +1,7 @@
 Summary: Common C++ class framework for RTP/RTCP
 Name: ccrtp
 Version: 2.0.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2+
 Group: System Environment/Libraries
 Source0: http://ftp.gnu.org/pub/gnu/ccrtp/ccrtp-%{version}.tar.gz
@@ -81,6 +81,9 @@ fi
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.0.2-2
+- 为 Magic 3.0 重建
+
 * Sun Jan 22 2012 Kevin Fenzi <kevin@scrye.com> - 2.0.2-1
 - Update to 2.0.2
 
