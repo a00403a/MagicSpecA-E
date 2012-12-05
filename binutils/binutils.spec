@@ -17,7 +17,7 @@
 Summary: A GNU collection of binary utilities
 Name: %{?cross}binutils%{?_with_debug:-debug}
 Version: 2.23.51.0.3
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPLv3+
 Group: Development/Tools
 URL: http://sources.redhat.com/binutils
@@ -446,6 +446,9 @@ exit 0
 %endif # %{isnative}
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.23.51.0.3-4
+- 为 Magic 3.0 重建
+
 * Tue Oct 23 2012 Nick Clifton <nickc@redhat.com> - 2.23.51.0.3-3
 - Rename ARM LDRALT instruction to LDALT.  (#869025) PR/14575
 
