@@ -14,7 +14,7 @@
 Name:		cluster-glue
 Summary:	Reusable cluster components
 Version:	1.0.6
-Release:	%{?alphatag:0.}%{specversion}%{?alphatag:.%{alphatag}}%{?dist}.1
+Release:	%{?alphatag:0.}%{specversion}%{?alphatag:.%{alphatag}}%{?dist}.2
 License:	GPLv2+ and LGPLv2+
 Url:		http://linux-ha.org/wiki/Cluster_Glue
 Group:		System Environment/Base
@@ -244,7 +244,7 @@ such as Pacemaker.
 %doc COPYING.LIB
 
 %changelog
-* Mon Jul 30 2012 Liu Di <liudidi@gmail.com> - 1.0.6-9.2
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.0.6-9.2
 - 为 Magic 3.0 重建
 
 * Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.6-9.1
