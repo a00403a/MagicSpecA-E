@@ -2,7 +2,7 @@
 Summary: A file compression utility
 Name: bzip2
 Version: 1.0.6
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: BSD
 Group: Applications/File
 URL: http://www.bzip.org/
@@ -107,6 +107,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_libdir}/*so
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.0.6-6
+- 为 Magic 3.0 重建
+
 * Thu Apr 12 2012 Liu Di <liudidi@gmail.com> - 1.0.6-5
 - 为 Magic 3.0 重建
 
