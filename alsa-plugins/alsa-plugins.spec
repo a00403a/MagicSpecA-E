@@ -6,7 +6,7 @@
 
 Name:           alsa-plugins
 Version:        1.0.26
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The Advanced Linux Sound Architecture (ALSA) Plugins
 # All packages are LGPLv2+ with the exception of samplerate which is GPLv2+
 # pph plugin is BSD-like licensed
@@ -275,6 +275,9 @@ rm -rf $RPM_BUILD_ROOT
    /usr/lib/alsa-lib/libasound_module_rate_lavcrate_higher.so
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.0.26-7
+- 为 Magic 3.0 重建
+
 * Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 1.0.26-6
 - 为 Magic 3.0 重建
 
