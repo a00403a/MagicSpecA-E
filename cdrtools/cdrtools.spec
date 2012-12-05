@@ -4,7 +4,7 @@ Summary: A collection of CD/DVD utilities.
 Summary(zh_CN.UTF-8): 一套 CD/DVD 工具集合
 Name: cdrtools
 Version: %{main_ver}.%{min_ver}
-Release: 1%{?dist}
+Release: 2%{?dist}
 %define tarversion %{main_ver}%{min_ver}
 License: CDDL
 Group: Applications/System
@@ -239,4 +239,7 @@ rm -rf $RPM_BUILD_ROOT
    /usr/share/share/man/man8/mkhybrid.8
    /usr/share/share/man/man8/mkisofs.8
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 9:3.01.a07-2
+- 为 Magic 3.0 重建
+
 
