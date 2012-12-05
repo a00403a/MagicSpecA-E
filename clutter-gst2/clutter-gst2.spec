@@ -1,6 +1,6 @@
 Name:           clutter-gst2
 Version:        1.9.92
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        GStreamer integration for Clutter
 
 License:        LGPLv2+
@@ -65,6 +65,9 @@ magic_rpm_clean.sh
 #doc #{_datadir}/gtk-doc/
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.9.92-2
+- 为 Magic 3.0 重建
+
 * Tue Sep 25 2012 Matthias Clasen <mclasen@redhat.com> - 1.9.92-1
 - Update to 1.9.92
 
