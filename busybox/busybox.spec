@@ -1,7 +1,7 @@
 Summary: Statically linked binary providing simplified versions of system commands
 Name: busybox
 Version: 1.19.4
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 1
 License: GPLv2
 Group: System Environment/Shells
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/busybox.petitboot.1.gz
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1:1.19.4-5
+- 为 Magic 3.0 重建
+
 * Fri Apr 13 2012 Denys Vlasenko <dvlasenk@redhat.com> - 1:1.19.4-4
 - Fixed breakage with newer kernel headers
 - Excluded Sun-RPC dependednt features not available in newer static glibc
