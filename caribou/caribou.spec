@@ -1,6 +1,6 @@
 Name:           caribou
 Version:        0.4.1
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        A simplified in-place on-screen keyboard
 
 Group:          User Interface/Desktops
@@ -144,6 +144,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.4.1-6
+- 为 Magic 3.0 重建
+
 * Tue Feb 07 2012 Parag Nemade <pnemade AT redhat.com> - 0.4.1-5
 - Resolves:rh#768033 - Update Requires for caribou
 
