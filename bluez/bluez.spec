@@ -1,7 +1,7 @@
 Summary: Bluetooth utilities
 Name: bluez
 Version: 4.101
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2+
 Group: Applications/System
 URL: http://www.bluez.org/
@@ -315,6 +315,9 @@ fi
 %exclude /usr/lib/udev/rules.d/97-bluetooth-hid2hci.rules
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 4.101-2
+- 为 Magic 3.0 重建
+
 * Sun Jun 17 2012 Bastien Nocera <bnocera@redhat.com> 4.100-2
 - Add PS3 BD Remote patches (power saving)
 
