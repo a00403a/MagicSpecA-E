@@ -6,7 +6,7 @@ Summary: PIM Storage Service
 Summary(zh_CN.UTF-8): 个人信息管理存储服务
 Name:    akonadi
 Version: 1.8.80
-Release: 3%{?dist}
+Release: 4%{?dist}
 
 Group:   System Environment/Libraries
 Group(zh_CN.UTF-8): 系统环境/库
@@ -175,6 +175,9 @@ fi
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.8.80-4
+- 为 Magic 3.0 重建
+
 * Tue Dec 04 2012 Liu Di <liudidi@gmail.com> - 1.8.80-3
 - 为 Magic 3.0 重建
 
