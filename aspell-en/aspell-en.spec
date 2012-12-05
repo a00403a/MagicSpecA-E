@@ -6,7 +6,7 @@ Summary(zh_CN.UTF-8): Aspell 的英语字典
 Name: aspell-%{lang}
 Epoch: 50
 Version: 7.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: MIT and BSD
 Group: Applications/Text
 Group(zh_CN.UTF-8): 应用程序/文本
@@ -47,4 +47,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/aspell-0.60/*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 50:7.1-3
+- 为 Magic 3.0 重建
+
 
