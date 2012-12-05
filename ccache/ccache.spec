@@ -13,7 +13,7 @@
 
 Name:           ccache
 Version:        3.1.8
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        C/C++ compiler cache
 
 Group:          Development/Tools
@@ -144,6 +144,9 @@ getent group ccache >/dev/null || groupadd -r ccache || :
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 3.1.8-2
+- 为 Magic 3.0 重建
+
 * Sat Aug 18 2012 Ville Skyttä <ville.skytta@iki.fi> - 3.1.8-1
 - Update to 3.1.8, fixes #783971.
 - Update mingw* symlink triggers.
