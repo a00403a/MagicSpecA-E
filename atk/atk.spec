@@ -4,7 +4,7 @@
 Summary: Interfaces for accessibility support
 Name: atk
 Version: 2.6.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: LGPLv2+
 Group: System Environment/Libraries
 #VCS: git:git://git.gnome.org/atk
@@ -66,6 +66,9 @@ magic_rpm_clean.sh
 %{_datadir}/gir-1.0
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.6.0-2
+- 为 Magic 3.0 重建
+
 * Tue Sep 25 2012 Kalev Lember <kalevlember@gmail.com> - 2.6.0-1
 - Update to 2.6.0
 
