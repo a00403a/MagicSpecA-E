@@ -1,6 +1,6 @@
 Name:           environment-modules
 Version:        3.2.9c
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Provides dynamic modification of a user's environment
 
 Group:          System Environment/Base
@@ -97,6 +97,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 3.2.9c-5
+- 为 Magic 3.0 重建
+
 * Fri Aug 24 2012 Orion Poplawski <orion@cora.nwra.com> - 3.2.9c-4
 - Add patch to fix segfault from Tcl RexExp handling (bug 834580)
 
