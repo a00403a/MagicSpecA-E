@@ -1,7 +1,7 @@
 Summary: Utilities for managing ext2, ext3, and ext4 filesystems
 Name: e2fsprogs
 Version: 1.42.6
-Release: 2%{?dist}
+Release: 3%{?dist}
 
 # License tags based on COPYING file distinctions for various components
 License: GPLv2
@@ -321,6 +321,9 @@ exit 0
 %{_libdir}/pkgconfig/ss.pc
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1.42.6-3
+- 为 Magic 3.0 重建
+
 * Tue Oct 02 2012 Eric Sandeen <sandeen@redhat.com> 1.42.6-2
 - Switch back to gzipped tarball to make sf.net source URL correct
 
