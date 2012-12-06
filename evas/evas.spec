@@ -1,6 +1,6 @@
 Name:           evas
 Version:        1.2.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Hardware-accelerated state-aware canvas API
 Group:          System Environment/Libraries
 License:        MIT
@@ -83,6 +83,9 @@ magic_rpm_clean.sh
 
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1.2.1-3
+- 为 Magic 3.0 重建
+
 * Wed Aug  8 2012 Tom Callaway <spot@fedoraproject.org> - 1.2.1-2
 - rename "Examples.3" to something non-conflicting
 
