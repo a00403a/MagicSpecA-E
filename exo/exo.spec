@@ -6,7 +6,7 @@
 
 Name:           exo
 Version:        0.8.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Application library for the Xfce desktop environment
 
 Group:          System Environment/Libraries
@@ -158,6 +158,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %endif
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 0.8.0-3
+- 为 Magic 3.0 重建
+
 * Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
