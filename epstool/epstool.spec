@@ -1,6 +1,6 @@
 Name:		epstool
 Version:	3.08
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	A utility to create or extract preview images in EPS files
 Group:		Applications/Multimedia
 License:	GPLv2+
@@ -47,6 +47,9 @@ rm -rf %{buildroot}
 %{_mandir}/man1/epstool.1.*
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 3.08-3
+- 为 Magic 3.0 重建
+
 * Mon Jan 16 2012 Jussi Lehtola <jussilehtola@fedoraproject.org> - 3.08-2
 - Disable SMP build.
 
