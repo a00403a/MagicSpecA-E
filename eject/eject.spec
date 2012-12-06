@@ -2,7 +2,7 @@ Summary: A program that ejects removable media using software control.
 Summary(zh_CN.UTF-8): 使用软件控制弹出可移动媒体的一个程序
 Name: eject
 Version: 2.1.5
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: GPL
 Group: System Environment/Base
 Group(zh_CN.UTF-8): 系统环境/基本
@@ -66,6 +66,9 @@ rm -rf %{buildroot}
 %{_mandir}/man1/*
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 2.1.5-5
+- 为 Magic 3.0 重建
+
 * Fri Oct 06 2006 Liu Di <liudidi@gmail.com> - 2.1.5-1mgc
 - update to 2.1.5
 
