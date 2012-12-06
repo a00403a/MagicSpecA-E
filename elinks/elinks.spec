@@ -1,7 +1,7 @@
 Name:      elinks
 Summary:   A text-mode Web browser
 Version:   0.12
-Release:   0.31.pre5%{?dist}
+Release:   0.32.pre5%{?dist}
 License:   GPLv2
 URL:       http://elinks.or.cz
 Group:     Applications/Internet
@@ -153,6 +153,9 @@ exit 0
 %{_mandir}/man5/*
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 0.12-0.32.pre5
+- 为 Magic 3.0 重建
+
 * Mon Oct 08 2012 Kamil Dudka <kdudka@redhat.com> - 0.12-0.31.pre5
 - add default "ddg" dumb/smart rewrite prefixes for DuckDuckGo (#856348)
 
