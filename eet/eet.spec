@@ -4,7 +4,7 @@ Summary(zh_CN.UTF-8): eet
 Name: eet
 Version: 1.4.1
 %if 0%{date}
-Release: 0.cvs%{date}%{?dist}
+Release: 0.cvs%{date}%{?dist}.2
 %else
 Release: 0.2%{?dist}
 %endif
@@ -91,6 +91,12 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %{_libdir}/*.so.*
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1.4.1-0.2
+- 为 Magic 3.0 重建
+
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.4.1-0.2
+- 为 Magic 3.0 重建
+
 * Sun Oct 5 2008 Ni Hui <shuizhuyuanluo@126.com> - 1.1.0-0.1mgc
 - 更新至 1.1.0
 - 戊子  九月初七
