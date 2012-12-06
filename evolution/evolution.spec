@@ -29,7 +29,7 @@
 
 Name: evolution
 Version: 3.7.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group: Applications/Productivity
 Summary: Mail and calendar client for GNOME
 License: GPLv2+ and GFDL
@@ -532,6 +532,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 3.7.1-3
+- 为 Magic 3.0 重建
+
 * Fri Nov 09 2012 Matthew Barnes <mbarnes@redhat.com> - 3.7.1-2
 - Drop unique3-devel BR, it's an ancient artifact.
 
