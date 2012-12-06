@@ -1,7 +1,7 @@
 Summary: The GNU line editor
 Name: ed
 Version: 1.6
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv3+
 Group:  Applications/Text
 Source: ftp://ftp.gnu.org/gnu/ed/%{name}-%{version}.tar.gz
@@ -60,6 +60,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1.6-2
+- 为 Magic 3.0 重建
+
 * Thu Mar 15 2012 Karsten Hopp <karsten@redhat.com> 1.6-1
 - ed-1.6
 
