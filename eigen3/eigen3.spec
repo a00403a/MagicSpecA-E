@@ -1,6 +1,6 @@
 Name:           eigen3
 Version:        3.0.4
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A lightweight C++ template library for vector and matrix math
 
 Group:          Development/Libraries
@@ -73,6 +73,9 @@ rm -rf %{buildroot}
 %{_datadir}/pkgconfig/*
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 3.0.4-3
+- 为 Magic 3.0 重建
+
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.0.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
