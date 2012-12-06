@@ -1,7 +1,7 @@
 Name: enca
 Summary: Character set analyzer and detector
 Version: 1.13
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPLv2
 Group: Applications/Text
 Source: http://dl.cihar.com/enca/enca-%{version}.tar.bz2
@@ -96,6 +96,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1.13-4
+- 为 Magic 3.0 重建
+
 * Thu Nov 17 2011 Liu Di <liudidi@gmail.com> - 1.13-3
 - 为 Magic 3.0 重建
 
