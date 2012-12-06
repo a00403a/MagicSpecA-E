@@ -6,7 +6,7 @@
 
 Name:           evince
 Version:        3.7.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Document viewer
 
 License:        GPLv2+ and GFDL
@@ -224,6 +224,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas >&/dev/null ||:
 %{_libdir}/nautilus/extensions-3.0/libevince-properties-page.so
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 3.7.1-2
+- 为 Magic 3.0 重建
+
 * Tue Oct 23 2012 Marek Kasik <mkasik@redhat.com> - 3.7.1-1
 - Update to 3.7.1
 
