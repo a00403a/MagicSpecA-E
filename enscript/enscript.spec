@@ -1,7 +1,7 @@
 Summary: A plain ASCII to PostScript converter
 Name: enscript
 Version: 1.6.6
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv3+
 Group: Applications/Publishing
 URL: http://www.gnu.org/software/enscript
@@ -108,6 +108,9 @@ fi
 %config(noreplace) %{_sysconfdir}/enscript.cfg
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1.6.6-2
+- 为 Magic 3.0 重建
+
 * Wed Sep 26 2012 Adam Tkac <atkac redhat com> - 1.6.6-1
 - update to 1.6.6
 - paches merged
