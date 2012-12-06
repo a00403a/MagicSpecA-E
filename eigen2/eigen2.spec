@@ -7,7 +7,7 @@ Name:    eigen2
 Summary: A lightweight C++ template library for vector and matrix math
 Epoch:   1
 Version: 2.0.17
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group:   System Environment/Libraries
 License: GPLv2+ or LGPLv3+
 URL:     http://eigen.tuxfamily.org/
@@ -97,6 +97,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1:2.0.17-2
+- 为 Magic 3.0 重建
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:2.0.15-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
