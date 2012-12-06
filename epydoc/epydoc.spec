@@ -3,7 +3,7 @@
 Summary: Automatic API documentation generation tool for Python
 Name: epydoc
 Version: 3.0.1
-Release: 12%{?dist}
+Release: 13%{?dist}
 Group: Development/Tools
 License: MIT
 URL: http://epydoc.sourceforge.net/
@@ -77,6 +77,9 @@ desktop-file-install \
 
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 3.0.1-13
+- 为 Magic 3.0 重建
+
 * Sun Jul 22 2012 Rex Dieter <rdieter@fedoraproject.org> 3.0.1-12
 - Requires: tex(dvips) tex(latex)
 
