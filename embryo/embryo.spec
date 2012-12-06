@@ -2,7 +2,7 @@ Summary: embryo
 Summary(zh_CN): embryo
 Name: embryo
 Version: 1.0.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: BSD
 Group: User Interface/Desktops
 Group(zh_CN): 用户界面/桌面
@@ -74,6 +74,9 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %{_datadir}/embryo
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1.0.0-2
+- 为 Magic 3.0 重建
+
 * Sat Jun 14 2008 Ni Hui <shuizhuyuanluo@126.com> - 0.9.9.043-0.1mgc
 - 首次生成 rpm 包
 - 戊子  五月十一
