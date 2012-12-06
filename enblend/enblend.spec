@@ -1,7 +1,7 @@
 Summary: Image Blending with Multiresolution Splines
 Name: enblend
 Version: 4.0
-Release: 14%{?dist}
+Release: 15%{?dist}
 License: GPLv2+
 Group: Applications/Multimedia
 Source: http://downloads.sourceforge.net/enblend/enblend-enfuse-%{version}.tar.gz
@@ -73,6 +73,9 @@ fi
 
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 4.0-15
+- 为 Magic 3.0 重建
+
 * Wed Aug 01 2012 Adam Jackson <ajax@redhat.com> - 4.0-14
 - -Rebuild for new glew
 
