@@ -1,7 +1,7 @@
 Summary: An XML parser library
 Name: expat
 Version: 2.1.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group: System Environment/Libraries
 Source: http://downloads.sourceforge.net/expat/expat-%{version}.tar.gz
 URL: http://www.libexpat.org/
@@ -87,6 +87,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_libdir}/lib*.a
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 2.1.0-4
+- 为 Magic 3.0 重建
+
 * Fri Apr 13 2012 Joe Orton <jorton@redhat.com> - 2.1.0-3
 - add -static subpackage (#722647)
 
