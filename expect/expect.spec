@@ -5,7 +5,7 @@
 Summary: A program-script interaction and testing utility
 Name: expect
 Version: %{majorver}
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: Public Domain
 Group: Development/Languages
 # URL: probably more useful is http://sourceforge.net/projects/expect/
@@ -151,6 +151,9 @@ rm -rf "$RPM_BUILD_ROOT"
 %{_mandir}/man1/tknewsbiff.1*
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 5.45-5
+- 为 Magic 3.0 重建
+
 * Sun Nov 20 2011 Liu Di <liudidi@gmail.com> - 5.45-4
 - 为 Magic 3.0 重建
 
