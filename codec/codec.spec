@@ -1,7 +1,7 @@
 %define _missing_build_ids_terminate_build %{nil}
 Name: codec
 Version: 20110131
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: package of win32 codec and linux codec for mplayer and xine
 Summary(zh_CN.UTF-8): mplayer 和 xine 的 win32 和 linux 编解码器
 Group: Applications/Multimedia
@@ -33,10 +33,10 @@ they are not necessary to play most common formats like DVDs, MPEG-1/2/4, etc.
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_libdir}/win32
-cp *  %{buildroot}%{_libdir}/win32
+mkdir -p %{buildroot}%{_libdir}/codecs
+cp *  %{buildroot}%{_libdir}/codecs
 pushd %{buildroot}%{_libdir}
-ln -s win32 codecs
+ln -s codecs win32
 popd
 magic_rpm_clean.sh
 
@@ -48,10 +48,13 @@ rm -rf ${RPM_BUILD_DIR}/all-%{version}
 %files
 %defattr (-,root,root)
 %dir %{_libdir}/win32
-%{_libdir}/win32/*
-%{_libdir}/codecs
+%{_libdir}/win32
+%{_libdir}/codecs/*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 20110131-2
+- 为 Magic 3.0 重建
+
 * Mon Nov 07 2011 Liu Di <liudidi@gmail.com> - 20111107-1
 - 更新到 20110131
 
