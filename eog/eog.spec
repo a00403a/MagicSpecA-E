@@ -8,7 +8,7 @@
 Summary: Eye of GNOME image viewer
 Name:    eog
 Version: 3.6.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://projects.gnome.org/eog/
 #VCS: git:git://git.gnome.org/eog
 Source: http://download.gnome.org/sources/eog/3.6/%{name}-%{version}.tar.xz
@@ -113,6 +113,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas >&/dev/null || :
 %{_datadir}/gtk-doc/
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 3.6.1-2
+- 为 Magic 3.0 重建
+
 * Tue Oct 16 2012 Kalev Lember <kalevlember@gmail.com> - 3.6.1-1
 - Update to 3.6.1
 
