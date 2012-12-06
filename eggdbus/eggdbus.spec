@@ -2,7 +2,7 @@ Summary: Experimental D-Bus bindings for GObject
 Summary(zh_CN): GObject 的不稳定 D-Bus 绑定
 Name: eggdbus
 Version: 0.6
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: LGPLv2
 Group: Development/Libraries
 Group(zh_CN): 开发/库
@@ -74,4 +74,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 0.6-3
+- 为 Magic 3.0 重建
+
 
