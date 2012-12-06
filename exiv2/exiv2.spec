@@ -2,7 +2,7 @@
 Summary: Exif and Iptc metadata manipulation library
 Name:	 exiv2
 Version: 0.22
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 License: GPLv2+
 Group:	 Applications/Multimedia
@@ -116,6 +116,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 0.22-2
+- 为 Magic 3.0 重建
+
 * Fri Oct 14 2011 Rex Dieter <rdieter@fedoraproject.org> 0.22-1
 - exiv2-0.22
 
