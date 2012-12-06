@@ -1,6 +1,6 @@
 Name:           espeak
 Version:        1.45.05
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Software speech synthesizer (text-to-speech)
 
 Group:          Applications/Multimedia
@@ -103,6 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1.45.05-4
+- 为 Magic 3.0 重建
+
 * Mon Sep 19 2011 Ville Skyttä <ville.skytta@iki.fi> - 1.45.05-3
 - Build with $RPM_OPT_FLAGS and $RPM_LD_FLAGS.
 
