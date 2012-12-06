@@ -1,7 +1,7 @@
 Summary:	Library for easy parsing of XMP metadata
 Name:		exempi
 Version:	2.2.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 License:	BSD
 Group:		System Environment/Libraries
 URL:		http://libopenraw.freedesktop.org/wiki/Exempi
@@ -65,6 +65,9 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 2.2.0-2
+- 为 Magic 3.0 重建
+
 * Wed Feb 22 2012 Deji Akingunola <dakingun@gmail.com> - 2.2.0-1
 - Update to version 2.2.0
 
