@@ -2,7 +2,7 @@ Summary: Tools for accessing and converting various ebook file formats
 Summary(zh_CN.UTF-8): 访问和转换多种 ebook 文件格式的工具
 Name: ebook-tools
 Version: 0.2.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 URL: http://ebook-tools.sourceforge.net/
 License: The MIT License
 Group: Development/Libraries
@@ -80,6 +80,9 @@ cd build
 %{_libdir}/libepub.so
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 0.2.1-5
+- 为 Magic 3.0 重建
+
 * Mon Oct 22 2012 Liu Di <liudidi@gmail.com> - 0.2.1-4
 - 为 Magic 3.0 重建
 
