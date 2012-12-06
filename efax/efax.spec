@@ -1,7 +1,7 @@
 Summary: A program for faxing using a Class 1, 2 or 2.0 fax modem
 Name: efax
 Version: 0.9a
-Release: 10.001114%{?dist}
+Release: 11.001114%{?dist}
 License: GPLv2+
 Group: Applications/Communications
 Url: http://www.cce.com/efax/
@@ -71,6 +71,9 @@ rm -rf %{buildroot}
 %dir %{_localstatedir}/log/fax
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 0.9a-11.001114
+- 为 Magic 3.0 重建
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.9a-9.001114
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
