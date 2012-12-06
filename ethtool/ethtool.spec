@@ -1,7 +1,7 @@
 Name:		ethtool
 Epoch:		2
 Version:	3.6
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Settings tool for Ethernet NICs
 
 License:	GPLv2
@@ -50,6 +50,9 @@ magic_rpm_clean.sh
 %{_mandir}/man8/%{name}.8*
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 2:3.6-2
+- 为 Magic 3.0 重建
+
 * Tue Oct 23 2012 Jaromir Capik <jcapik@redhat.com> 2:3.6-1
 - Update to 3.6 (#863774)
 
