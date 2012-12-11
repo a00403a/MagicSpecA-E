@@ -1,6 +1,6 @@
 Name:		AcetoneISO2
 Version:	2.3
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	CD/DVD Image Manipulator
 Summary(zh_CN): CD/DVD 镜像管理
 Group:		Applications/Archiving
@@ -9,6 +9,7 @@ License:	GPLv3
 URL:		http://www.acetoneteam.org/
 Source0:	http://download.sourceforge.net/sourceforge/acetoneiso2/acetoneiso_%{version}.tar.gz
 Patch1:		AcetoneISO2-2.0.3-no-poweriso-for-non-x86.patch
+Patch2:		acetoneiso_2.3-phonon.patch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	kdewebdev4-devel, qt4-devel, desktop-file-utils
 BuildRequires:	phonon-devel
@@ -38,6 +39,7 @@ CD/DVD 镜像管理
 %prep
 %setup -q -n acetoneiso_%{version}
 %patch1 -p1
+%patch2 -p1
 
 %build
 cd acetoneiso
@@ -70,5 +72,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/pixmaps/Acetino2.png
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.3-2
+- 为 Magic 3.0 重建
+
 * Sun Oct 30 2011 Liu Di <liudidi@gmail.com> - 2.3-1
 - 升级到 2.3
