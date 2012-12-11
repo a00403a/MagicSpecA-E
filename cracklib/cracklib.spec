@@ -5,7 +5,7 @@
 Summary: A password-checking library
 Name: cracklib
 Version: 2.8.18
-Release: 3%{?dist}
+Release: 4%{?dist}
 Group: System Environment/Libraries
 Source0: http://prdownloads.sourceforge.net/cracklib/cracklib-%{version}.tar.gz
 
@@ -239,3 +239,6 @@ EOF
 %{_libdir}/../lib/python*/site-packages/*.py*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.8.18-4
+- 为 Magic 3.0 重建
+
