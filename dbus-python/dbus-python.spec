@@ -8,7 +8,7 @@ Summary: D-Bus Python Bindings
 Summary(zh_CN.UTF-8): D-Bus Python 绑定
 Name: dbus-python
 Version: 0.83.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://www.freedesktop.org/software/dbus/
 Source0: http://dbus.freedesktop.org/releases/%{name}-%{version}.tar.gz
 Patch0: dbus-python-0.70-fix-binary-modules-dir.patch
@@ -58,6 +58,9 @@ rm -rf %{buildroot}
 %{_includedir}/*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.83.1-3
+- 为 Magic 3.0 重建
+
 * Thu Jul 07 2007 Liu Di <liudidi@gmail.com> - 0.81.1-1mgc
 - update to 0.81.1
 
