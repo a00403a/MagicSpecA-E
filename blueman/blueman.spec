@@ -3,7 +3,7 @@
 
 Name:       blueman
 Version:    1.23
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    GTK+ Bluetooth Manager
 Summary(zh_CN): GTK+ 的蓝开管理器
 
@@ -111,5 +111,8 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_datadir}/polkit-1/actions/org.blueman.policy
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.23-2
+- 为 Magic 3.0 重建
+
 * Thu Nov 03 2011 Liu Di <liudidi@gmail.com> - 1.23-1
 - 更新到 1.23
