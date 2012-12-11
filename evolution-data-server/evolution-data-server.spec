@@ -28,7 +28,7 @@
 
 Name: evolution-data-server
 Version: 3.7.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: System Environment/Libraries
 Summary: Backend data server for Evolution
 License: LGPLv2+
@@ -370,6 +370,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &>/dev/null || :
 %{_datadir}/gtk-doc/html/libedataserverui
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 3.7.1-2
+- 为 Magic 3.0 重建
+
 * Mon Oct 22 2012 Milan Crha <mcrha@redhat.com> - 3.7.1-1
 - Update to 3.7.1
 
