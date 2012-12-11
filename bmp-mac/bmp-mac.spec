@@ -4,7 +4,7 @@ Summary: Monkey's Audio Codec (MAC/APE) playback plugin for the Beep Media Playe
 Summary(zh_CN): bmp 播放器的 MAC/APE 播放插件
 Name: bmp-mac
 Version: 0.1.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPL
 Group: Applications/Multimedia
 Group(zh_CN): 应用程序/多媒体
@@ -52,4 +52,7 @@ bmp 播放器的 MAC/APE 播放插件
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.1.1-4
+- 为 Magic 3.0 重建
+
 
