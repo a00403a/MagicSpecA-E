@@ -1,6 +1,6 @@
 Name:           bochs
 Version:        2.4.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Portable x86 PC emulator
 Group:          Applications/Emulators
 License:        LGPLv2+
@@ -198,6 +198,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.4.6-2
+- 为 Magic 3.0 重建
+
 * Thu Feb 24 2011 Jon Ciesla <limb@jcomserv.net> 2.4.6-1
 - Update to 2.4.6.
 
