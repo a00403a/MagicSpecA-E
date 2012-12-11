@@ -1,7 +1,7 @@
 Summary: A front end for testing other programs
 Name: dejagnu
 Version: 1.5
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 1
 License: GPLv3+
 Source: ftp://ftp.gnu.org/gnu/dejagnu/dejagnu-%{version}.tar.gz
@@ -77,6 +77,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/dejagnu*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1:1.5-3
+- 为 Magic 3.0 重建
+
 * Tue Mar 22 2011 Honza Horak <hhorak@redhat.com> 1:1.5-1
 - Update to 1.5, license changed to GPLv3+
 
