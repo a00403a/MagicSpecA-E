@@ -1,6 +1,6 @@
 Name:           engine_pkcs11
 Version:        0.1.8
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        A PKCS#11 engine for use with OpenSSL
 
 Group:          Development/Libraries
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 0.1.8-5
+- 为 Magic 3.0 重建
+
 * Thu Nov 17 2011 Liu Di <liudidi@gmail.com> - 0.1.8-4
 - 为 Magic 3.0 重建
 
