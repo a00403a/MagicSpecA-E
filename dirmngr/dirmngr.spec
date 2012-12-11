@@ -4,7 +4,7 @@
 Name:	 dirmngr
 Summary: Client for Managing/Downloading CRLs
 Version: 1.1.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 
 License: GPLv2+ and GPLv3+ and OpenLDAP
 Group:	 System Environment/Libraries
@@ -133,6 +133,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.1.0-7
+- 为 Magic 3.0 重建
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.0-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
