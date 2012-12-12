@@ -1,7 +1,8 @@
+%define noselinux 1
 Summary: A set of basic GNU tools commonly used in shell scripts
 Name:    coreutils
-Version: 8.15
-Release: 6%{?dist}
+Version: 8.20
+Release: 2%{?dist}
 License: GPLv3+
 Group:   System Environment/Base
 Url:     http://www.gnu.org/software/coreutils/
@@ -12,10 +13,6 @@ Source102:  coreutils-DIR_COLORS.lightbgcolor
 Source103:  coreutils-DIR_COLORS.256color
 Source105:  coreutils-colorls.sh
 Source106:  coreutils-colorls.csh
-Source200:  coreutils-su.pamd
-Source201:  coreutils-runuser.pamd
-Source202:  coreutils-su-l.pamd
-Source203:  coreutils-runuser-l.pamd
 
 # From upstream
 
@@ -36,27 +33,15 @@ Patch107: coreutils-8.4-mkdir-modenote.patch
 # sh-utils
 #add info about TZ envvar to date manpage
 Patch703: sh-utils-2.0.11-dateman.patch
-#set paths for su explicitly, don't get influenced by paths.h
-Patch704: sh-utils-1.16-paths.patch
-# RMS will never accept the PAM patch because it removes his historical
-# rant about Twenex and the wheel group, so we'll continue to maintain
-# it here indefinitely. Patch is now the same in Fedora and SUSE.
-Patch706: coreutils-8.5-pam.patch
 Patch713: coreutils-4.5.3-langinfo.patch
 
 # (sb) lin18nux/lsb compliance - multibyte functionality patch
 Patch800: coreutils-i18n.patch
 
-#Call setsid() in su under some circumstances (bug #173008).
-Patch900: coreutils-setsid.patch
-#make runuser binary based on su.c
-Patch907: coreutils-8.7-runuser.patch
 #getgrouplist() patch from Ulrich Drepper.
 Patch908: coreutils-getgrouplist.patch
 #Prevent buffer overflow in who(1) (bug #158405).
 Patch912: coreutils-overflow.patch
-#compile su with pie flag and RELRO protection
-Patch917: coreutils-8.4-su-pie.patch
 
 #SELINUX Patch - implements Redhat changes
 #(upstream did some SELinux implementation unlike with RedHat patch)
@@ -93,19 +78,16 @@ Provides: /bin/rmdir
 Provides: /bin/sleep
 Provides: /bin/sort
 Provides: /bin/stty
-Provides: /bin/su
 Provides: /bin/sync
 Provides: /bin/touch
 Provides: /bin/true
 Provides: /bin/uname
-Provides: /sbin/runuser
 
 BuildRequires: libacl-devel
 BuildRequires: gettext bison
 BuildRequires: texinfo
 BuildRequires: autoconf
 BuildRequires: automake
-%{?!nopam:BuildRequires: pam-devel}
 BuildRequires: libcap-devel
 BuildRequires: libattr-devel
 BuildRequires: gmp-devel
@@ -116,7 +98,6 @@ Requires(pre): /sbin/install-info
 Requires(preun): /sbin/install-info
 Requires(post): /sbin/install-info
 Requires(post): grep
-%{?!nopam:Requires: pam >= 1.1.3-7}
 Requires:       ncurses
 Requires:       gmp
 
@@ -126,6 +107,7 @@ Provides: stat = %{version}-%{release}
 Provides: textutils = %{version}-%{release}
 #old mktemp package had epoch 3, so we have to use 4 for coreutils
 Provides: mktemp = 4:%{version}-%{release}
+Provides: bundled(gnulib)
 Obsoletes: mktemp < 4:%{version}-%{release}
 Obsoletes: fileutils <= 4.1.9
 Obsoletes: sh-utils <= 2.0.12
@@ -133,6 +115,8 @@ Obsoletes: stat <= 3.3
 Obsoletes: textutils <= 2.0.21
 #coreutils-libs dropped in f17
 Obsoletes: coreutils-libs < 8.13
+#require util-linux >=2.22.1-3 to prevent lack of su/runuser on system
+Requires: util-linux >= 2.22.1-3
 
 %description
 These are the GNU core utilities.  This package is the combination of
@@ -153,26 +137,21 @@ the old GNU fileutils, sh-utils, and textutils packages.
 
 # sh-utils
 %patch703 -p1 -b .dateman
-%patch704 -p1 -b .paths
-%patch706 -p1 -b .pam
 %patch713 -p1 -b .langinfo
 
 # li18nux/lsb
 %patch800 -p1 -b .i18n
 
 # Coreutils
-%patch900 -p1 -b .setsid
-%patch907 -p1 -b .runuser
 %patch908 -p1 -b .getgrouplist
 %patch912 -p1 -b .overflow
-%patch917 -p1 -b .pie
 
 #SELinux
 %patch950 -p1 -b .selinux
 %patch951 -p1 -b .selinuxman
 %patch952 -p1 -b .cpZ
 
-chmod a+x tests/misc/sort-mb-tests tests/df/direct || :
+chmod a+x tests/misc/sort-mb-tests.sh tests/df/direct.sh || :
 
 #fix typos/mistakes in localized documentation(#439410, #440056)
 find ./po/ -name "*.p*" | xargs \
@@ -187,21 +166,22 @@ touch aclocal.m4 configure config.hin Makefile.in */Makefile.in
 aclocal -I m4
 autoconf --force
 automake --copy --add-missing
-%configure --enable-largefile %{?!nopam:--enable-pam} \
-           --enable-install-program=su,hostname,arch \
+%configure --enable-largefile \
+           %{?!noselinux:--enable-selinux} \
+           --enable-install-program=hostname,arch \
            --with-tty-group \
            DEFAULT_POSIX2_VERSION=200112 alternative=199209 || :
 
 # Regenerate manpages
 touch man/*.x
 
-make all %{?_smp_mflags} \
-         %{?!nopam:CPPFLAGS="-DUSE_PAM"}
+make all %{?_smp_mflags}
 
 # XXX docs should say /var/run/[uw]tmp not /etc/[uw]tmp
 sed -i -e 's,/etc/utmp,/var/run/utmp,g;s,/etc/wtmp,/var/run/wtmp,g' doc/coreutils.texi
 
 %check
+make check
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -222,7 +202,6 @@ bzip2 -9f ChangeLog
 
 # let be compatible with old fileutils, sh-utils and textutils packages :
 mkdir -p $RPM_BUILD_ROOT{%{_bindir},%{_sbindir}}
-%{?!nopam:mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d}
 
 # chroot was in /usr/sbin :
 mv $RPM_BUILD_ROOT{%_bindir,%_sbindir}/chroot
@@ -234,21 +213,10 @@ install -p -c -m644 %SOURCE103 $RPM_BUILD_ROOT%{_sysconfdir}/DIR_COLORS.256color
 install -p -c -m644 %SOURCE105 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/colorls.sh
 install -p -c -m644 %SOURCE106 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/colorls.csh
 
-# su
-install -m 4755 src/su $RPM_BUILD_ROOT/%{_bindir}
-%{?!norunuser:install -m 755 src/runuser $RPM_BUILD_ROOT/%{_sbindir}}
-# do not ship runuser in /usr/bin/runuser
-rm -rf $RPM_BUILD_ROOT/%{_bindir}/runuser || :
-
 # These come from util-linux and/or procps.
 for i in hostname uptime kill ; do
     rm $RPM_BUILD_ROOT{%{_bindir}/$i,%{_mandir}/man1/$i.1}
 done
-
-%{?!nopam:install -p -m 644 %SOURCE200 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/su}
-%{?!nopam:install -p -m 644 %SOURCE202 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/su-l}
-%{?!nopam:install -p -m 644 %SOURCE201 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/runuser}
-%{?!nopam:install -p -m 644 %SOURCE203 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/runuser-l}
 
 # Compress ChangeLogs from before the fileutils/textutils/etc merge
 bzip2 -f9 old/*/C*
@@ -300,10 +268,6 @@ fi
 %dir %{_datadir}/locale/*/LC_TIME
 %config(noreplace) %{_sysconfdir}/DIR_COLORS*
 %config(noreplace) %{_sysconfdir}/profile.d/*
-%{?!nopam:%config(noreplace) %{_sysconfdir}/pam.d/su}
-%{?!nopam:%config(noreplace) %{_sysconfdir}/pam.d/su-l}
-%{?!nopam:%config(noreplace) %{_sysconfdir}/pam.d/runuser}
-%{?!nopam:%config(noreplace) %{_sysconfdir}/pam.d/runuser-l}
 %doc COPYING ABOUT-NLS ChangeLog.bz2 NEWS README THANKS TODO old/*
 %{_bindir}/arch
 %{_bindir}/basename
@@ -333,7 +297,6 @@ fi
 %{_bindir}/sleep
 %{_bindir}/sort
 %{_bindir}/stty
-%attr(4755,root,root) %{_bindir}/su
 %{_bindir}/sync
 %{_bindir}/mktemp
 %{_bindir}/touch
@@ -410,9 +373,54 @@ fi
 %{_libexecdir}/coreutils*
 %{_mandir}/man*/*
 %{_sbindir}/chroot
-%{?!norunuser:%{_sbindir}/runuser}
 
 %changelog
+* Mon Nov 05 2012 Ondrej Vasik <ovasik@redhat.com> 8.20-2
+- disable the temporary O_SYNC fix (glibc is fixed - #872366)
+
+* Sat Oct 27 2012 Ondrej Vasik <ovasik@redhat.com> 8.20-1
+- new upstream release 8.20
+- Temporarily require util-linux >= 2.22.1-3 (to prevent missing
+  su/runuser on system)
+
+* Mon Aug 20 2012 Ondrej Vasik <ovasik@redhat.com> 8.19-1
+- new upstream release 8.19
+- fix multibyte issues in cut and expand (M.Briza, #821260)
+
+* Sun Aug 12 2012 Ondrej Vasik <ovasik@redhat.com> 8.18-1
+- new upstream release 8.18
+- su/runuser moved to util-linux
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 8.17-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue May 15 2012 Ondrej Vasik <ovasik@redhat.com> 8.17-3
+- add virtual provides for bundled(gnulib) copylib (#821748)
+
+* Fri May 11 2012 Ondrej Vasik <ovasik@redhat.com> 8.17-2
+- ls: upstream fix - correctly show symlinks in /
+
+* Fri May 11 2012 Ondrej Vasik <ovasik@redhat.com> 8.17-1
+- new upstream release 8.17
+
+* Fri May 04 2012 Ondrej Vasik <ovasik@redhat.com> 8.16-3
+- add .htm and .shtml to colorized DIR_COLORS document
+  type (#817218)
+
+* Mon Apr 16 2012 Ondrej Vasik <ovasik@redhat.com> 8.16-2
+- fix the tcsh colorls.csh behaviour in non-interactive
+  mode (#804604)
+
+* Mon Mar 26 2012 Ondrej Vasik <ovasik@redhat.com> 8.16-1
+- new upstream release 8.16
+- defuzz patches, remove already applied patches
+
+* Thu Mar 08 2012 Ondrej Vasik <ovasik@redhat.com> 8.15-8
+- fix regression in du -x with nondir argument (by J.Meyering)
+
+* Wed Mar 07 2012 Ondrej Vasik <ovasik@redhat.com> 8.15-7
+- fix sort segfault with multibyte locales (by P.Brady)
+
 * Fri Feb 10 2012 Harald Hoyer <harald@redhat.com> 8.15-6
 - turn on testsuite again
 

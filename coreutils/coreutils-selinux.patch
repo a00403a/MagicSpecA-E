@@ -14,7 +14,7 @@ diff -urNp coreutils-8.13-orig/configure.ac coreutils-8.13/configure.ac
 +
  AC_FUNC_FORK
  
- AC_ARG_ENABLE(pam, AS_HELP_STRING([--disable-pam],
+ optional_bin_progs=
 diff -urNp coreutils-8.13-orig/man/chcon.x coreutils-8.13/man/chcon.x
 --- coreutils-8.13-orig/man/chcon.x	2009-09-01 13:01:16.000000000 +0200
 +++ coreutils-8.13/man/chcon.x	2011-09-09 10:30:39.524564991 +0200
@@ -62,8 +62,8 @@ diff -urNp coreutils-8.13-orig/src/copy.h coreutils-8.13/src/copy.h
 --- coreutils-8.13-orig/src/copy.h	2011-07-28 12:38:27.000000000 +0200
 +++ coreutils-8.13/src/copy.h	2011-09-09 10:30:39.565563712 +0200
 @@ -158,6 +158,9 @@ struct cp_options
-   bool preserve_mode;
    bool preserve_timestamps;
+   bool explicit_no_preserve_mode;
  
 +  /* If true, attempt to set specified security context */
 +  bool set_security_context;
@@ -101,7 +101,7 @@ diff -urNp coreutils-8.13-orig/src/cp.c coreutils-8.13/src/cp.c
        fputs (HELP_OPTION_DESCRIPTION, stdout);
        fputs (VERSION_OPTION_DESCRIPTION, stdout);
 @@ -786,6 +791,7 @@ cp_option_init (struct cp_options *x)
-   x->preserve_timestamps = false;
+   x->explicit_no_preserve_mode = false;
    x->preserve_security_context = false;
    x->require_preserve_context = false;
 +  x->set_security_context = false;
@@ -392,7 +392,7 @@ diff -urNp coreutils-8.13-orig/src/ls.c coreutils-8.13/src/ls.c
        || format_needs_stat
 @@ -2869,7 +2896,7 @@ gobble_file (char const *name, enum file
            && print_with_color && is_colored (C_CAP))
-         f->has_capability = has_capability (absolute_name);
+         f->has_capability = has_capability_cache (absolute_name, f);
  
 -      if (format == long_format || print_scontext)
 +      if (format == long_format || format == security_format || print_scontext)
@@ -406,7 +406,7 @@ diff -urNp coreutils-8.13-orig/src/ls.c coreutils-8.13/src/ls.c
 -          if (err == 0 && format == long_format)
 +          if (err == 0 && (format == long_format || format == security_format))
              {
-               int n = file_has_acl (absolute_name, &f->stat);
+               int n = file_has_acl_cache (absolute_name, f);
                err = (n < 0);
 @@ -2911,7 +2938,8 @@ gobble_file (char const *name, enum file
          }
@@ -416,8 +416,8 @@ diff -urNp coreutils-8.13-orig/src/ls.c coreutils-8.13/src/ls.c
 +          && (format == long_format || format == security_format
 +              || check_symlink_color))
          {
-           char *linkname;
            struct stat linkstats;
+ 
 @@ -2931,6 +2959,7 @@ gobble_file (char const *name, enum file
                   command line are automatically traced if not being
                   listed as files.  */
@@ -609,8 +609,8 @@ diff -urNp coreutils-8.13-orig/src/mv.c coreutils-8.13/src/mv.c
 --- coreutils-8.13-orig/src/mv.c	2011-07-28 12:38:27.000000000 +0200
 +++ coreutils-8.13/src/mv.c	2011-09-09 10:30:39.578562234 +0200
 @@ -118,6 +118,7 @@ cp_option_init (struct cp_options *x)
-   x->preserve_mode = true;
    x->preserve_timestamps = true;
+   x->explicit_no_preserve_mode= false;
    x->preserve_security_context = selinux_enabled;
 +  x->set_security_context = false;
    x->reduce_diagnostics = false;
@@ -628,29 +628,29 @@ diff -urNp coreutils-8.13-orig/src/runcon.c coreutils-8.13/src/runcon.c
  With neither CONTEXT nor COMMAND, print the current security context.\n\
  \n\
    CONTEXT            Complete security context\n\
-diff -urNp coreutils-8.13-orig/tests/init.cfg coreutils-8.13/tests/init.cfg
---- coreutils-8.13-orig/tests/init.cfg	2011-09-07 18:00:55.000000000 +0200
-+++ coreutils-8.13/tests/init.cfg	2011-09-09 10:32:17.031688699 +0200
+diff -urNp coreutils-8.20-orig/init.cfg coreutils-8.20/init.cfg
+--- coreutils-8.20-orig/init.cfg
++++ coreutils-8.20/init.cfg
 @@ -253,8 +253,8 @@ require_selinux_()
  
    # Independent of whether SELinux is enabled system-wide,
    # the current file system may lack SELinux support.
--  case `ls -Zd .` in
+-  case $(ls -Zd .) in
 -    '? .'|'unlabeled .')
-+  case `ls -Zd . | cut -f4 -d" "` in
++  case $(ls -Zd . | cut -f4 -d" ") in
 +    '?'|'unlabeled')
        skip_ "this system (or maybe just" \
          "the current file system) lacks SELinux support"
      ;;
-diff -urNp coreutils-8.13-orig/tests/misc/selinux coreutils-8.13/tests/misc/selinux
---- coreutils-8.13-orig/tests/misc/selinux	2011-08-08 09:42:16.000000000 +0200
-+++ coreutils-8.13/tests/misc/selinux	2011-09-09 10:30:39.586563144 +0200
+diff -urNp coreutils-8.20-orig/tests/misc/selinux coreutils-8.20/tests/misc/selinux.sh
+--- coreutils-8.20-orig/tests/misc/selinux.sh
++++ coreutils-8.20/tests/misc/selinux.sh
 @@ -37,7 +37,7 @@ chcon $ctx f d p ||
  
  # inspect that context with both ls -Z and stat.
  for i in d f p; do
--  c=`ls -dogZ $i|cut -d' ' -f3`; test x$c = x$ctx || fail=1
-+  c=`ls -dogZ $i|cut -d' ' -f4`; test x$c = x$ctx || fail=1
-   c=`stat --printf %C $i`; test x$c = x$ctx || fail=1
+-  c=$(ls -dogZ $i|cut -d' ' -f3); test x$c = x$ctx || fail=1
++  c=$(ls -dogZ $i|cut -d' ' -f4); test x$c = x$ctx || fail=1
+   c=$(stat --printf %C $i); test x$c = x$ctx || fail=1
  done
  
