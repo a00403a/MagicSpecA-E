@@ -1,7 +1,7 @@
 Summary: A utility for setting up encrypted disks
 Name: cryptsetup
-Version: 1.5.0
-Release: 2%{?dist}
+Version: 1.5.1
+Release: 1%{?dist}
 License: GPLv2 and LGPLv2+
 Group: Applications/System
 URL: http://cryptsetup.googlecode.com/
@@ -98,8 +98,7 @@ make %{?_smp_mflags}
 make install DESTDIR=%{buildroot}
 rm -rf %{buildroot}/%{_libdir}/*.la
 install -d %{buildroot}/%{_libdir}/fipscheck
-magic_rpm_clean.sh 
-%find_lang cryptsetup || touch cryptsetup.lang
+%find_lang cryptsetup
 
 %post -n cryptsetup-libs -p /sbin/ldconfig
 
@@ -140,6 +139,9 @@ magic_rpm_clean.sh
 %clean
 
 %changelog
+* Tue Oct 16 2012 Milan Broz <mbroz@redhat.com> - 1.5.1-1
+- Update to cryptsetup 1.5.1.
+
 * Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
