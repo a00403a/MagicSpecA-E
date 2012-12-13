@@ -14,7 +14,7 @@ Summary: Converts text and other types of files to PostScript(TM)
 Summary(zh_CN.UTF-8): 转换文本或其它类型的文件到PostScript(TM)。
 Name: a2ps
 Version: 4.14
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPLv3+
 Group: Applications/Publishing
 Group(zh_CN.UTF-8): 应用程序/出版
@@ -305,5 +305,8 @@ exit 0
 %{emacs_lispdir}/*.el
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 4.14-3
+- 为 Magic 3.0 重建
+
 * Thu Oct 30 2008 Liu Di <liudidi@gmail.com> - 4.14-1mgc25
 - 从 fc 的 srpm 中重建
