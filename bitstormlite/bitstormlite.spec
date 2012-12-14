@@ -1,6 +1,6 @@
 %define _name       BitStormLite
 %define version      0.2q
-%define release      1%{?dist}
+%define release      2%{?dist}
 %define testver     %{nil}
 
 %define prefix     /usr
@@ -74,6 +74,9 @@ install -D -m 644 %{SOURCE1} %{buildroot}%{_datadir}/applications/bitstormlite.d
 %exclude /usr/*/debug*
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.2q-2
+- 为 Magic 3.0 重建
+
 * Wed Nov 02 2011 Liu Di <Liudidi@gmail.com> - 0.2q-1
 - 升级到 0.2q　
 
