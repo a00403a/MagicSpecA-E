@@ -1,6 +1,6 @@
 Name:           cryptopp
 Version:        5.6.1
-Release:        6%{?dist}
+Release:        8%{?dist}
 Summary:        Public domain C++ class library of cryptographic schemes
 License:        Public Domain
 Group:          System Environment/Libraries
@@ -14,6 +14,8 @@ Patch1:         cryptopp-5.6.1-s390.patch
 Patch2:         cryptopp-data-files-location.patch
 # Enable SSE2 only on x86_64
 Patch3:         cryptopp-x86-disable-sse2.patch
+# fix build with gcc-4.7.0 http://groups.google.com/group/cryptopp-users/browse_thread/thread/abad017df4a83883
+Patch4:         cryptopp-5.6.1-gcc-4.7.0.patch
 BuildRequires:  doxygen, autoconf, libtool
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -64,11 +66,12 @@ rm -f GNUmakefile
 %patch1 -p1 -b .s390
 %patch2 -p1
 %patch3
+%patch4 -p1
 autoreconf --verbose --force --install
 perl -pi -e 's/\r$//g' License.txt Readme.txt
 
 %build
-%configure --enable-static
+%configure --disable-static
 
 make %{?_smp_mflags}
 doxygen
@@ -84,7 +87,6 @@ install -D -m644 %{SOURCE1} $RPM_BUILD_ROOT%{_libdir}/pkgconfig/cryptopp.pc
 # Fill in the variables
 sed -i "s|@PREFIX@|%{_prefix}|g" $RPM_BUILD_ROOT%{_libdir}/pkgconfig/cryptopp.pc
 sed -i "s|@LIBDIR@|%{_libdir}|g" $RPM_BUILD_ROOT%{_libdir}/pkgconfig/cryptopp.pc
-sed -i "s|@INCLUDEDIR@|%{_includedir}|g" $RPM_BUILD_ROOT%{_libdir}/pkgconfig/cryptopp.pc
 
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}/TestVectors
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}/TestData
@@ -114,7 +116,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/cryptopp
 %defattr(-,root,root,0755)
 %{_libdir}/libcryptopp.so
-%{_libdir}/libcryptopp.a
 %{_libdir}/pkgconfig/cryptopp.pc
 
 %files doc
@@ -128,8 +129,17 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Sat Nov 03 2012 Liu Di <liudidi@gmail.com> - 5.6.1-6
-- 为 Magic 3.0 重建
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.6.1-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.6.1-7
+- Rebuilt for c++ ABI breakage
+
+* Thu Jan  5 2012 Alexey Kurov <nucleo@fedoraproject.org> - 5.6.1-6
+- fix build with gcc-4.7.0
+
+* Mon Oct 17 2011 Alexey Kurov <nucleo@fedoraproject.org> - 5.6.1-5
+- remove includedir in cryptopp.pc (rhbz#732208)
 
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.6.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild

@@ -11,4 +11,4 @@ Requires:
 Conflicts:
 Libs: -L${libdir} -lcryptopp
 Libs.private:
-Cflags: -I${includedir}/cryptopp/
+Cflags:
