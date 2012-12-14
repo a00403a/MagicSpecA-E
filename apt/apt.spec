@@ -5,13 +5,13 @@
 %{?dist: %{expand: %%define %dist mgc30}}
 %define LIBVER 3.3
 %define git 1
-%define gitdate 20120312
+%define gitdate 20121214
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(zh_CN.UTF-8): 使用RPM支持的 Debian 高级包工具
 Name: apt
 Version: 0.5.15lorg3.95
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: GPL
 Group: System Environment/Base
 Group(zh_CN.UTF-8): 系统环境/基本
@@ -25,6 +25,7 @@ Source: %{name}-git%{gitdate}.tar.xz
 %else
 Source: http://apt-rpm.org/testing/apt-0.5.15lorg3.94a.tar.bz2
 %endif
+Source1: make_apt_git_package.sh
 Patch0: apt-0.5.15lorg3.94-rpmpriorities.patch
 Patch1: apt-0.5.15lorg3.94-nodignosig.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -150,6 +151,9 @@ touch %{buildroot}/var/lib/apt/lists/lock
 #exclude %{_libdir}/*.la
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.5.15lorg3.95-7
+- 为 Magic 3.0 重建
+
 * Fri Apr 13 2012 Liu Di <liudidi@gmail.com> - 0.5.15lorg3.95-6
 - 为 Magic 3.0 重建
 
