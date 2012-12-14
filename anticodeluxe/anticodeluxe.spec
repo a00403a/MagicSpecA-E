@@ -7,12 +7,13 @@
 Name:           anticodeluxe
 BuildRequires:  gcc-c++ %{breq}
 Version:        0.1.96
-Release:        2%{?dist}
+Release:        3%{?dist}
 License:        GPL v2 or later
 #Source:         %{name}-git%{date}.tar.bz2
 Source0:		http://anticodeluxe.googlecode.com/files/%{name}-%{version}.tar.bz2
 Source1:	%{name}-kdm.desktop
 Patch1:		%{name}-libx11.patch
+Patch2:		anticodeluxe-gcc47.patch
 Group:          User Interface/Desktops
 Group(zh_CN.UTF-8):	用户界面/桌面
 Summary:        Antico Deluxe is a Qt4/X11 Window/Desktop manager for GNU/Linux.
@@ -41,6 +42,7 @@ makes AnticoDeluxe very suitable for netbooks and low-end computers.
 %prep
 %setup -q -n %{name}
 %patch1 -p1
+%patch2 -p1
 
 %build
 %{qmake}
@@ -71,5 +73,8 @@ rm -rf %{buiddir}/%{buildsubdir}
 %_datadir/apps/kdm/sessions/%{name}.desktop
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.1.96-3
+- 为 Magic 3.0 重建
+
 * Sat Oct 29 2011 Liu Di <liudidi@gmail.com> - 0.1.96-2
 - 为 Magic 3.0 重建
