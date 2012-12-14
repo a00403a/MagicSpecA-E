@@ -3,7 +3,7 @@ Name: autoconvert
 Summary: autoconvert - Program for converting one chinese language code to another.
 Summary(zh_CN.UTF-8): 转换一种中文编码到另一种的程序。
 Version: 0.3.16
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPL
 Group: Applications/Text
 Group(zh_CN.UTF-8): 应用程序/文本
@@ -74,16 +74,21 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 %files
 %defattr(-,root,root)
 %doc GPL Readme LICENSE
-%{_bindir}
-%{_libdir}
-%{_datadir}
+%{_bindir}/auto*
+%{_libdir}/libhz.so.*
+%{_datadir}/*
 %exclude %{_libdir}/debug
 
 %files devel
 %defattr(-,root,root)
-%{_includedir}
+%{_libdir}/libhz.a
+%{_libdir}/libhz.so
+%{_includedir}/*.h
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.3.16-6
+- 为 Magic 3.0 重建
+
 * Tue Nov 01 2011 Liu Di <liudidi@gmail.com> - 0.3.16-5
 - 为 Magic 3.0 重建
 
