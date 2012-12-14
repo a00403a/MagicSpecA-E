@@ -1,6 +1,6 @@
 Name:           compface
 Version:        1.5.2
-Release:        12
+Release:        14%{?dist}
 Summary:        Library and tools for handling X-Face data
 
 Group:          System Environment/Libraries
@@ -13,7 +13,6 @@ Source2:        compface-README.copyright
 Patch0:         libcompface_1.5.2-4.diff.gz
 Patch1:         compface-1.5.2-stack-smashing.patch
 Patch2:         compface-1.5.2-build.patch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  diffutils
 
 %description
@@ -25,7 +24,7 @@ programs are able to display such images when opening messages.
 %package        devel
 Summary:        Library and development files for handling X-Face data 
 Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name}%{?_isa} = %{version}-%{release}
 
 %description    devel
 These files are needed when building software that uses the Compface
@@ -45,7 +44,6 @@ make %{?_smp_mflags}
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT STRIP=/bin/true
 mkdir -p _extdoc && install -p -m 0644 %{SOURCE2} _extdoc/README.copyright
 
@@ -56,17 +54,12 @@ export LD_LIBRARY_PATH=$RPM_BUILD_ROOT%{_libdir}:$LD_LIBRARY_PATH
 cmp %{SOURCE1} __test.xbm
 
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
 
 %files
-%defattr(-,root,root,-)
 %doc ChangeLog README xbm2xface.pl
 %doc _extdoc/README.copyright
 %{_bindir}/compface
@@ -76,7 +69,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/uncompface.1*
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/compface.h
 %{_libdir}/libcompface.so
 %{_mandir}/man3/compface.3*
@@ -84,6 +76,16 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.2-14
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jan  6 2012 Michael Schwendt <mschwendt@fedoraproject.org> - 1.5.2-13
+- rebuild for GCC 4.7 as requested
+- drop obsolete items from spec file, plus use %%?dist and %%?_isa
+
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.2-12
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.2-11
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
