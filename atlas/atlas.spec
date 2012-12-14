@@ -5,9 +5,8 @@ Version:        3.8.4
 %if "%{?enable_native_atlas}" != "0"
 %define dist .native
 %endif
-Release:        3%{?dist}
+Release:        7%{?dist}
 Summary:        Automatically Tuned Linear Algebra Software
-
 
 Group:          System Environment/Libraries
 License:        BSD
@@ -25,6 +24,9 @@ Source9:        IBMz19664.tgz
 Patch0:		atlas-fedora_shared.patch
 Patch1:         atlas-s390port.patch
 Patch2:		atlas-fedora-arm.patch
+# Properly pass -melf_* to the linker with -Wl, fixes FTBFS bug 817552
+# https://sourceforge.net/tracker/?func=detail&atid=379484&aid=3555789&group_id=23725
+Patch3:		atlas-melf.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  gcc-gfortran lapack-static
@@ -249,6 +251,7 @@ optimizations for the z10 architecture.
 %ifarch %{arm}
 %patch2 -p0 -b .arm
 %endif
+%patch3 -p1 -b .melf
 cp %{SOURCE1} CONFIG/ARCHS/
 cp %{SOURCE2} CONFIG/ARCHS/
 cp %{SOURCE3} doc
@@ -664,4 +667,165 @@ fi
 %endif
 
 %changelog
+* Fri Sep 07 2012 Orion Poplawski <orion@nwra.com> - 3.8.4-7
+- Rebuild with lapack 3.4.1
 
+* Thu Aug 09 2012 Orion Poplawski <orion@nwra.com> - 3.8.4-6
+- Add patch to properly pass -melf_* to the linker with -Wl (bug 817552)
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.8.4-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.8.4-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Thu Sep 01 2011 Deji Akingunola <dakingun@gmail.com> - 3.8.4-3
+- Apply patch to enable arm build (Patch provided by Jitesh Shah <jiteshs@marvell.com>)
+- Stop turning off throttle checking, upstream frown at it (seems O.K. for Koji)
+
+* Mon Jun 20 2011 Dan Horák <dan[at]danny.cz> - 3.8.4-2
+- Use -march=z10 for z196 optimised build because the builder is a z10
+  (Christian Bornträger)
+
+* Tue Jun 14 2011 Deji Akingunola <dakingun@gmail.com> - 3.8.4-1
+- Update to 3.8.4
+- Build the default package for SSE2 and add a SSE3 subpackage on x86_64
+- Apply patch (and arch defs.) to build on s390 and s390x (Dan Horák)
+- Fix-up build on s390 and s390x (Christian Bornträger)
+
+* Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org>
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Mon Jul 26 2010 Deji Akingunola <dakingun@gmail.com> - 3.8.3-18
+- Create a subpackage for SSE2 on x86_64
+
+* Sat Jul 17 2010 Dan Horák <dan[at]danny.cz> - 3.8.3-17
+- rebuild against fixed lapack libraries
+
+* Thu Jul 15 2010 Dan Horák <dan[at]danny.cz> - 3.8.3-16
+- fix build on s390 (patch by Karsten Hopp)
+
+* Wed Feb 10 2010 Deji Akingunola <dakingun@gmail.com> - 3.8.3-15
+- Disable the problematic sparc patch
+- Change lapack-devel BR to lapack-static, where liblapack_pic.a now resides.
+
+* Wed Feb 03 2010 Dennis Gilmore <dennis@ausil.us> - 3.8.3-14
+- fix sparc build
+
+* Fri Jan 29 2010 Deji Akingunola <dakingun@gmail.com> - 3.8.3-13
+- Remove static libraries.
+- Fix typo in SSE3 subpackage's summary.
+
+* Sat Oct 24 2009 Deji Akingunola <dakingun@gmail.com> - 3.8.3-12
+- Use alternatives to workaround multilib conflicts (BZ#508565). 
+
+* Tue Sep 29 2009 Deji Akingunola <dakingun@gmail.com> - 3.8.3-11
+- Obsolete the -header subpackage properly. 
+
+* Sat Sep 26 2009 Deji Akingunola <dakingun@gmail.com> - 3.8.3-10
+- Use the new arch. default for Pentium PRO (Fedora bug #510498)
+- (Re-)Introduce 3dNow subpackage
+
+* Sun Sep  6 2009 Alex Lancaster <alexlan[AT]fedoraproject org> - 3.8.3-9
+- Rebuild against fixed lapack (see #520518)
+
+* Wed Aug 13 2009 Deji Akingunola <dakingun@gmail.com> - 3.8.3-8
+- Revert the last change, it doesn't solve the problem. 
+
+* Tue Aug 04 2009 Deji Akingunola <dakingun@gmail.com> - 3.8.3-7
+- Create a -header subpackage to avoid multilib conflicts (BZ#508565). 
+
+* Tue Aug 04 2009 Deji Akingunola <dakingun@gmail.com> - 3.8.3-6
+- Add '-g' to build flag to allow proper genration of debuginfo subpackages (Fedora bug #509813)
+- Build for F12
+
+* Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.8.3-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
+* Sat May 02 2009 Deji Akingunola <dakingun@gmail.com> - 3.8.3-4
+- Use the right -msse* option for the -sse* subpackages (Fedora bug #498715)
+
+* Tue Apr 21 2009 Karsten Hopp <karsten@redhat.com> 3.8.3-3.1
+- add s390x to 64 bit archs
+
+* Fri Feb 27 2009 Deji Akingunola <dakingun@gmail.com> - 3.8.3-3
+- Rebuild
+
+* Mon Feb 23 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.8.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
+* Sun Feb 22 2009 Deji Akingunola <dakingun@gmail.com> - 3.8.3-1
+- Update to version 3.8.3
+
+* Sun Dec 21 2008 Deji Akingunola <dakingun@gmail.com> - 3.8.2-5
+- Link in appropriate libs when creating shared libs, reported by Orcan 'oget' Ogetbil (BZ#475411)
+
+* Tue Dec 16 2008 Deji Akingunola <dakingun@gmail.com> - 3.8.2-4
+- Don't symlink the atlas libdir on i386, cause upgrade issue (BZ#476787)
+- Fix options passed to gcc when making shared libs
+
+* Tue Dec 16 2008 Deji Akingunola <dakingun@gmail.com> - 3.8.2-3
+- Use 'gcc -shared' to build shared libs instead of stock 'ld'
+
+* Sat Dec 13 2008 Deji Akingunola <dakingun@gmail.com> - 3.8.2-2
+- Properly obsolete/provide older subpackages that are no longer packaged.
+
+* Mon Sep 01 2008 Deji Akingunola <dakingun@gmail.com> - 3.8.2-1
+- Upgrade to ver 3.8.2 with refined build procedures.
+
+* Thu Feb 28 2008 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-15
+- Disable altivec package--it is causing illegal instructions during build.
+
+* Thu Feb 28 2008 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-14
+- Enable compilation on alpha (bug 426086).
+- Patch for compilation on ia64 (bug 432744).
+
+* Tue Feb 19 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 3.6.0-13
+- Autorebuild for GCC 4.3
+
+* Mon Jun  4 2007 Orion Poplawski <orion@cora.nwra.com> 3.6.0-12
+- Rebuild for ppc64
+
+* Fri Sep  8 2006 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-11
+- Rebuild for FC6.
+- Remove outdated comments from spec file.
+
+* Mon Feb 13 2006 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-10
+- Rebuild for Fedora Extras 5.
+- Add --noexecstack to compilation of assembly kernels. These were
+  previously marked executable, which caused problems with selinux.
+
+* Mon Dec 19 2005 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-9
+- Rebuild for gcc 4.1.
+
+* Mon Oct 10 2005 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-8
+- Make all devel subpackages depend on their non-devel counterparts.
+- Add /etc/ld.so.conf.d files for -sse and -3dnow, because they don't
+  seem to get picked up automatically.
+
+* Wed Oct 05 2005 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-7
+- Forgot to add the new patch to sources.
+
+* Tue Oct 04 2005 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-6
+- Use new Debian patch, and enable shared libs (they previously failed
+  to build on gcc 4).
+- Minor updates to description and README.Fedora file.
+- Fix buildroot name to match FE preferred form.
+- Fixes for custom optimized builds.
+- Add dist tag.
+
+* Wed Sep 28 2005 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-5
+- fix files lists.
+
+* Mon Sep 26 2005 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-4
+- generate library symlinks earlier for the benefit of later linking steps.
+
+* Wed Sep 14 2005 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-3
+- Change lapack dependency to lapack-devel, and use lapack_pic.a for
+  building liblapack.so.
+
+* Wed Sep 14 2005 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-2
+- Add "bit" macro to correctly build on x86_64.
+
+* Tue Aug 16 2005 Quentin Spencer <qspencer@users.sourceforge.net> 3.6.0-1
+- Initial version.
