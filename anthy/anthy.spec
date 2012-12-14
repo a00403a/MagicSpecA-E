@@ -3,9 +3,9 @@
 
 Name:  anthy
 Version: 9100h
-Release: 17%{?dist}
-# The entire source code is LGPLv2+ and dictionaries is GPLv2.
-License: LGPLv2+ and GPLv2
+Release: 19%{?dist}
+# The entire source code is LGPLv2+ and dictionaries is GPLv2. the corpus data is under Public Domain.
+License: LGPLv2+ and GPLv2 and Public Domain
 URL:  http://sourceforge.jp/projects/anthy/
 BuildRequires: emacs
 %if 0%{?rhel} == 0
@@ -19,9 +19,7 @@ Patch1:  anthy-fix-typo-in-dict-name.patch
 Patch10: anthy-corpus.patch
 
 Summary: Japanese character set input library
-Summary(zh_CN.UTF-8): 日文字符设置输入库
 Group:  System Environment/Libraries
-Group(zh_CN.UTF-8): 系统环境/库
 
 %description
 Anthy provides the library to input Japanese on the applications, such as
@@ -29,16 +27,9 @@ X applications and emacs. and the user dictionaries and the users information
 which is used for the conversion, is stored into their own home directory.
 So Anthy is secure than other conversion server.
 
-%description -l zh_CN.UTF-8
-Anthy 提供了一个在应用程序，比如 X 程序和 emacs 上输入日文的库。
-用户字典和用来转换的用户信息，存储在自己的家目录，所以它比其它的
-转换服务更安全。
-
 %package devel
 Summary: Header files and library for developing programs which uses Anthy
-Summary(zh_CN.UTF-8): %{name} 的开发包
 Group:  Development/Libraries
-Group(zh_CN.UTF-8): 开发/库
 Requires: anthy = %{version}-%{release}
 Requires: pkgconfig
 
@@ -46,14 +37,9 @@ Requires: pkgconfig
 The anthy-devel package contains the development files which is needed to build
 the programs which uses Anthy.
 
-%description devel -l zh_CN.UTF-8
-%{name} 的开发包。
-
 %package -n emacs-%{pkg}
 Summary: Compiled elisp files to run Anthy under GNU Emacs
-Summary(zh_CN.UTF-8): 编译好的在 GNU Emacs 上运行 Anthy 的 elisp 文件
 Group:  System Environment/Libraries
-Group(zh_CN.UTF-8): 系统环境/库
 Requires: emacs(bin) >= %{_emacs_version}
 Requires: anthy = %{version}-%{release}
 BuildArch: noarch
@@ -62,14 +48,9 @@ BuildArch: noarch
 This package contains the byte compiled elisp packages to run Anthy with GNU
 Emacs.
 
-%description -n emacs-%{pkg} -l zh_CN.UTF-8
-编译好的在 GNU Emacs 上运行 Anthy 的 elisp 文件。
-
 %package -n emacs-%{pkg}-el
 Summary: Elisp source files for Anthy under GNU Emacs
-Summary(zh_CN.UTF-8): GNU Emacs 上的 Anthy 的 Elisp 源代码
 Group:  System Environment/Libraries
-Group(zh_CN.UTF-8): 系统环境/库
 Requires: emacs-%{pkg} = %{version}-%{release}
 BuildArch: noarch
 
@@ -78,16 +59,10 @@ This package contains the elisp source files for Anthy under GNU Emacs. You
 do not need to install this package to run Anthy. Install the emacs-%{pkg}
 package to use Anthy with GNU Emacs.
 
-%description -n emacs-%{pkg}-el -l zh_CN.UTF-8
-GNU Emacs 上的 Anthy 的 Elisp 源代码。
-
-# 在 RHEL 上有 xemacs，暂时不编译
 %if 0%{?rhel} == 0
 %package -n xemacs-%{pkg}
 Summary: Compiled elisp files to run Anthy under XEmacs
-Summary(zh_CN.UTF-8): XEmacs 上运行的 Anthy 的编译好的 elisp 文件
 Group:  System Environment/Libraries
-Group(zh_CN.UTF-8): 系统环境/库
 Requires: xemacs(bin) >= %{_xemacs_version}
 Requires: anthy = %{version}-%{release}
 BuildArch: noarch
@@ -96,14 +71,9 @@ BuildArch: noarch
 This package contains the byte compiled elisp packages to use Anthy with
 XEmacs.
 
-%description -n xemacs-%{pkg} -l zh_CN.UTF-8
-XEmacs 上运行的 Anthy 的编译好的 elisp 文件。
-
 %package -n xemacs-%{pkg}-el
 Summary: Elisp source files for Anthy under XEmacs
-Summary(zh_CN.UTF-8): XEmacs 下的 Anthy 的 Elisp 源代码
 Group:  System Environment/Libraries
-Group(zh_CN): 系统环境/库
 Requires: xemacs-%{pkg} = %{version}-%{release}
 BuildArch: noarch
 
@@ -111,9 +81,6 @@ BuildArch: noarch
 This package contains the elisp source files for Anthy under XEmacs. You do
 not need to install this package to run Anthy. Install the xemacs-%{pkg}
 package to use Anthy with XEmacs.
-
-%description -n xemacs-%{pkg}-el -l zh_CN.UTF-8
-XEmacs 下的 Anthy 的 Elisp 源代码。
 %endif
 
 
@@ -256,5 +223,281 @@ popd
 %endif
 
 %changelog
-* Sat Oct 29 2011 Liu Di <liudidi@gmail.com> - 9100h-17
-- 为 Magic 3.0 重建
+* Tue Aug 14 2012 Akira TAGOH <tagoh@redhat.com> - 9100h-19
+- Update License tag.
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9100h-18
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9100h-17
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9100h-16
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Thu Oct  7 2010 Akira TAGOH <tagoh@redhat.com> - 9100h-15
+- Fix a typo in the dictionary. (#629908)
+
+* Mon Sep 27 2010 Akira TAGOH <tagoh@redhat.com> - 9100h-14
+- spec file clean up (Parag AN, #552855)
+
+* Thu Jun 24 2010 Akira TAGOH <tagoh@redhat.com> - 9100h-13
+- build emacs-* packages as noarch.
+
+* Mon May 10 2010 Akira TAGOH <tagoh@redhat.com> - 9100h-12
+- Fix a typo in g_fname.t. (#584614)
+
+* Mon Mar 15 2010 Akira TAGOH <tagoh@redhat.com> - 9100h-11
+- enable UTF-8 dictionaries really.
+
+* Sun Mar 14 2010 Jonathan G. Underwood <jonathan.underwood@gmail.com>
+- Update spec file to comply with Emacs add-on packaging guidelines (#573449)
+
+* Mon Dec 21 2009 Akira TAGOH <tagoh@redhat.com> - 9100h-10
+- Fix more typos in dictionary. (#548078)
+- correct the source URL.
+
+* Thu Sep  3 2009 Dennis Gregorovic <dgregor@redhat.com> - 9100h-9
+- Do not build against xemacs on RHEL
+
+* Fri Aug 28 2009 Akira TAGOH <tagoh@redhat.com> - 9100h-8
+- Fix more typos in dictionary. (#519769)
+
+* Thu Aug 20 2009 Akira TAGOH <tagoh@redhat.com> - 9100h-7
+- Stop updating corpus at the build time to avoid creating different dictionary
+  among arch. (#816563)
+
+* Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9100h-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
+* Wed Jul  8 2009 Akira TAGOH <tagoh@redhat.com> - 9100h-5
+- Update the corpus.
+- Fix typos in dictionary. (#509534)
+
+* Mon May 11 2009 Akira TAGOH <tagoh@redhat.com> - 9100h-4
+- Take off the ownership of %%{_libdir}/pkgconfig. (#499663)
+- Add R: pkgconfig to -devel.
+
+* Mon Feb 23 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9100h-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
+* Tue Feb 10 2009 Akira TAGOH <tagoh@redhat.com> - 9100h-1
+- New upstream release.
+
+* Fri Feb  6 2009 Akira TAGOH <tagoh@redhat.com> - 9100g-2
+- Apply a patch reported upstream to fix dictionary's indexing.
+
+* Wed Feb  4 2009 Akira TAGOH <tagoh@redhat.com> - 9100g-1
+- New upstream release.
+- convert all words in dictionaries to UTF-8.
+- Rename anthy-el and anthy-el-xemacs to emacs-anthy{,-el} and xemacs-anthy{,-el}.
+- Fix RPATH issue.
+- Support words for JIS X 0213:2004 in dictionary. (#195437)
+
+* Fri Nov 21 2008 Akira TAGOH <tagoh@redhat.com> - 9100e-4
+- Fix a source URL.
+
+* Fri Jun 27 2008 Akira TAGOH <tagoh@redhat.com> - 9100e-3
+- Fix a segfault with some words containing vu. (#452779)
+
+* Tue Feb 12 2008 Akira TAGOH <tagoh@redhat.com> - 9100e-2
+- Rebuild for gcc-4.3.
+
+* Tue Jan 29 2008 Akira TAGOH <tagoh@redhat.com> - 9100e-1
+- New upstream release.
+
+* Mon Oct 29 2007 Akira TAGOH <tagoh@redhat.com> - 9100d-1
+- New upstream release.
+- anthy-enable-dict-gtankan.patch: removed. no need to be applied anymore.
+
+* Tue Sep 18 2007 Akira TAGOH <tagoh@redhat.com> - 9100b-1
+- New upstream release.
+
+* Thu Aug 23 2007 Akira TAGOH <tagoh@redhat.com> - 9100-3
+- Rebuild
+
+* Wed Aug  8 2007 Akira TAGOH <tagoh@redhat.com> - 9100-2
+- Update alt-cannadic to 070805.
+- Use gtankan.ctd instead of tankanji.t.
+- Update License tag.
+
+* Tue Jul  3 2007 Akira TAGOH <tagoh@redhat.com> - 9100-1
+- New upstream release.
+
+* Wed Jun 13 2007 Akira TAGOH <tagoh@redhat.com> - 9011-1
+- New upstream release
+
+* Fri Jun  8 2007 Akira TAGOH <tagoh@redhat.com> - 9006-1
+- New upstream release.
+- Get back the anthy-el-xemacs package. (#243078)
+
+* Fri Apr 27 2007 Akira TAGOH <tagoh@redhat.com> - 8706-2
+- Fix wrong Provides line. (#237987)
+
+* Fri Mar  9 2007 Akira TAGOH <tagoh@redhat.com> - 8706-1
+- New upstream release.
+
+* Mon Feb 26 2007 Akira TAGOH <tagoh@redhat.com> - 8622-1
+- New upstream release.
+
+* Mon Feb 19 2007 Akira TAGOH <tagoh@redhat.com> - 8616-1
+- New upstream release.
+
+* Tue Feb 13 2007 Akira TAGOH <tagoh@redhat.com> - 8607-1
+- New upstream release.
+- correct doc installation. (#228311)
+
+* Tue Feb  6 2007 Akira TAGOH <tagoh@redhat.com> - 8604-1
+- New upstream release.
+- no longer needed to regenerate autotools files. (#224146)
+- use original gcanna dict.
+- build with --disable-static.
+
+* Fri Aug 11 2006 Akira TAGOH <tagoh@redhat.com> - 7900-2
+- anthy-7900-fix-undef-non-weak-symbol.patch: removed the unnecessary library
+  chain.
+
+* Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 7900-1.1
+- rebuild
+
+* Tue Jul 11 2006 Akira TAGOH <tagoh@redhat.com> - 7900-1
+- New upstream release.
+- anthy-7900-fix-undef-non-weak-symbol.patch: fixed the undefined non-weak
+  symbols issue. (#198180)
+- use dist tag.
+
+* Mon Jun 26 2006 Akira TAGOH <tagoh@redhat.com> - 7824-1
+- New upstream snapshot release.
+
+* Tue Jun 20 2006 Akira TAGOH <tagoh@redhat.com> - 7818-1
+- New upstream snapshot release.
+
+* Mon Jun 12 2006 Akira TAGOH <tagoh@redhat.com> - 7811-1
+- New upstream snapshot release.
+- use make install DESTDIR=... instead of %%makeinstall.
+
+* Mon Jun  5 2006 Akira TAGOH <tagoh@redhat.com> - 7802-2
+- exclude ppc64 to make anthy-el package. right now emacs.ppc64 isn't provided
+  and buildsys became much stricter.
+
+* Fri Jun  2 2006 Akira TAGOH <tagoh@redhat.com> - 7802-1
+- New upstream snapshot release.
+
+* Wed May 17 2006 Akira TAGOH <tagoh@redhat.com> - 7716-1
+- New upstream snapshot release.
+
+* Mon May 15 2006 Akira TAGOH <tagoh@redhat.com> - 7714-1
+- New upstream snapshot release.
+
+* Thu May 11 2006 Akira TAGOH <tagoh@redhat.com> - 7710-1
+- New upstream snapshot release.
+
+* Mon Apr 24 2006 Akira TAGOH <tagoh@redhat.com> - 7622-1
+- New upstream snapshot release.
+  - removed unnecessary patches:
+    - anthy-2832.patch
+    - anthy-2834.patch
+
+* Fri Mar 17 2006 Akira TAGOH <tagoh@redhat.com> - 7500-1
+- New upstream release.
+  - larning words works now. (#178764)
+- anthy-2832.patch: patch from upstream that fixes wrong order of candidate list.
+- anthy-2834.patch: patch from upstream that fixes unexpected word segment.
+- anthy-gcanna-nakaguro.patch: added a word to dictionary to convert nakaguro to slash.
+
+* Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 7100b-2.2.1
+- bump again for double-long bug on ppc(64)
+
+* Tue Feb 07 2006 Jesse Keating <jkeating@redhat.com> - 7100b-2.2
+- rebuilt for new gcc4.1 snapshot and glibc changes
+
+* Fri Dec 09 2005 Jesse Keating <jkeating@redhat.com>
+- rebuilt
+
+* Thu Nov 10 2005 Akira TAGOH <tagoh@redhat.com> - 7100b-2
+- run ldconfig in %%post and %%postun. (#172768)
+
+* Sat Nov  5 2005 Akira TAGOH <tagoh@redhat.com> - 7100b-1
+- New upstream release.
+
+* Mon Oct 31 2005 Akira TAGOH <tagoh@redhat.com> - 7029-1
+- New upstream snapshot release.
+
+* Fri Oct 14 2005 Akira TAGOH <tagoh@redhat.com> - 7015-1
+- New upstream snapshot release.
+
+* Thu Oct 13 2005 Akira TAGOH <tagoh@redhat.com> - 7013-1
+- New upstream snapshot release.
+- removed the patches:
+  - anthy-add-placename-dict.patch: isn't needed anymore.
+  - anthy_base.t.diff: merged into upstream.
+  - zipcode-20050831.tar.bz2: merged into upstream.
+
+* Wed Sep 21 2005 Akira TAGOH <tagoh@redhat.com> - 6829-3
+- applied some patches from anthy-dev mailing list to improve the dictionaries.
+  - anthy_base.t.diff
+  - anthy_gcanna.ctd.diff
+  - anthy_gcanna.ctd_20050918.diff
+  - anthy_gcanna.ctd_20050920.diff
+- parameterize anthy-el-xemacs build.
+
+* Thu Sep  1 2005 Akira TAGOH <tagoh@redhat.com> - 6829-2
+- Added the place name dictionary.
+
+* Tue Aug 30 2005 Akira TAGOH <tagoh@redhat.com> - 6829-1
+- New upstream snapshot release.
+
+* Wed Aug 24 2005 Akira TAGOH <tagoh@redhat.com> - 6801-1
+- updates to the snapshot version.
+
+* Tue Aug  9 2005 Akira TAGOH <tagoh@redhat.com>
+- added dist tag in Release.
+
+* Mon Aug  1 2005 Akira TAGOH <tagoh@redhat.com> - 6700b-2
+- added Provides: anthy-libs = %%{name}-%%{version}
+
+* Fri Jul 29 2005 Akira TAGOH <tagoh@redhat.com> - 6700b-1
+- New upstream release.
+- Import into Core.
+- includes the libraries into anthy and added Obsoletes: anthy-libs.
+
+* Wed Jun 29 2005 Akira TAGOH <tagoh@redhat.com> - 6700-1
+- New upstream release.
+
+* Fri Apr  1 2005 Michael Schwendt <mschwendt[AT]users.sf.net> - 6300d-3
+- include anthy datadir in main package, and anthy site directory
+  in -el and -el-xemacs packages
+
+* Sun Mar 27 2005 Akira TAGOH <tagoh@redhat.com> - 6300d-2
+- real updates (#152203)
+
+* Sun Mar 20 2005 Akira TAGOH <tagoh@redhat.com> - 6300d-1
+- New upstream release.
+
+* Thu Feb 24 2005 Akira TAGOH <tagoh@redhat.com> - 6131-1
+- New upstream release.
+
+* Wed Jan 12 2005 Akira TAGOH <tagoh@redhat.com> - 6024-1
+- New upstream release.
+
+* Wed Sep 08 2004 Akira TAGOH <tagoh@redhat.com> 5704-1
+- New upstream release.
+
+* Mon Jul 05 2004 Akira TAGOH <tagoh@redhat.com> 5500-1
+- New upstream release.
+
+* Wed Jun 23 2004 Akira TAGOH <tagoh@redhat.com> 5414-1
+- New upstream release.
+
+* Tue Jun 08 2004 Akira TAGOH <tagoh@redhat.com> 5406-1
+- New upstream release.
+
+* Fri Jun 04 2004 Warren Togami <wtogami@redhat.com> 5330-3
+- some spec cleanups
+
+* Tue Jun 01 2004 Akira TAGOH <tagoh@redhat.com> 5330-2
+- anthy-init.el: add some elisp to configure anthy.
+
+* Tue Jun 01 2004 Akira TAGOH <tagoh@redhat.com> 5330-1
+- Initial package.
+
