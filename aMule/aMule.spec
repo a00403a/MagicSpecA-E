@@ -10,7 +10,7 @@ Name: aMule
 Version:	 2.3.1
 #Release: 0.cvs%{date}.2mgc
 %if %{svn}
-Release: 0.svn.%{svn}.1%{?dist}.2
+Release: 0.svn.%{svn}.1%{?dist}.3
 %endif
 %if 0%{_rc}
 Release: 0.1%{?_dotrc}.%{?dist}
@@ -56,6 +56,7 @@ Patch1: aMule-2.2.2-convfilenames-gb18030.patch
 # dlp 补丁
 #Patch100: http://amule-dlp.googlecode.com/files/aMule-2.3.1rc1-DLP4401.patch
 Patch100: aMule-2.3.1-DLP4401.patch
+Patch3: http://riksun.riken.go.jp/pub/Linux/gentoo/net-p2p/amule/files/amule-2.3.1-gcc47.patch
 
 %description
 The "all-platform eMule", it is a eMule-like client for ed2k network, 
@@ -186,6 +187,7 @@ amule 的远程控制界面。
 %setup -q -n %{name}-%{version}%{_rc}
 %endif
 %patch1 -p1 -b .fixgb18030
+%patch3 -p1
 
 %patch100 -p1
 
@@ -346,6 +348,9 @@ done
 %{_mandir}/man1/xas.1.gz
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.3.1-1
+- 为 Magic 3.0 重建
+
 * Sat Nov 17 2012 Liu Di <liudidi@gmail.com> - 2.3.1-1
 - 为 Magic 3.0 重建
 
