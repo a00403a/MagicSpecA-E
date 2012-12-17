@@ -1,30 +1,36 @@
+%define _bindir /bin
+
 Summary: A GNU archiving program
 Name: cpio
 Version: 2.11
-Release: 6%{?dist}
+Release: 15%{?dist}
 License: GPLv3+
 Group: Applications/Archiving
 URL: http://www.gnu.org/software/cpio/
 Source: ftp://ftp.gnu.org/gnu/cpio/cpio-%{version}.tar.bz2
+# help2man generated manual page distributed only in RHEL/Fedora
 Source1: cpio.1
 #We use SVR4 portable format as default .
 Patch1: cpio-2.9-rh.patch
 #fix warn_if_file_changed() and set exit code to 1 when cpio
 # fails to store file > 4GB (#183224)
 Patch2: cpio-2.9-exitCode.patch
-#when extracting archive created with 'find -depth',
-# restore the permissions of directories properly (bz#430835)
-Patch3: cpio-2.9-dir_perm.patch
 #Support major/minor device numbers over 127 (bz#450109)
-Patch4: cpio-2.9-dev_number.patch
-#make -d honor system umask(#484997)
-Patch5: cpio-2.9-sys_umask.patch
+Patch3: cpio-2.9-dev_number.patch
 #define default remote shell as /usr/bin/ssh(#452904)
-Patch6: cpio-2.9.90-defaultremoteshell.patch
+Patch4: cpio-2.9.90-defaultremoteshell.patch
 #fix segfault with nonexisting file with patternnames(#567022)
-Patch7: cpio-2.10-patternnamesigsegv.patch
+Patch5: cpio-2.10-patternnamesigsegv.patch
+#fix rawhide buildfailure by updating gnulib's stdio.in.h
+Patch6: cpio-2.11-stdio.in.patch
+# fix bad file name splitting while creating ustar archive (#866467)
+Patch7: cpio-2.10-longnames-split.patch
+# cpio does Sum32 checksum, not CRC
+Patch8: cpio-2.11-crc-fips-nit.patch
+
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
+Provides: bundled(gnulib)
 BuildRequires: texinfo, autoconf, gettext, rmt
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -46,11 +52,12 @@ Install cpio if you need a program to manage file archives.
 %setup -q
 %patch1 -p1 -b .rh
 %patch2 -p1 -b .exitCode
-%patch3 -p1 -b .dir_perm
-%patch4 -p1 -b .dev_number
-%patch5 -p1 -b .sys_umask
-%patch6 -p1 -b .defaultremote
-%patch7 -p1 -b .patternsegv
+%patch3 -p1 -b .dev_number
+%patch4 -p1 -b .defaultremote
+%patch5 -p1 -b .patternsegv
+%patch6 -p1 -b .gnulib
+%patch7 -p1 -b .longnames
+%patch8 -p1 -b .sum32-fips
 
 autoheader
 
@@ -70,8 +77,7 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/*.1*
 install -c -p -m 0644 %{SOURCE1} ${RPM_BUILD_ROOT}%{_mandir}/man1
 
-magic_rpm_clean.sh
-%find_lang %{name} || touch %{name}.lang
+%find_lang %{name}
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -101,8 +107,41 @@ fi
 %{_infodir}/*.info*
 
 %changelog
-* Sun Apr 15 2012 Liu Di <liudidi@gmail.com> - 2.11-6
-- 为 Magic 3.0 重建
+* Mon Nov 05 2012 Pavel Raiskup <praiskup@redhat.com> - 2.11-15
+- disable the temporary O_SYNC fix (glibc is fixed - #872366)
+
+* Fri Nov 02 2012 Pavel Raiskup <praiskup@redhat.com> - 2.11-14
+- fix bad changelog entries
+- allow to build in Fedora Rawhide (temporarily because of #872336) (the value
+  is guessed from from /usr/include/asm-generic/fcntl.h)
+
+* Mon Oct 22 2012 Pavel Raiskup <praiskup@redhat.com> 2.11-13
+- move RH-only manual page cpio.1 from look-aside cache into dist-git repository
+
+* Thu Oct 18 2012 Pavel Raiskup <praiskup@redhat.com> 2.11-12
+- fix for bad file name splitting while creating ustar archive (#866467)
+
+* Wed Aug 29 2012 Ondrej Vasik <ovasik@redhat.com> 2.11-11
+- add missing options to manpage (#852765)
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.11-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Mon Jun 04 2012 Ondrej Vasik <ovasik@redhat.com> 2.11-9
+- fix build failure in rawhide build system (gets undefined)
+
+* Wed May 30 2012 Ondrej Vasik <ovasik@redhat.com> 2.11-8
+- drop unnecessary patches: cpio-2.9-dir_perm.patch and
+  cpio-2.9-sys_umask.patch - reported by M.Castellini
+
+* Tue May 15 2012 Ondrej Vasik <ovasik@redhat.com> 2.11-7
+- add virtual provides for bundled(gnulib) copylib (#821749)
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.11-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Fri Oct 14 2011 Ondrej Vasik <ovasik@redhat.com> 2.11-5
+- update manpage to reflect new option, polish the style (#746209)
 
 * Mon Mar 07 2011 Ondrej Vasik <ovasik@redhat.com> 2.11-4
 - fix several typos and manpage syntax(Ville Skyttä, #682470)
