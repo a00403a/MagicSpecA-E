@@ -90,7 +90,7 @@ EXTRA_CFLAGS="-DAO_USE_PTHREAD_DEFS"
 EXTRA_LDFLAGS="-lpthread"
 %endif
 
-%{configure} --prefix=/usr --sbindir=%_sbindir \
+%{configure} --prefix=/usr --sbindir=/sbin \
 --localstatedir=/var --sysconfdir=/etc \
 %ifarch ppc ppc64 s390 s390x
 --without-tcmalloc \
@@ -114,15 +114,14 @@ mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/ceph/
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/ceph/stat
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ceph
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
-magic_rpm_clean.sh
 
 %post
-/usr/sbin/chkconfig --add ceph
+/sbin/chkconfig --add ceph
 
 %preun
 if [ $1 = 0 ] ; then
     /sbin/service ceph stop >/dev/null 2>&1
-    /usr/sbin/chkconfig --del ceph
+    /sbin/chkconfig --del ceph
 fi
 
 %postun
@@ -160,11 +159,11 @@ fi
 %{_bindir}/ceph-coverage
 %{_bindir}/ceph-dencoder
 %{_initrddir}/ceph
-%{_sbindir}/mkcephfs
-%{_sbindir}/mount.ceph
-%{_sbindir}/ceph-disk-activate
-%{_sbindir}/ceph-disk-prepare
-%{_sbindir}/ceph-create-keys
+/sbin/mkcephfs
+/sbin/mount.ceph
+/sbin/ceph-disk-activate
+/sbin/ceph-disk-prepare
+/sbin/ceph-create-keys
 %{_libdir}/ceph
 %{_docdir}/ceph/sample.ceph.conf
 %{_docdir}/ceph/sample.fetch_config
