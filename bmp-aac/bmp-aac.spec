@@ -5,7 +5,7 @@ Summary: AAC/MP4 playback plugin for the Beep Media Player
 Summary(zh_CN): bmp 播放器的 AAC/MP4 插件
 Name: bmp-aac
 Version: 0
-Release: 3.%{date}.%{?dist}
+Release: 4.%{date}.%{?dist}
 License: GPL
 Group: Applications/Multimedia
 Group(zh_CN): 应用程序/多媒体
@@ -39,8 +39,8 @@ autoreconf -vifs
 
 %install
 %{__rm} -rf %{buildroot}
+mkdir -p %{buildroot}%{_libdir}/bmp/Input
 %{__make} install DESTDIR=%{buildroot}
-
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -54,3 +54,6 @@ autoreconf -vifs
 
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0-4.20041215.
+- 为 Magic 3.0 重建
+
