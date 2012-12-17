@@ -1,25 +1,25 @@
 Summary:   Writes audio CD-Rs in disk-at-once (DAO) mode
 Name:      cdrdao
 Version:   1.2.3
-Release:   10%{?dist}
+Release:   16%{?dist}
 License:   GPLv2+
 Group:     Applications/Multimedia
 URL:       http://cdrdao.sourceforge.net/
 Source0:   http://prdownloads.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  gtkmm24-devel
-BuildRequires:  libgnomeuimm26-devel
 BuildRequires:  libsigc++20-devel
 BuildRequires:  libvorbis-devel >= 1.0
-BuildRequires:  desktop-file-utils
 BuildRequires:  libao-devel
+
+# We have removed gcdmaster sub-package in 1.2.3-10
+Obsoletes: gcdmaster < 1.2.3-10
 
 # Only exclude s390
 ExcludeArch: s390 s390x
 
 # Missing includes causes failure build
 Patch1: cdrdao-1.2.3-stat.patch
+Patch2: cdrdao-1.2.3-helpmansync.patch
 
 %description
 Cdrdao records audio CD-Rs in disk-at-once (DAO) mode, based on a
@@ -29,32 +29,14 @@ single step. DAO allows full control over the length and the contents
 of pre-gaps, the pause areas between tracks.
 
 
-%package -n gcdmaster
-Summary:      A Gnome2 Disk-At-Once (DAO) Audio CD writer
-Group:        Applications/Multimedia
-Requires:     cdrdao = %{version}-%{release}
-
-Requires(post):   shared-mime-info desktop-file-utils
-Requires(postun): shared-mime-info desktop-file-utils
-Requires(pre):    GConf2
-Requires(post):   GConf2
-Requires(preun):  GConf2
-
-
-%description -n gcdmaster
-Gcdmaster is a GNOME2 GUI front-end to cdrdao that makes it easy to
-visualize and manipulate audio information before burning it onto
-CD. Its features include: cut/copy/paste of sound samples, track marks
-edition and silence insertion.
-
-
 %prep
 %setup -q
 %patch1 -p1 -b .stat
+%patch2 -p1 -b .helpmansync
 
 %build
 %configure \
-        --with-xdao \
+        --without-xdao \
         --without-scglib \
         --without-lame
 
@@ -62,51 +44,12 @@ make %{?_smp_mflags}
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 
 find $RPM_BUILD_ROOT -type f -name "*.la" -exec rm -f {} ';'
 
-desktop-file-install \
-  --vendor "" \
-  --mode 644 \
-  --dir $RPM_BUILD_ROOT%{_datadir}/applications \
-  --delete-original \
-  $RPM_BUILD_ROOT%{_datadir}/applications/gcdmaster.desktop
-
-
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-
-%post -n gcdmaster
-update-mime-database %{_datadir}/mime > /dev/null 2>&1 || :
-update-desktop-database %{_datadir}/applications > /dev/null 2>&1 || :
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/gcdmaster.schemas > /dev/null  || :
-killall -HUP gconfd-2 &>/dev/null || :
-
-
-%postun -n gcdmaster
-update-mime-database %{_datadir}/mime > /dev/null 2>&1 || :
-update-desktop-database %{_datadir}/applications > /dev/null 2>&1 || :
-if [ "$1" -gt 1 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/gcdmaster.schemas >/dev/null || :
-  killall -HUP gconfd-2 &>/dev/null || :
-fi
-
-
-%preun -n gcdmaster
-if [ "$1" -eq 0 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule %{_sysconfdir}/gconf/schemas/gcdmaster.schemas > /dev/null || :
-  killall -HUP gconfd-2 &>/dev/null || :
-fi
-
 
 %files
-%defattr(-, root, root, -)
 %doc AUTHORS COPYING README CREDITS ChangeLog
 %{_bindir}/cdrdao
 %{_bindir}/*toc*
@@ -116,20 +59,30 @@ fi
 %{_mandir}/*/toc2cue*
 %{_mandir}/*/toc2cddb*
 
-%files -n gcdmaster
-%defattr(-, root, root, -)
-%{_bindir}/gcdmaster
-%{_datadir}/gcdmaster
-%{_datadir}/applications/*.desktop
-%{_datadir}/mime-info/gcdmaster*
-%{_datadir}/mime/packages/gcdmaster.xml
-%{_datadir}/application-registry/gcdmaster.applications
-%{_datadir}/pixmaps/*
-%{_sysconfdir}/gconf/schemas/gcdmaster.schemas
-%{_mandir}/man1/gcdmaster*
-
 
 %changelog
+* Mon Oct 09 2012 Honza Horak <hhorak@redhat.com> - 1.2.3-16
+- Add missing options to man page
+
+* Fri Aug 27 2012 Honza Horak <hhorak@redhat.com> - 1.2.3-15
+- Spec file clean up
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.3-14
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.3-13
+- Rebuilt for c++ ABI breakage
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.3-12
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Wed Aug 10 2011 Honza Horak <hhorak@redhat.com> - 1.2.3-11
+- obsolete gcdmaster
+
+* Mon Aug 08 2011 Honza Horak <hhorak@redhat.com> - 1.2.3-10
+- removing a sub-package gcdmaster (xdao) due to missing dependencies 
+  on libgnomeuimm26
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.3-9
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
@@ -141,7 +94,7 @@ fi
 - Bump for libao
 
 * Wed Jan 20 2010 Roman Rakus <rrakus@redhat.com>  1.2.3-6
-- typo in %patch
+- typo in %%patch
 
 * Wed Jan 20 2010 Roman Rakus rrakus@redhat.com 1.2.3-5
 - Some missing includes cause failure build
