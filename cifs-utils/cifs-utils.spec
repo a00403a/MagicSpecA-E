@@ -2,7 +2,7 @@
 %define pre_release %nil
 
 Name:           cifs-utils
-Version:        5.4
+Version:        5.8
 Release:        1%{pre_release}%{?dist}
 Summary:        Utilities for mounting and managing CIFS mounts
 
@@ -12,7 +12,6 @@ URL:            http://linux-cifs.samba.org/cifs-utils/
 BuildRoot:      %{_tmppath}/%{name}-%{version}%{pre_release}-%{release}-root-%(%{__id_u} -n)
 
 Source0:        ftp://ftp.samba.org/pub/linux-cifs/cifs-utils/%{name}-%{version}%{pre_release}.tar.bz2
-Patch0:         0001-mount.cifs-fix-up-some-D_FORTIFY_SOURCE-2-warnings.patch
 
 BuildRequires:  libcap-ng-devel libtalloc-devel krb5-devel keyutils-libs-devel autoconf automake libwbclient-devel
 Requires:       keyutils
@@ -27,7 +26,6 @@ file system.
 
 %prep
 %setup -q -n %{name}-%{version}%{pre_release}
-%patch0 -p1
 
 %build
 %configure --prefix=/usr
@@ -40,18 +38,13 @@ mkdir -p %{buildroot}%{_sysconfdir}/request-key.d
 install -m 644 contrib/request-key.d/cifs.idmap.conf %{buildroot}%{_sysconfdir}/request-key.d
 install -m 644 contrib/request-key.d/cifs.spnego.conf %{buildroot}%{_sysconfdir}/request-key.d
 
-mv %{buildroot}/sbin/* %{buildroot}%{_sbindir}
-rm -rf %{buildroot}/sbin
-
-magic_rpm_clean.sh
-
 %clean
 rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
 %doc
-%{_sbindir}/mount.cifs
+/sbin/mount.cifs
 %{_bindir}/getcifsacl
 %{_bindir}/setcifsacl
 %{_bindir}/cifscreds
@@ -67,6 +60,37 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/request-key.d/cifs.spnego.conf
 
 %changelog
+* Sun Nov 11 2012 Jeff Layton <jlayton@redhat.com> 5.8-1
+- update to 5.8
+
+* Wed Nov 07 2012 Jeff Layton <jlayton@redhat.com> 5.7-3
+- update to latest patches queued for 5.8. More idmapping and ACL tool fixes.
+
+* Sun Nov 04 2012 Jeff Layton <jlayton@redhat.com> 5.7-2
+- update to latest patches queued for 5.8. Mostly idmapping and ACL tool fixes.
+
+* Tue Oct 09 2012 Jeff Layton <jlayton@redhat.com> 5.7-1
+- update to 5.7
+
+* Fri Aug 24 2012 Jeff Layton <jlayton@redhat.com> 5.6-2
+- update to current upstream head
+
+* Thu Jul 26 2012 Jeff Layton <jlayton@redhat.com> 5.6-1
+- update to 5.6
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.5-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Mon Jul 09 2012 Jeff Layton <jlayton@redhat.com> 5.5-2
+- remove -Werror flag
+- enable PIE and RELRO
+
+* Wed May 30 2012 Jeff Layton <jlayton@redhat.com> 5.5-1
+- update to 5.5
+
+* Wed Apr 25 2012 Jeff Layton <jlayton@redhat.com> 5.4-2
+- rebuild to fix dependencies due to libwbclient changes
+
 * Wed Apr 18 2012 Jeff Layton <jlayton@redhat.com> 5.4-1
 - update to 5.4
 - add patch to fix up more warnings
