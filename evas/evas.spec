@@ -1,6 +1,6 @@
 Name:           evas
-Version:        1.2.1
-Release:        3%{?dist}
+Version:        1.7.3
+Release:        2%{?dist}
 Summary:        Hardware-accelerated state-aware canvas API
 Group:          System Environment/Libraries
 License:        MIT
@@ -61,7 +61,6 @@ install -Dpm0644 doc/man/man3/* %{buildroot}%{_mandir}/man3
 mv %{buildroot}%{_mandir}/man3/authors.3 %{buildroot}%{_mandir}/man3/%{name}-authors.3
 mv %{buildroot}%{_mandir}/man3/deprecated.3 %{buildroot}%{_mandir}/man3/%{name}-deprecated.3
 mv %{buildroot}%{_mandir}/man3/Examples.3 %{buildroot}%{_mandir}/man3/%{name}-Examples.3
-magic_rpm_clean.sh
 
 %post -p /sbin/ldconfig
 
@@ -73,6 +72,7 @@ magic_rpm_clean.sh
 %{_libdir}/%{name}
 %{_bindir}/%{name}*
 %{_datadir}/%{name}
+%{_libexecdir}/*
 
 %files devel
 %doc doc/html/*
@@ -83,9 +83,6 @@ magic_rpm_clean.sh
 
 
 %changelog
-* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1.2.1-3
-- 为 Magic 3.0 重建
-
 * Wed Aug  8 2012 Tom Callaway <spot@fedoraproject.org> - 1.2.1-2
 - rename "Examples.3" to something non-conflicting
 
