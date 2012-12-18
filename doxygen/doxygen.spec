@@ -1,25 +1,31 @@
 Summary: A documentation system for C/C++
 Name: doxygen
-Version: 1.7.5.1
+Version: 1.8.2
 Release: 1%{?dist}
 Epoch: 1
 Group: Development/Tools
 # No version is specified.
 License: GPL+
 Url: http://www.stack.nl/~dimitri/doxygen/index.html
-Source0: ftp://ftp.stack.nl/pub/users/dimitri/%{name}-%{version}.src.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Patch1: doxygen-1.7.1-config.patch
-Patch2: doxygen-1.7.5-timestamp.patch
+Source0: ftp://ftp.stack.nl/pub/users/dimitri/%{name}-%{version}.src.tar.gz
+# this icon is part of kdesdk
+Source1: doxywizard.png
+Source2: doxywizard.desktop
+
+Patch1: doxygen-1.8.1-config.patch
+Patch2: doxygen-1.8.1.1-html_timestamp_default_false.patch 
+Patch3: doxygen-1.8.2-multilib.patch
 
 BuildRequires: perl
 BuildRequires: texlive-dvips
-BuildRequires: texlive-utils
+BuildRequires: texlive-collection-binextra
 BuildRequires: texlive-latex
 BuildRequires: ghostscript
 BuildRequires: gettext
 BuildRequires: flex
 BuildRequires: bison
+BuildRequires: desktop-file-utils
 
 %description
 Doxygen can generate an online class browser (in HTML) and/or a
@@ -42,7 +48,8 @@ are used by doxygen.
 %setup -q
 
 %patch1 -p1 -b .config
-%patch2 -p1 -b .timestamp
+%patch2 -p1 -b .html_timestamp_default_false
+%patch3 -p1 -b .multilib
 
 %build
 unset QTDIR
@@ -72,10 +79,11 @@ iconv --from=ISO-8859-1 --to=UTF-8 LANGUAGE.HOWTO > LANGUAGE.HOWTO.new
 touch -r LANGUAGE.HOWTO LANGUAGE.HOWTO.new
 mv LANGUAGE.HOWTO.new LANGUAGE.HOWTO
 
-# drop -x bit
-find examples -type f | xargs chmod -x
+mkdir -p %{buildroot}%{_datadir}/pixmaps
+install -m 644 -p %{SOURCE1} %{buildroot}%{_datadir}/pixmaps/
 
-sed -i -e "s|#!perl|#! /usr/bin/perl|" examples/tag/html/installdox
+desktop-file-install \
+   --dir=%{buildroot}%{_datadir}/applications %{SOURCE2}
 
 %clean
 rm -rf %{buildroot}
@@ -85,16 +93,49 @@ rm -rf %{buildroot}
 %doc LANGUAGE.HOWTO README examples
 %doc html
 %{_bindir}/doxygen
-%{_bindir}/doxytag
 %{_mandir}/man1/doxygen.1*
-%{_mandir}/man1/doxytag.1*
 
 %files doxywizard
 %defattr(-,root,root)
 %{_bindir}/doxywizard
 %{_mandir}/man1/doxywizard*
+%{_datadir}/applications/doxywizard.desktop
+%{_datadir}/pixmaps/*
 
 %changelog
+* Mon Aug 13 2012 Than Ngo <than@redhat.com> - 1:1.8.2-1
+- 1.8.2
+
+* Mon Jul 30 2012 Than Ngo <than@redhat.com> - 1:1.8.1.2-1
+- 1.8.1.2
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:1.8.1.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Wed Jun 20 2012 Than Ngo <than@redhat.com> - 1:1.8.1.1-3
+- bz#832525, fix multilib issue
+
+* Wed Jun 13 2012 Rex Dieter <rdieter@fedoraproject.org> 1:1.8.1.1-2
+- make HTML_TIMESTAMP default FALSE
+
+* Mon Jun 11 2012 Than Ngo <than@redhat.com> - 1:1.8.1.1-1
+- 1.8.1.1
+
+* Wed Jun 06 2012 Than Ngo <than@redhat.com> - 1:1.8.1-1
+- 1.8.1
+
+* Mon Feb 27 2012 Than Ngo <than@redhat.com> - 1:1.8.0-1
+- 1.8.0
+
+* Wed Jan 18 2012 Than Ngo <than@redhat.com> - 1:1.7.6.1-2
+- bz#772523, add desktop file
+
+* Fri Dec 16 2011 Than Ngo <than@redhat.com> - 1:1.7.6.1-1
+- 1.7.6.1
+
+* Tue Dec 06 2011 Than Ngo <than@redhat.com> - 1:1.7.6-1
+- 1.7.6
+
 * Tue Nov 08 2011 Than Ngo <than@redhat.com> - 1:1.7.5.1-1
 - 1.7.5.1
 
