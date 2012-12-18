@@ -7,10 +7,6 @@
 #global archiveversion 2.24-20080512-2226
 %global archiveversion %{version}
 
-# Let the perl maintainer worry about Unicode.org data files
-%global Blocks      %(eval "$(%{__perl} -V:privlibexp)"; echo $privlibexp)/unicore/Blocks.txt
-%global UnicodeData %(eval "$(%{__perl} -V:privlibexp)"; echo $privlibexp)/unicore/UnicodeData.txt
-
 # Common description
 %global common_desc \
 The DejaVu font set is based on the “Bitstream Vera” fonts, release 1.10. Its\
@@ -20,7 +16,7 @@ original style, using an open collaborative development process.
 
 Name:    %{fontname}-fonts
 Version: 2.33
-Release: 2%{?alphatag}%{?dist}
+Release: 4%{?alphatag}%{?dist}
 Summary: DejaVu fonts
 
 Group:     User Interface/X
@@ -33,7 +29,7 @@ Source0:   %{?!alphatag:http://downloads.sourceforge.net/%{fontname}}%{?alphatag
 BuildRequires: fontforge >= 20080429
 BuildRequires: perl(Font::TTF)
 # Needed to compute unicode coverage
-BuildRequires: %{Blocks} %{UnicodeData}
+BuildRequires: unicode-ucd
 
 BuildArch:     noarch
 BuildRequires: fontpackages-devel
@@ -166,7 +162,7 @@ unicode coverage restricted to Latin, Greek and Cyrillic.
 
 %build
 make %{?_smp_mflags} VERSION=%{version} FC-LANG="" \
-     BLOCKS=%{Blocks} UNICODEDATA=%{UnicodeData}
+     BLOCKS=/usr/share/unicode/ucd/Blocks.txt UNICODEDATA=/usr/share/unicode/ucd/UnicodeData.txt
 
 # Stop the desktop people from complaining this file is too big
 bzip2 -9 build/status.txt
@@ -204,6 +200,16 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.33-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.33-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Nov 29 2011 Paul Flo Williams <paul@frixxon.co.uk>
+- 2.33-2
+- Get Unicode data from unicode-ucd. Fixes FTBFS bug #748522
+
 * Mon Apr 04 2011 Nicolas Mailhot <nicolas.mailhot at laposte.net>
 - 2.33-1
 — Improved Hebrew and Armenian
