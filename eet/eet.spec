@@ -2,11 +2,11 @@
 Summary: eet
 Summary(zh_CN.UTF-8): eet
 Name: eet
-Version: 1.4.1
+Version: 1.7.3
 %if 0%{date}
 Release: 0.cvs%{date}%{?dist}.2
 %else
-Release: 0.2%{?dist}
+Release: 2%{?dist}
 %endif
 License: BSD
 Group: User Interface/Desktops
@@ -15,7 +15,7 @@ URL: http://www.enlightenment.org/
 %if 0%{date}
 Source:	%{name}-cvs%{date}.tar.bz2
 %else
-Source: http://download.enlightenment.org/releases/%{name}-%{version}.tar.gz
+Source: http://download.enlightenment.org/releases/%{name}-%{version}.tar.bz2
 %endif
 Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -83,6 +83,7 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %{_libdir}/*.so
 %{_libdir}/*.a
 %{_libdir}/pkgconfig/*.pc
+%{_datadir}/eet/examples/*.c
 
 %files
 %defattr(-, root, root, -)
