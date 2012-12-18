@@ -1,11 +1,13 @@
 Name:           ecore
-Version:        1.0.1
+Version:        1.7.3
 Release:        2%{?dist}
 Summary:        Event/X abstraction layer
 Group:          System Environment/Libraries
 License:        MIT
 URL:            http://web.enlightenment.org/p.php?p=about/efl&l=en
-Source0:        http://download.enlightenment.org/releases/%{name}-%{version}.tar.gz
+Source0:        http://download.enlightenment.org/releases/%{name}-%{version}.tar.bz2
+# Linux also needs to include <sys/time.h> and <sys/resources.h> for setpriority()
+Patch0:		ecore-1.2.1-linux-priority.patch
 BuildRequires:  eet-devel evas-devel libX11-devel libXext-devel libeina-devel 
 BuildRequires:  libXcursor-devel libXrender-devel libxcb-devel 
 BuildRequires:  libXinerama-devel libXrandr-devel libXScrnSaver-devel 
@@ -33,6 +35,7 @@ developing applications that use %{name}.
 
 %prep
 %setup -q -n %{name}-%{version}
+#%patch0 -p1 -b .linux-priority
 
 %build
 %configure --disable-static --enable-ecore-fb --enable-ecore-evas-fb --enable-ecore-sdl --disable-ecore-evas-directfb --disable-rpath --enable-openssl --disable-gnutls --enable-doc --enable-cares
@@ -59,6 +62,9 @@ chmod -x doc/html/*
 mkdir -p %{buildroot}%{_mandir}/man3
 install -Dpm0644 doc/man/man3/* %{buildroot}%{_mandir}/man3
 
+# rename generic and conflicting manpages
+mv %{buildroot}%{_mandir}/man3/Examples.3 %{buildroot}%{_mandir}/man3/ecore-Examples.3
+
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
@@ -67,6 +73,7 @@ install -Dpm0644 doc/man/man3/* %{buildroot}%{_mandir}/man3
 %doc AUTHORS COPYING README ChangeLog
 %{_libdir}/libecore_*.so.*
 %{_libdir}/libecore.so.*
+%{_libdir}/ecore/
 
 %files devel
 %doc doc/html/*
@@ -76,6 +83,18 @@ install -Dpm0644 doc/man/man3/* %{buildroot}%{_mandir}/man3
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Wed Aug  8 2012 Tom Callaway <spot@fedoraproject.org> - 1.2.1-2
+- rename generic and conflicting manpages
+
+* Thu Aug  2 2012 Tom Callaway <spot@fedoraproject.org> - 1.2.1-1
+- update to 1.2.1
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Tue Jul 12 2011 Tom Callaway <spot@fedoraproject.org> 1.0.1-2
 - enable c-ares support
 
