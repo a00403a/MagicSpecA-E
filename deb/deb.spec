@@ -1,4 +1,4 @@
-%define debhelper_ver 8.9.8
+%define debhelper_ver 9.20120909
 
 Name:           deb
 BuildRequires:  gcc-c++ ncurses-devel texlive-latex zlib-devel
@@ -8,11 +8,11 @@ Group: Applications/Archiving
 Group(zh_CN.UTF-8): 应用程序/归档
 Provides:       dpkg dpkg-dev debhelper dselect dpkg-doc
 Requires:       cpio patch make html2text
-Version:        1.16.1.1
-Release:        1%{?dist}
+Version:        1.16.9
+Release:        2%{?dist}
 Summary:        Tools for Debian Packages
 Summary(zh_CN.UTF-8): Debian Linux 使用的包管理系统
-Source:		http://ftp.debian.org/debian/pool/main/d/dpkg/dpkg_%{version}.tar.bz2
+Source:		http://ftp.debian.org/debian/pool/main/d/dpkg/dpkg_%{version}.tar.xz
 Source1:        http://ftp.debian.org/debian/pool/main/d/debhelper/debhelper_%{debhelper_ver}.tar.gz
 Source2:        dpkg-requires.sh
 Patch1:		debhelper-no-localized-manpages.diff 
@@ -183,5 +183,8 @@ exit 0
 %{_libdir}/*.a
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.16.1.1-2
+- 为 Magic 3.0 重建
+
 * Thu Oct 27 2011 Liu Di <liudidi@gmail.com> - 1.16.1.1-1
 - 升级到 1.16.1.1
