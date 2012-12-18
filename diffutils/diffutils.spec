@@ -1,14 +1,18 @@
 Summary: A GNU collection of diff utilities
 Name: diffutils
 Version: 3.2
-Release: 1%{?dist}
+Release: 11%{?dist}
 Group: Applications/Text
 URL: http://www.gnu.org/software/diffutils/diffutils.html
 Source: ftp://ftp.gnu.org/gnu/diffutils/diffutils-%{version}.tar.xz
-Patch4: diffutils-cmp-s-empty.patch
-License: GPLv2+
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
+Patch1: diffutils-cmp-s-empty.patch
+Patch2: diffutils-ppc-float.patch
+Patch3: diffutils-stdio-gets.patch
+Patch4: diffutils-3.2-i18n.patch
+License: GPLv3+
+Requires(post): info
+Requires(preun): info
+Provides: bundled(gnulib)
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: help2man
 
@@ -28,7 +32,15 @@ Install diffutils if you need to compare text files.
 %prep
 %setup -q
 # For 'cmp -s', compare file sizes only if both non-zero (bug #563618).
-%patch4 -p1 -b .cmp-s-empty
+%patch1 -p1 -b .cmp-s-empty
+
+# Applied upstream gnulib fix for float test on ppc (bug #733536).
+%patch2 -p1 -b .ppc-float
+
+# Fixed build failure.
+%patch3 -p1 -b .stdio-gets
+
+%patch4 -p1 -b .i18n
 
 %build
 %configure
@@ -45,16 +57,12 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 make check
 
 %post
-if [ -f %{_infodir}/diff.info.gz ]; then
-  /sbin/install-info %{_infodir}/diff.info.gz %{_infodir}/dir --entry="* diff: (diff).                 The GNU diff."
-fi
-exit 0
+/sbin/install-info %{_infodir}/%{name}.info %{_infodir}/dir || :
 
 %preun
 if [ $1 = 0 ]; then
-    /sbin/install-info --delete %{_infodir}/diff.info.gz %{_infodir}/dir --entry="* diff: (diff).                 The GNU diff."
+  /sbin/install-info --delete %{_infodir}/%{name}.info %{_infodir}/dir || :
 fi
-exit 0
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -67,6 +75,39 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/diffutils.info*gz
 
 %changelog
+* Fri Oct 26 2012 Tim Waugh <twaugh@redhat.com> 3.2-11
+- Ported i18n patch and reinstated it (bug #870460).
+
+* Wed Sep 19 2012 Tim Waugh <twaugh@redhat.com> 3.2-10
+- Fixed license as current source says GPLv3+.
+
+* Mon Jul 23 2012 Tim Waugh <twaugh@redhat.com> 3.2-9
+- Fixed build failure.
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.2-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Mon May 21  2012 Tim Waugh <twaugh@redhat.com> 3.2-7
+- Provides bundled(gnulib) (bug #821751).
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.2-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Thu Dec  8 2011 Tim Waugh <twaugh@redhat.com> 3.2-5
+- Fix bug #747969 again.
+
+* Tue Nov 29 2011 Tim Waugh <twaugh@redhat.com> 3.2-4
+- Real fix for bug #747969: the diffutils info file changed name in
+  3.1.  Updated the scriptlets to install/remove the correct filename
+  from the info directory.
+
+* Fri Nov 25 2011 Tim Waugh <twaugh@redhat.com> 3.2-3
+- Fixed up reference to info page in man pages (bug #747969).
+
+* Fri Nov 25 2011 Tim Waugh <twaugh@redhat.com> 3.2-2
+- Applied upstream gnulib fix for float test on ppc, as well as
+  correction for LDBL_MANT_DIG definition (bug #733536).
+
 * Fri Sep  2 2011 Tim Waugh <twaugh@redhat.com> 3.2-1
 - 3.2.
 
