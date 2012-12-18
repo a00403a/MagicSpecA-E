@@ -149,6 +149,8 @@ rm -rf $RPM_BUILD_ROOT%{_mandir}/*/man8/update-alternatives.8
 sed -i 's/\/root\/rpmbuild\/BUILDROOT\/deb-%{version}-%{release}.i386//g' %{buildroot}%{perl_vendorlib}/Dpkg.pm
 sed -i 's/\/root\/rpmbuild\/BUILDROOT\/deb-%{version}-%{release}.i386//g' %{buildroot}%{_datadir}/dpkg/default.mk
 
+mv %{buildroot}%{_sbindir}/install-info %{buildroot}%{_sbindir}/dpkg-install-info
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
