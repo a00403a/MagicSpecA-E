@@ -1,13 +1,13 @@
 Summary: embryo
 Summary(zh_CN): embryo
 Name: embryo
-Version: 1.0.0
+Version: 1.7.3
 Release: 2%{?dist}
 License: BSD
 Group: User Interface/Desktops
 Group(zh_CN): 用户界面/桌面
 URL: http://www.enlightenment.org/
-Source: http://download.enlightenment.org/releases/%{name}-%{version}.tar.gz
+Source: http://download.enlightenment.org/releases/%{name}-%{version}.tar.bz2
 Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: imlib2-devel freetype-devel
