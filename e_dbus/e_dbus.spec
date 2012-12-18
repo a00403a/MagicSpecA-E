@@ -1,13 +1,13 @@
 Summary: e_dbus
 Summary(zh_CN.UTF-8): e_dbus
 Name: e_dbus
-Version: 1.0.1
-Release: 1%{?dist}
+Version: 1.7.3
+Release: 2%{?dist}
 License: BSD
 Group: User Interface/Desktops
 Group(zh_CN.UTF-8): 用户界面/桌面
 URL: http://www.enlightenment.org/
-Source: http://download.enlightenment.org/releases/%{name}-%{version}.tar.gz
+Source: http://download.enlightenment.org/releases/%{name}-%{version}.tar.bz2
 Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: imlib2-devel freetype-devel
@@ -74,8 +74,12 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %doc AUTHORS COPYING ChangeLog README
 %{_bindir}/*
 %{_libdir}/*.so.*
+%{_datadir}/e_dbus/logo.png
 
 %changelog
+* Thu Dec 06 2012 Liu Di <liudidi@gmail.com> - 1.0.1-2
+- 为 Magic 3.0 重建
+
 * Sat Jun 14 2008 Ni Hui <shuizhuyuanluo@126.com> - 0.5.0.043-0.1mgc
 - 首次生成 rpm 包
 - 戊子  五月十一
