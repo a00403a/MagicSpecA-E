@@ -1,7 +1,7 @@
 Summary:      Disposable Soft Synth Interface
 Name:         dssi
 Version:      1.1.1
-Release:      1%{?dist}
+Release:      4%{?dist}
 License:      MIT
 Group:        Applications/Multimedia
 URL:          http://dssi.sourceforge.net/
@@ -98,6 +98,15 @@ tests/controller
 %{_libdir}/pkgconfig/dssi.pc
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-3
+- Rebuilt for c++ ABI breakage
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Sat Oct 08 2011 Orcan Ogetbil <oget[DOT]fedora[AT]gmail[DOT]com> - 1.1.1-1
 - Update to 1.1.1
 
