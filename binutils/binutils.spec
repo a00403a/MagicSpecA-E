@@ -16,8 +16,8 @@
 
 Summary: A GNU collection of binary utilities
 Name: %{?cross}binutils%{?_with_debug:-debug}
-Version: 2.23.51.0.3
-Release: 4%{?dist}
+Version: 2.23.51.0.6
+Release: 1%{?dist}
 License: GPLv3+
 Group: Development/Tools
 URL: http://sources.redhat.com/binutils
@@ -40,8 +40,6 @@ Patch08: binutils-2.22.52.0.1-relro-on-by-default.patch
 Patch09: binutils-2.22.52.0.1-export-demangle.h.patch
 # Disable checks that config.h has been included before system headers.  BZ #845084
 Patch10: binutils-2.22.52.0.4-no-config-h-check.patch
-# Renames ARM LDRALT insn to LDALT.  BZ# 869025
-Patch11: binutils-2.23.51.0.3-arm-ldralt.patch
 
 Provides: bundled(libiberty)
 
@@ -58,9 +56,9 @@ Provides: bundled(libiberty)
 # Useful for testing.
 %define __debug_install_post : > %{_builddir}/%{?buildsubdir}/debugfiles.list
 %define debug_package %{nil}
-%define run_testsuite 0%{?_with_testsuite:1}
+%define run_testsuite 0
 %else
-%define run_testsuite 0%{?_with_testsuite:1}
+%define run_testsuite 0
 %endif
 
 Buildroot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
@@ -147,7 +145,6 @@ using libelf instead of BFD.
 %endif
 %patch09 -p0 -b .export-demangle-h~
 %patch10 -p0 -b .no-config-h-check~
-%patch11 -p0 -b .arm-ldralt~
 
 # We cannot run autotools as there is an exact requirement of autoconf-2.59.
 
@@ -341,7 +338,7 @@ rm -rf %{buildroot}%{_libdir}/libiberty.a
 # This one comes from gcc
 rm -f %{buildroot}%{_infodir}/dir
 rm -rf %{buildroot}%{_prefix}/%{binutils_target}
-magic_rpm_clean.sh
+
 %find_lang %{?cross}binutils
 %find_lang %{?cross}opcodes
 %find_lang %{?cross}bfd
@@ -374,7 +371,7 @@ rm -rf %{buildroot}
 %{_sbindir}/alternatives --auto %{?cross}ld 
 %endif
 %if %{isnative}
-/usr/sbin/ldconfig
+/sbin/ldconfig
 # For --excludedocs:
 if [ -e %{_infodir}/binutils.info.gz ]
 then
@@ -411,7 +408,7 @@ fi
 exit 0
 
 %if %{isnative}
-%postun -p /usr/sbin/ldconfig
+%postun -p /sbin/ldconfig
 %endif # %{isnative}
 
 %files -f %{?cross}binutils.lang
@@ -446,8 +443,12 @@ exit 0
 %endif # %{isnative}
 
 %changelog
-* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 2.23.51.0.3-4
-- 为 Magic 3.0 重建
+* Tue Nov 27 2012 Nick Clifton <nickc@redhat.com> - 2.23.51.0.5-6
+- Rebase on 2.23.51.0.6 release.  (#880508)
+
+* Tue Nov 13 2012 Nick Clifton <nickc@redhat.com> - 2.23.51.0.5-1
+- Rebase on 2.23.51.0.5 release.  (#876141)
+- Retire binutils-2.23.51.0.3-arm-ldralt.patch
 
 * Tue Oct 23 2012 Nick Clifton <nickc@redhat.com> - 2.23.51.0.3-3
 - Rename ARM LDRALT instruction to LDALT.  (#869025) PR/14575
