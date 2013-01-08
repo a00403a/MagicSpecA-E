@@ -3,8 +3,10 @@
 
 %define ENABLE_TESTS -DENABLE_TESTS:BOOL=ON
 
+%define main_ver 1_1
+
 Name:           avogadro
-Version:        1.0.3
+Version:        1.1.0
 Release:        1%{?dist}
 Summary:        An advanced molecular editor for chemical purposes
 Summary(zh_CN.UTF-8): 化学用途的高级分子编辑器
@@ -134,23 +136,31 @@ rm -rf %{buildroot} %{_builddir}/%{buildsubdir}
 %{_includedir}/avogadro/
 %{_libdir}/libavogadro.so
 %{_libdir}/avogadro/*.cmake
-%{_libdir}/avogadro/1_0/*.cmake
+%{_libdir}/avogadro/%{main_ver}/*.cmake
 # these look like dups of system copies?, take a closer look and/or ask upstream -- Rex
-%{_libdir}/avogadro/1_0/cmake/
+%{_libdir}/avogadro/%{main_ver}/cmake/
 %{_qt4_prefix}/mkspecs/features/avogadro.prf
+%{_libdir}/libavogadro_OpenQube.so
+%{_libdir}/pkgconfig/avogadro.pc
 
 %files libs
 %defattr(-,root,root,-)
 #%{python_sitelib}/Avogadro.so
 %{_datadir}/libavogadro/
 %{_libdir}/libavogadro.so.1*
+%{_libdir}/libavogadro_OpenQube.so.*
+#python,应该单独分包
+%{python_sitearch}/Avogadro.so
 %dir %{_libdir}/avogadro/
-%dir %{_libdir}/avogadro/1_0/
-%{_libdir}/avogadro/1_0/colors/
-%{_libdir}/avogadro/1_0/extensions/
-%{_libdir}/avogadro/1_0/engines/
-%{_libdir}/avogadro/1_0/tools/
+%dir %{_libdir}/avogadro/%{main_ver}/
+%{_libdir}/avogadro/%{main_ver}/colors/
+%{_libdir}/avogadro/%{main_ver}/extensions/
+%{_libdir}/avogadro/%{main_ver}/engines/
+%{_libdir}/avogadro/%{main_ver}/tools/
 
 %changelog
+* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 1.0.3-2
+- 为 Magic 3.0 重建
+
 * Wed Nov 02 2011 Liu Di <liudidi@gmail.com> - 1.0.3-1
 - 更新到 1.0.3
