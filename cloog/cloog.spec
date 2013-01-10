@@ -1,7 +1,8 @@
 Name:           cloog
 %define         tarball_name %{name}-ppl
 Version:        0.15.11
-Release:        4%{?dist}.1
+Release:        5%{?dist}
+Epoch:		1
 Summary:        The Chunky Loop Generator
 
 Group:          System Environment/Libraries
@@ -9,6 +10,7 @@ License:        GPLv2+
 URL:            http://www.cloog.org
 Source0:        ftp://gcc.gnu.org/pub/gcc/infrastructure/%{tarball_name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{tarball_name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Patch0:		cloog-ppl-0.15.11-ppl-verfix.patch
 
 BuildRequires:  ppl-devel >= 0.10
 BuildRequires:  gmp-devel >= 4.1.3
@@ -33,13 +35,14 @@ The dynamic shared libraries of the Chunky Loop Generator
 %package ppl-devel
 Summary:        Development tools for the ppl based version of Chunky Loop Generator
 Group:          Development/Libraries
-Requires:       %{name}-ppl = %{version}-%{release}
+Requires:       %{name}-ppl = %{epoch}:%{version}-%{release}
 Requires:       ppl-devel >= 0.10, gmp-devel >= 4.1.3
 %description ppl-devel
 The header files and dynamic shared libraries of the Chunky Loop Generator.
 
 %prep
 %setup -q -n %{tarball_name}-%{version}
+%patch0 -p1 -b .verfix
 
 %build
 %configure --with-ppl
@@ -90,11 +93,26 @@ fi
 %postun ppl -p /sbin/ldconfig
 
 %changelog
-* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 0.15.11-4.1
-- 为 Magic 3.0 重建
+* Mon Dec  3 2012 Tom Callaway <spot@fedoraproject.org> - 1:0.15.11-5
+- roll back to 0.15.11
 
-* Tue Mar 06 2012 Liu Di <liudidi@gmail.com> - 0.15.11-3.1
-- 为 Magic 3.0 重建
+* Mon Dec  3 2012 Tom Callaway <spot@fedoraproject.org> - 0.16.1-4
+- undo hacks
+
+* Mon Dec  3 2012 Tom Callaway <spot@fedoraproject.org> - 0.16.1-3
+- put the hacky provides in the right place
+
+* Mon Dec  3 2012 Tom Callaway <spot@fedoraproject.org> - 0.16.1-2
+- hack to get the compilers built (will go away)
+
+* Fri Nov 30 2012 Tom Callaway <spot@fedoraproject.org> - 0.16.1-1
+- update to 0.16.1
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.15.11-4.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.15.11-3.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Thu Oct 20 2011 Marcela Mašláňová <mmaslano@redhat.com> - 0.15.11-2.1
 - rebuild with new gmp without compat lib
