@@ -1,6 +1,6 @@
 Name:		chromium-ffmpegsumo
-Version:	21.0.1180.81
-Release:	2%{?dist}
+Version:	23.0.1271.95
+Release:	1%{?dist}
 Summary:	Media playback library for chromium
 
 Group:		System Environment/Libraries
@@ -8,8 +8,11 @@ License:	LGPLv2+
 URL:		http://www.chromium.org/
 # TODO: Document how I made the source for this beast from the chromium checkout
 Source0:	%{name}-%{version}.tar.bz2
-BuildRequires:	libvpx-devel, yasm
-ExclusiveArch:	x86_64 %{ix86}
+%ifarch %{ix86} x86_64
+BuildRequires:	yasm
+%endif
+BuildRequires:	libvpx-devel
+ExclusiveArch:	x86_64 %{ix86} %{arm}
 
 %description
 A media playback library for chromium. This is a fork of ffmpeg.
@@ -36,6 +39,10 @@ make ARCH=ia32 OPTFLAGS="%{optflags}" libdir=%{_libdir} includedir=%{_includedir
 make ARCH=x64 OPTFLAGS="%{optflags}" libdir=%{_libdir}	includedir=%{_includedir}
 %endif
 
+%ifarch %{arm}
+make ARCH=arm OPTFLAGS="%{optflags}" libdir=%{_libdir}  includedir=%{_includedir}
+%endif
+
 %install
 %ifarch %{ix86}
 make ARCH=ia32 install DESTDIR=%{buildroot} libdir=%{_libdir}  includedir=%{_includedir}
@@ -45,6 +52,10 @@ make ARCH=ia32 install DESTDIR=%{buildroot} libdir=%{_libdir}  includedir=%{_inc
 make ARCH=x64 install DESTDIR=%{buildroot} libdir=%{_libdir}  includedir=%{_includedir}
 %endif
 
+%ifarch	%{arm}
+make ARCH=arm install DESTDIR=%{buildroot} libdir=%{_libdir}  includedir=%{_includedir}
+%endif
+
 mkdir -p %{buildroot}%{_libdir}/chromium-browser/
 pushd %{buildroot}%{_libdir}/chromium-browser/
 ln -s ../libffmpegsumo.so.0.0.0 libffmpegsumo.so
@@ -52,7 +63,6 @@ popd
 
 # HACK
 cp -a config/libavutil/avconfig.h %{buildroot}%{_includedir}/ffmpegsumo/libavutil/
-magic_rpm_clean.sh
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
@@ -66,8 +76,8 @@ magic_rpm_clean.sh
 %{_includedir}/ffmpegsumo/
 
 %changelog
-* Wed Dec 05 2012 Liu Di <liudidi@gmail.com> - 21.0.1180.81-2
-- 为 Magic 3.0 重建
+* Thu Dec 13 2012 Tom Callaway <spot@fedoraproject.org> - 23.0.1271.95
+- resync with chromium 23.0.1271.95
 
 * Tue Aug 28 2012 Tom Callaway <spot@fedoraproject.org> - 21.0.1180.81-1
 - sync with chromium 21.0.1180.81
