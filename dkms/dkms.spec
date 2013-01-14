@@ -1,18 +1,18 @@
 Summary: Dynamic Kernel Module Support Framework
 Name: dkms
-Version: 2.2.0.2
-Release: 1%{dist}
+Version: 2.2.0.3
+Release: 4%{dist}
 License: GPLv2+
 Group: System Environment/Base
 BuildArch: noarch
-Requires: sed gawk findutils modutils tar cpio gzip grep mktemp
+Requires: sed gawk findutils kmod tar cpio gzip grep coreutils
 Requires: bash > 1.99
 # because Mandriva calls this package dkms-minimal
 Provides: dkms-minimal = %{version}
 URL: http://linux.dell.com/dkms
 #Source0: http://linux.dell.com/dkms/permalink/dkms-%{version}.tar.gz
 # git checkout with HEAD b66d7406
-Source0: dkms-2.2.0.2.tar.gz
+Source0: dkms-2.2.0.3.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}.%{release}-root-%(%{__id_u} -n)
 
 %if 0%{?fedora}
@@ -116,7 +116,6 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %post
-[ -e /sbin/dkms ] && mv -f /sbin/dkms /sbin/dkms.old 2>/dev/null
 # enable on initial install
 [ $1 -lt 2 ] && /sbin/chkconfig dkms_autoinstaller on ||:
 
@@ -125,6 +124,18 @@ rm -rf $RPM_BUILD_ROOT
 [ $1 -lt 1 ] && /sbin/chkconfig dkms_autoinstaller off ||:
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.2.0.3-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue Jun  5 2012 Praveen K Paladugu <praveen_paladugu@dell.com> -2.2.0.3-3
+- don't move dkms to dkms.old. This breaks updates
+
+* Wed Feb  8 2012 Kay Sievers <kay@redhat.com> - 2.2.0.3-2
+- modutils are for Linux 2.4 and no longer provided; depend on kmod
+
+* Tue Jan 10 2012 Sunil Gupta <Sunil_Gupta2@dell.com> - 2.2.0.3-1
+- update to 2.2.0.3
+
 * Mon Aug 22 2011 Sunil Gupta <Sunil_Gupta2@dell.com> - 2.2.0.2-1
 - update to 2.2.0.2 
 
