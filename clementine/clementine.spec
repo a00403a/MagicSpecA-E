@@ -5,7 +5,7 @@
 
 Name:           clementine
 Version:        1.1.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A music player and library organiser
 Summary(zh_CN.UTF-8):	一个音乐播放器和曲库管理工具
 
