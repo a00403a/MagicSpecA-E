@@ -11,18 +11,24 @@
 %bcond_without rdma
 %endif
 %bcond_without systemd
-%bcond_without nss
 %bcond_without xmlconf
+%bcond_with runautogen
+
+%global gitver %{?numcomm:.%{numcomm}}%{?alphatag:.%{alphatag}}%{?dirty:.%{dirty}}
+%global gittarver %{?numcomm:.%{numcomm}}%{?alphatag:-%{alphatag}}%{?dirty:-%{dirty}}
 
 Name: corosync
 Summary: The Corosync Cluster Engine and Application Programming Interfaces
-Version: 2.0.0
-Release: 2%{?numcomm:.%{numcomm}}%{?alphatag:.%{alphatag}}%{?dirty:.%{dirty}}%{?dist}
+Version: 2.3.0
+Release: 1%{?gitver}%{?dist}
 License: BSD
 Group: System Environment/Base
-URL: http://ftp.corosync.org
-Source0: ftp://ftp:user@ftp.corosync.org/downloads/%{name}-%{version}/%{name}-%{version}%{?numcomm:.%{numcomm}}%{?alphatag:-%{alphatag}}%{?dirty:-%{dirty}}.tar.gz
-Patch0: ipcs_allow_connections_only_after_all_services_are_ready.patch
+URL: http://www.corosync.org/
+Source0: http://corosync.org/download/%{name}-%{version}%{?gittarver}.tar.gz
+
+%if 0%{?rhel}
+ExclusiveArch: i686 x86_64
+%endif
 
 # Runtime bits
 Requires: corosynclib = %{version}-%{release}
@@ -34,13 +40,14 @@ Obsoletes: cman, clusterlib, clusterlib-devel
 
 # Build bits
 
-%define buildtrunk 0
-%{?_with_buildtrunk: %define buildtrunk 1}
-
-BuildRequires: libqb-devel >= 0.11.1
+BuildRequires: groff
+BuildRequires: libqb-devel >= 0.14.2
 BuildRequires: nss-devel
-%if %{buildtrunk}
-BuildRequires: autoconf automake
+%if %{with runautogen}
+BuildRequires: autoconf automake libtool
+%endif
+%if %{with monitoring}
+BuildRequires: libstatgrab-devel
 %endif
 %if %{with rdma}
 BuildRequires: libibverbs-devel librdmacm-devel
@@ -53,6 +60,9 @@ BuildRequires: dbus-devel
 %endif
 %if %{with systemd}
 BuildRequires: systemd-units
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 %endif
 %if %{with xmlconf}
 Requires: libxslt
@@ -61,11 +71,10 @@ Requires: libxslt
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %prep
-%setup -q -n %{name}-%{version}%{?numcomm:.%{numcomm}}%{?alphatag:-%{alphatag}}%{?dirty:-%{dirty}}
-%patch0 -p1
+%setup -q -n %{name}-%{version}%{?gittarver}
 
 %build
-%if %{buildtrunk}
+%if %{with runautogen}
 ./autogen.sh
 %endif
 
@@ -112,16 +121,15 @@ make install DESTDIR=%{buildroot}
 
 %if %{with dbus}
 mkdir -p -m 0700 %{buildroot}/%{_sysconfdir}/dbus-1/system.d
-install -m 644 %{_builddir}/%{name}-%{version}/conf/corosync-signals.conf %{buildroot}/%{_sysconfdir}/dbus-1/system.d/corosync-signals.conf
+install -m 644 %{_builddir}/%{name}-%{version}%{?gittarver}/conf/corosync-signals.conf %{buildroot}/%{_sysconfdir}/dbus-1/system.d/corosync-signals.conf
 %endif
 
 ## tree fixup
 # drop static libs
 rm -f %{buildroot}%{_libdir}/*.a
+rm -f %{buildroot}%{_libdir}/*.la
 # drop docs and html docs for now
 rm -rf %{buildroot}%{_docdir}/*
-
-#magic_rpm_clean.sh
 
 %clean
 rm -rf %{buildroot}
@@ -131,15 +139,28 @@ This package contains the Corosync Cluster Engine Executive, several default
 APIs and libraries, default configuration files, and an init script.
 
 %post
+%if %{with systemd} && 0%{?systemd_post:1}
+%systemd_post corosync.service
+%else
 if [ $1 -eq 1 ]; then
 	/sbin/chkconfig --add corosync || :
 fi
+%endif
 
 %preun
+%if %{with systemd} && 0%{?systemd_preun:1}
+%systemd_preun corosync.service
+%else
 if [ $1 -eq 0 ]; then
 	/sbin/service corosync stop &>/dev/null || :
 	/sbin/chkconfig --del corosync || :
 fi
+%endif
+
+%postun
+%if %{with systemd} && 0%{?systemd_postun:1}
+%systemd_postun
+%endif
 
 %files
 %defattr(-,root,root,-)
@@ -148,7 +169,6 @@ fi
 %{_sbindir}/corosync-keygen
 %{_sbindir}/corosync-cmapctl
 %{_sbindir}/corosync-cfgtool
-%{_sbindir}/corosync-fplay
 %{_sbindir}/corosync-cpgtool
 %{_sbindir}/corosync-quorumtool
 %{_sbindir}/corosync-notifyd
@@ -174,6 +194,9 @@ fi
 %if %{with systemd}
 %{_unitdir}/corosync.service
 %{_unitdir}/corosync-notifyd.service
+%dir %{_datadir}/corosync
+%{_datadir}/corosync/corosync
+%{_datadir}/corosync/corosync-notifyd
 %else
 %{_initrddir}/corosync
 %{_initrddir}/corosync-notifyd
@@ -187,7 +210,6 @@ fi
 %{_mandir}/man8/corosync-keygen.8*
 %{_mandir}/man8/corosync-cfgtool.8*
 %{_mandir}/man8/corosync-cpgtool.8*
-%{_mandir}/man8/corosync-fplay.8*
 %{_mandir}/man8/corosync-notifyd.8*
 %{_mandir}/man8/corosync-quorumtool.8*
 %{_mandir}/man5/corosync.conf.5*
@@ -202,7 +224,7 @@ fi
 Summary: The Corosync Cluster Engine Test Agents
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
-Requires: libqb >= 0.10.1
+Requires: libqb >= 0.14.2
 
 %description -n corosync-testagents
 This package contains corosync test agents.
@@ -295,6 +317,24 @@ The Corosync Cluster Engine APIs.
 %{_mandir}/man8/quorum_overview.8*
 
 %changelog
+* Fri Jan 18 2013 Jan Friesse <jfriesse@redhat.com> - 2.3.0-1
+- New upstream release
+
+* Wed Dec 12 2012 Jan Friesse <jfriesse@redhat.com> - 2.2.0-1
+- New upstream release
+
+* Thu Oct 11 2012 Jan Friesse <jfriesse@redhat.com> - 2.1.0-1
+- New upstream release
+
+* Fri Aug 3 2012 Steven Dake <sdake@redhat.com> - 2.0.1-3
+- add groff as a BuildRequires as it is no longer installed in the buildroot
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Tue May 12 2012 Jan Friesse <jfriesse@redhat.com> - 2.0.1-1
+- New upstream release
+
 * Tue Apr 17 2012 Fabio M. Di Nitto <fdinitto@redhat.com> - 2.0.0-2
 - Backport IPCS fix from master (ack by Steven)
 
@@ -404,7 +444,7 @@ The Corosync Cluster Engine APIs.
 - New upstream release
 - Use global instead of define
 - Update Source0 url
-- Use more %name macro around
+- Use more name macro around
 - Cleanup install section. Init script is now installed by upstream
 - Cleanup whitespace
 - Don't deadlock between package upgrade and corosync condrestart
