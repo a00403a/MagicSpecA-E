@@ -3,28 +3,27 @@
 #
 # See file LICENSE at the top of this source tree for license information.
 #
-%define WITH_SELINUX 0
 
 Summary: dmraid (Device-mapper RAID tool and library)
 Name: dmraid
 Version: 1.0.0.rc16
-Release: 15%{?dist}
+Release: 19%{?dist}
 License: GPLv2+
 Group: System Environment/Base
 URL: http://people.redhat.com/heinzm/sw/dmraid
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: device-mapper-devel >= 1.02.02-2
 BuildRequires: device-mapper-event-devel
-%if %{WITH_SELINUX}
-BuildRequires: libselinux-devel
-BuildRequires: libsepol-devel
-%endif
 Requires: device-mapper >= 1.02.02-2
 Requires: dmraid-events
 Requires: kpartx
+Requires: systemd
+Requires(post): systemd >= 195-4
 Obsoletes: dmraid-libs < %{version}-%{release}
 Provides: dmraid-libs = %{version}-%{release}
-Source: ftp://people.redhat.com/heinzm/sw/dmraid/src/%{name}-%{version}.tar.bz2
+Source0: ftp://people.redhat.com/heinzm/sw/dmraid/src/%{name}-%{version}.tar.bz2
+Source1: fedora-dmraid-activation
+Source2: dmraid-activation.service
 
 Patch0: dmraid-1.0.0.rc16-test_devices.patch
 Patch1: ddf1_lsi_persistent_name.patch
@@ -98,19 +97,8 @@ Device failure reporting has to be activated manually by activating the
 
 %build
 %define _libdir /%{_lib}
-%configure --prefix=${RPM_BUILD_ROOT}/usr \
-           --sbindir=${RPM_BUILD_ROOT}/sbin \
-           --libdir=${RPM_BUILD_ROOT}/%{_libdir} \
-           --mandir=${RPM_BUILD_ROOT}/%{_mandir} \
-           --includedir=${RPM_BUILD_ROOT}/%{_includedir} \
-           --enable-debug \
-           %if %{WITH_SELINUX}
-           --enable-libselinux --enable-libsepol \
-	   %else
-           --disable-libselinux --disable-libsepol \
-           %endif
-           --disable-static_link --enable-led --enable-intel_led
 
+%configure --prefix=${RPM_BUILD_ROOT}/usr --sbindir=${RPM_BUILD_ROOT}/sbin --libdir=${RPM_BUILD_ROOT}/%{_libdir} --mandir=${RPM_BUILD_ROOT}/%{_mandir} --includedir=${RPM_BUILD_ROOT}/%{_includedir} --enable-debug --disable-libselinux --disable-libsepol --disable-static_link --enable-led --enable-intel_led
 make DESTDIR=$RPM_BUILD_ROOT
 
 %install
@@ -140,14 +128,23 @@ install -m 755 logwatch/dmeventd $RPM_BUILD_ROOT/etc/logwatch/scripts/services/d
 install -m 644 logwatch/dmeventd_cronjob.txt $RPM_BUILD_ROOT/etc/cron.d/dmeventd-logwatch
 install -m 0700 /dev/null $RPM_BUILD_ROOT/var/cache/logwatch/dmeventd/syslogpattern.txt
 
+# Install systemd unit
+install -d ${RPM_BUILD_ROOT}/%{_prefix}/lib/systemd
+install -d ${RPM_BUILD_ROOT}/%{_unitdir}
+install -m 755 %{SOURCE1} $RPM_BUILD_ROOT/%{_prefix}/lib/systemd/fedora-dmraid-activation
+install -m 444 %{SOURCE2} $RPM_BUILD_ROOT/%{_unitdir}/dmraid-activation.service
+
 rm -f $RPM_BUILD_ROOT/%{_libdir}/libdmraid.a
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
+%post
+/sbin/ldconfig
+%systemd_post dmraid-activation.service
 
-%postun -p /sbin/ldconfig
+%postun
+/sbin/ldconfig
 
 # 1. Main package
 %files
@@ -158,6 +155,8 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/dmraid.static
 %{_libdir}/libdmraid.so*
 %{_libdir}/libdmraid-events-isw.so*
+%{_prefix}/lib/systemd/fedora-dmraid-activation
+%{_unitdir}/dmraid-activation.service
 %ghost /var/lock/dmraid
 
 # 2. Development package
@@ -183,6 +182,21 @@ rm -rf $RPM_BUILD_ROOT
 %ghost /var/cache/logwatch/dmeventd/syslogpattern.txt
 
 %changelog
+* Wed Nov 28 2012 Peter Rajnoha <prajnoha@redhat.com> - 1.0.0.rc16-19
+- Fix postun scriptlet to run ldconfig properly.
+
+* Thu Nov 01 2012 Peter Rajnoha <prajnoha@redhat.com> - 1.0.0.rc16-18
+- Add fedora-dmraid-activation script and dmraid-activation.service systemd unit.
+  This replaces dmraid activation part of the former fedora-storage-init
+  script that was included in the initscripts package before.
+- Add 'Requires: systemd' to dmraid package.
+
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.0.rc16-17
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.0.rc16-16
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.0.rc16-15
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
