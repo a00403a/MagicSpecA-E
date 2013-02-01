@@ -33,8 +33,11 @@ import tarfile
 import urllib
 from sgmllib import SGMLParser
 
-chromium_url = "http://build.chromium.org/buildbot/official/"
-chromium_root_dir = "/home/spot/chromium"
+#chromium_url = "http://build.chromium.org/buildbot/official/"
+chromium_url = "http://commondatastorage.googleapis.com/chromium-browser-official/"
+
+#chromium_root_dir = os.expanduser("~/chromium")
+chromium_root_dir = "."
 
 name = 'Chromium Latest'
 script_version = 0.3
@@ -130,25 +133,24 @@ def check_latest(chromium_version):
     print "Latest Chromium Version found at %s is %s" % (chromium_url, version)
     return version
 
-def check_stable():
+def check_omahaproxy(channel = "stable"):
     version = 0;
-    status_url = "http://omahaproxy.appspot.com/"
+    status_url = "http://omahaproxy.appspot.com/?os=linux&channel=" + channel
 
     usock = urllib.urlopen(status_url)
     status_dump = usock.read()
     usock.close()
     status_list = StringIO.StringIO(status_dump)
     status_reader = csv.reader(status_list, delimiter=',')
-    for row in status_reader:
-       if row[0] == 'linux':
-          if row[1] == 'stable':
-             version = row[2]
+    # we always want second row; iterate two times
+    status_reader.next()
+    version = status_reader.next()[2]
 
     if version == 0:
-       print 'I could not find the latest stable build. Bailing out.'
+       print 'I could not find the latest %s build. Bailing out.' % channel
        sys.exit(1)
     else:
-       print 'Latest Stable Chromium Version at %s is %s' % (status_url, version)
+       print 'Latest Chromium Version on %s at %s is %s' % (channel, status_url, version)
        return version
 
 def download_version(version):
@@ -176,6 +178,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--stable', action = 'store_true',
                         help = 'Get latest stable chromium source')
+    parser.add_argument('--beta', action = 'store_true',
+                        help = 'Get latest beta chromium source')
     parser.add_argument('--dev', action = 'store_true',
                         help = 'Get latest dev chromium source')
 
@@ -183,13 +187,16 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.stable:
-       chromium_version = check_stable()
+       chromium_version = check_omahaproxy("stable")
     else:
-       if args.dev:
-          chromium_version = check_latest()
+       if args.beta:
+          chromium_version = check_omahaproxy("beta")
        else:
-          print 'You must select either stable or dev'
-          sys.exit(0)
+           if args.dev:
+              chromium_version = check_latest()
+           else:
+              print 'You must select either stable, beta or dev'
+              sys.exit(0)
 
     latest = 'chromium-%s.tar.bz2' % chromium_version
 
@@ -215,8 +222,16 @@ if __name__ == '__main__':
                      'third_party/expat/files', 
                      'third_party/ffmpeg/binaries', 
                      'third_party/ffmpeg/patched-ffmpeg-mt/',
+                     'third_party/ffmpeg/ffpresets',
+                     'third_party/ffmpeg/libavcodec',
+                     'third_party/ffmpeg/libavdevice',
+                     'third_party/ffmpeg/libavfilter',
+                     'third_party/ffmpeg/libavformat',
+                     'third_party/ffmpeg/libavutil',
+                     'third_party/ffmpeg/libpostproc',
+                     'third_party/ffmpeg/libswresample',
+                     'third_party/ffmpeg/libswscale',
                      'third_party/zlib/contrib',
-                     'third_party/libjingle',
                      'third_party/speex',
                      'third_party/libevent/compat', 'third_party/libevent/linux',
                      'third_party/libevent/mac', 'third_party/libevent/sample', 
@@ -248,13 +263,24 @@ if __name__ == '__main__':
                       'third_party/libxslt/README', 'third_party/libxslt/TODO', 'third_party/libxslt/*.h', 
                       'third_party/libxslt/*.m4', 'third_party/libxslt/compile', 'third_party/libxslt/config*',
                       'third_party/libxslt/depcomp', 'third_party/libxslt/*sh', 'third_party/libxslt/*.in',
-                      'third_party/libxslt/*.spec', 'third_party/libxslt/missing']
+                      'third_party/libxslt/*.spec', 'third_party/libxslt/missing', 'third_party/ffmpeg/*.c']
+
+	# Ask Google what V8 this Chromium uses
+	v8_checker_url = "http://omahaproxy.appspot.com/v8?version="
+	v8sock = urllib.urlopen(v8_checker_url + chromium_version)
+	v8_result_html = v8sock.read()
+	start_index = v8_result_html.find('V8 Version:')
+	end_index = v8_result_html.find(' <br>')
+	v8_version = v8_result_html[start_index+12:end_index]
+
+	print "Google claims that Chromium %s bundles V8 %s" % (chromium_version, v8_version)
+	print "Download it here: http://gsdview.appspot.com/chromium-browser-official/v8-%s.tar.bz2" % v8_version
 
         # Lets look at what V8 version is bundled in.
-        v8_changelog = open('%s/v8/ChangeLog' % latest_dir, 'r')
-        v8_changelog_data = v8_changelog.readlines()
-        print "Bundled version of V8 is:"
-        print v8_changelog_data[0]
+        # v8_changelog = open('%s/v8/ChangeLog' % latest_dir, 'r')
+        # v8_changelog_data = v8_changelog.readlines()
+        # print "Bundled version of V8 is:"
+        # print v8_changelog_data[0]
 
         # Okay, now we clean out the junk.
 

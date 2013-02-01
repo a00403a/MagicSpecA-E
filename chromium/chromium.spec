@@ -11,7 +11,10 @@
 # Tom Callaway <spot@fedoraproject.org>
 
 # Update this with every matching v8 build
-%global v8ver 3.4.14
+%global v8ver 1:3.13.7.5
+
+# Update this with every matching libjingle build
+%global jingle_version 0.6.19
 
 # If we're using a svn checkout, define this
 # %%global svncheckout 20100819svn56724
@@ -38,11 +41,12 @@
 %global nss 0
 
 # It may at some point become too painful to maintain this.
-%global jingle 1
+# That point arrived with chromium 19. :P
+%global jingle 0
 
 # System libsrtp
-# Looks like Chromium doesn't use this anymore.
-%global libsrtp 0
+# Chromium only uses this if we're using their bundled libjingle.
+%global libsrtp 1
 
 # System flac
 %global flac 1
@@ -62,9 +66,9 @@
 
 Name:		chromium
 # see src/chrome/VERSION
-# Google's versioning is interesting. They never reset "BUILD", which is how we jumped
-# from 3.0.201.0 to 4.0.202.0 as they moved to a new major branch
-Version:	14.0.835.186
+# Google's versioning is interesting (and by that I mean, dumb). They never reset "BUILD", 
+# which is how we jumped from 3.0.201.0 to 4.0.202.0 as they moved to a new major branch
+Version:	23.0.1271.95
 Release:	1%{?svncheckout:.%{svncheckout}}%{?dist}
 Summary:	A WebKit powered web browser
 # Licensing Overview
@@ -76,128 +80,104 @@ Summary:	A WebKit powered web browser
 License:	BSD and LGPLv2+
 Group:		Applications/Internet
 # Just the code changes, none of the "makefile" changes
-Patch0:		chromium-14.0.835.186-codechanges-system-minizip-nss-nspr-v8.patch
+Patch0:		chromium-23.0.1271.95-codechanges-system-minizip-nss-nspr-v8.patch
 
 # These are the conditionals that upstream has added:
 # bzip2, jpeg, png, zlib, xml, xslt, libevent, v8
 
 # We also remove minizip, which google left in because ubuntu doesn't have it. :P
-Patch4:		chromium-20090807-gyp-system-minizip.patch
+Patch4:		chromium-20.0.1132.47-gyp-system-minizip.patch
 
 # Use system libicu
-Patch7:		chromium-14.0.835.186-gyp-system-icu.patch
-Patch8:		chromium-14.0.827.10-icu-code-changes.patch
-
-# Revert this change to stop crashes
-# http://src.chromium.org/viewvc/chrome/trunk/src/chrome/common/sqlite_utils.cc?r1=24321&r2=25633
-Patch9:		chromium-20100218-no-sqlite-debug.patch
+Patch7:		chromium-23.0.1271.95-gyp-system-icu.patch
+Patch8:		chromium-23.0.1271.95-icu-code-changes.patch
 
 # webkit needs to call nss to pull in nspr headers
 Patch10:	chromium-14.0.827.10-system-nss.patch
 
-# Fix shared libs
-Patch11:	chromium-14.0.827.10-sharedlibfixes.patch
-
-# Fix ChromiumThreading issue in wtf shared lib
-Patch12:	chromium-12.0.718.0-shared-chromiumthreading.patch
-
-# Don't embed incorrect RPATH into shared libs
-Patch14:	chromium-10.0.634.0-norpath.patch
-
 # Courgette not in source tree
-Patch15:	chromium-14.0.835.186-no-courgette.patch
-
-# Nacl needs fPIC (even on x86_32)
-Patch16:	chromium-9.0.600.0-nacl-needs-fPIC.patch
-
-# chrome_dll_main.c needs libnacl for NaClMain()
-Patch17:	chromium-14.0.827.10-NaClMain.patch
-
-# Use system libGLEW
-# Patch18:	chromium-5.0.395.0-system-glew.patch
+Patch15:	chromium-23.0.1271.95-no-courgette.patch
 
 # Don't try to build non-existent test sources
-Patch19:	chromium-14.0.827.10-no-test-sources.patch
-
-# Fix media probing
-Patch22:	chromium-7.0.542.0-media-probe.patch
-
-# Use system expat
-Patch23:	chromium-7.0.503.0-system-expat.patch
+Patch19:	chromium-23.0.1271.95-no-test-sources.patch
 
 # Fix ffmpeg wrapper compile
-Patch25:	chromium-11.0.696.68-ffmpeg-no-pkgconfig.patch
-
-# Fix zlib gyp file to not build empty shell
-Patch26:	chromium-14.0.827.10-no-empty-shell-zlib.patch
+Patch25:	chromium-17.0.963.46-ffmpeg-no-pkgconfig.patch
 
 # Use system libjingle
-Patch29:	chromium-14.0.835.186-system-libjingle.patch
+Patch29:	chromium-20.0.1132.47-system-libjingle.patch
 
 # Use system speex
-Patch30:	chromium-14.0.835.186-system-speex.patch
+Patch30:	chromium-23.0.1271.95-system-speex.patch
 
 # Use system libsrtp
-Patch33:	chromium-7.0.542.0-system-srtp.patch
+Patch33:	chromium-20.0.1132.47-system-srtp.patch
 
-# Use system libvpx for chromoting
-Patch34:	chromium-14.0.835.186-system-libvpx.patch
-
-# Nacl Linking Fix
-Patch36:	chromium-9.0.600.0-nacl-linkingfix.patch
-
-# Fix undefined variable error
-# Patch37:	chromium-9.0.600.0-undefined-var-fix.patch
-
-# Fix issue where databaseVersion could be used uninitialized
-Patch38:	chromium-12.0.718.0-undef-databaseVersion.patch
-
-# Our system copy of v8 has experimental i18n support in it.
-Patch39:	chromium-14.0.827.10-v8-experimental.patch
+# Use system libvpx
+Patch34:	chromium-23.0.1271.95-system-libvpx.patch
 
 # Use system copy of FLAC
-Patch40:	chromium-14.0.835.186-system-flac.patch
+Patch40:	chromium-23.0.1271.95-system-flac.patch
 
 # Fix gcc46 issues
-Patch41:        chromium-14.0.827.10-gcc46.patch
+Patch41:        chromium-23.0.1271.95-gcc46.patch
 
 # Pull in nss for nspr for chrome_common
-Patch43:        chromium-12.0.718.0-chrome-common-nss.patch
-
-# Fix issues where NULL is used instead of 0
-Patch44:        chromium-12.0.718.0-fix_NULL_conversion_errors.patch
+Patch43:        chromium-19.0.1084.56-chrome-common-nss.patch
 
 # Use system nss in base
-Patch45:	chromium-14.0.835.186-base-system-nss.patch
-
-# Use system zlib
-Patch46:	chromium-14.0.827.10-system-zlib.patch
-
-# In file included from ppapi/cpp/paint_aggregator.cc:5:0:
-# ./ppapi/cpp/paint_aggregator.h:62:28: error: 'size_t' has not been declared
-Patch47:	chromium-12.0.742.91-size_t.patch
+Patch45:	chromium-21.0.1180.81-prtimefix.patch
 
 # Replace gnome-volume-control exec with gnome-control-center sound (GNOME3 only)
 Patch49:        chromium-14.0.835.186-gnome3.patch
-
-# Fix compile against cups 1.5
-Patch52:        chromium-13.0.782.112-cups-1.5.patch
 
 # Fix compile against external ffmpegsumo
 # This is a bit hacky, but I didn't want to re-learn GYP.
 Patch53:        chromium-13.0.782.112-ffmpegsumo-compile-fix.patch
 
-# Fix compile against libjingle 0.6.0
-Patch54:	chromium-14.0.835.186-jingle060.patch
+# Get nacl going
+Patch55:	chromium-23.0.1271.95-build-nacl-irt.patch
 
-# Build nacl-irt
-Patch55:	chromium-14.0.835.186-build-nacl-irt.patch
+# Add missing include for header that provides OVERRIDE definition
+Patch57:	chromium-20.0.1132.47-OVERRIDE-define-fix.patch
 
-# Add missing default cases to webkit switch code
-Patch56:	chromium-14.0.827.10-fix-webkit-switch-default.patch
+# Use --no-keep-memory in ldflags to ensure the final exec doesn't run
+# out of memory while linking.
+Patch62:	chromium-20.0.1132.47-ldflags-no-keep-memory.patch
 
-# OLD: Use chromium-daily-tarball.sh to generate tarball from svn.
-# New: Use chromium-latest.py to generate clean tarball from released build tarballs, found here:
+# Use system jsoncpp
+Patch66:	chromium-20.0.1132.47-system-jsoncpp.patch
+
+# Use system webrtc
+Patch67:	chromium-23.0.1271.95-system-webrtc.patch
+
+# Use system libusb1
+Patch71:	chromium-23.0.1271.95-system-libusb.patch
+
+# Chromium contains a local implementation of a string byte sink needed when ICU is compiled without
+# support for std::string which is the case on Android. However, Fedora's system ICU has std::string.
+Patch72:	chromium-21.0.1180.81-only-droid.patch
+
+# http://code.google.com/p/gperftools/issues/detail?id=444
+Patch73:	chromium-21.0.1180.81-glibc216.patch
+
+# Taken from upstream webkit
+# http://trac.webkit.org/changeset/124099
+Patch74:	changeset_124099.diff
+
+# Don't unpack nacl-sources. We've got it.
+Patch75:	chromium-23.0.1271.95-more-naclfixes.patch
+
+# More incorrect hardcoded headers. I would say Google's getting sloppy, but well, this is status quo.
+Patch76:	chromium-23.0.1271.95-zlib-fixes.patch
+
+# Taken from upstream chromium
+# http://git.chromium.org/gitweb/?p=chromium.git;a=commitdiff;h=de08ebc796c6e7d31c516155e2df5375973d74e5
+Patch77:	chromium-23.0.1271.95-de08ebc796c6e7d31c516155e2df5375973d74e5.patch
+
+Patch78:	chromium-23.0.1271.95-stillmorenaclfixes.patch
+
+# Use chromium-latest.py to generate clean tarball from released build tarballs, found here:
 # http://build.chromium.org/buildbot/official/
 %if 0%{?vanillabuild}
 Source0:	chromium-%{version}.tar.bz2
@@ -208,12 +188,8 @@ Source0:	chromium-%{version}-%{?svncheckout}.tar.lzma
 Source0:	chromium-%{version}-clean.tar.lzma
 %endif
 %endif
-# Custom build tools for chromium, hammer is a fancy front-end for scons
-Source1:	http://src.chromium.org/svn/trunk/tools/depot_tools.tar.gz
 Source2:	chromium-browser.sh
 Source3:	chromium-browser.desktop
-# We don't actually use this in the build, but it is included so you can make the tarball.
-Source4:	chromium-daily-tarball.sh
 Source5:	chromium-browser.xml
 # Set default prefs
 Source6:	master_preferences
@@ -225,20 +201,21 @@ Source9:	chromium-12-256x256.svg
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	bzip2-devel, libevent-devel, libjpeg-devel, libpng-devel
-BuildRequires:	libxslt-devel, nss-devel, nspr-devel, minizip-devel
+BuildRequires:	libxslt-devel, nss-devel, nspr-devel, minizip-devel, expat-devel
 BuildRequires:	gcc-c++, bison, flex, gtk2-devel, atk-devel
 BuildRequires:	fontconfig-devel, GConf2-devel, dbus-devel, alsa-lib-devel
 BuildRequires:	desktop-file-utils, gperf
-BuildRequires:	nss-devel >= 3.12.3, expat-devel
+BuildRequires:	nss-devel >= 3.12.3
 BuildRequires:	dbus-glib-devel, libXScrnSaver-devel
 BuildRequires:	cups-devel
 BuildRequires:	perl(Switch)
+BuildRequires:	perl(Digest::MD5)
 
 # Use the forked ffmpeg headers
-BuildRequires:	chromium-ffmpegsumo-devel >= 14
+BuildRequires:	chromium-ffmpegsumo-devel >= 21.0.1180.81
 
 %if 0%{?sysv8}
-BuildRequires:	v8-devel
+BuildRequires:	v8-devel >= %{v8ver}
 %endif
 
 # Fedora 12 (and presumably, older) don't have libgnome-keyring-devel
@@ -257,6 +234,7 @@ BuildRequires:  libicu-devel >= 4.2
 
 # NaCl needs these
 BuildRequires:  libstdc++-devel, openssl-devel
+BuildRequires:	nacl-gcc, nacl-binutils, nacl-newlib
 
 %if 0%{?sqlite}
 BuildRequires:	sqlite-devel
@@ -267,7 +245,7 @@ BuildRequires:	libselinux-devel
 %endif
 
 %if 0%{?jingle}
-BuildRequires:	libjingle-devel >= 0.6.0-1
+BuildRequires:	libjingle-devel >= %{jingle_version}
 %endif
 
 %if 0%{?libsrtp}
@@ -280,7 +258,12 @@ BuildRequires:	flac-devel
 
 BuildRequires:	speex-devel = 1.2
 BuildRequires:	libvpx-devel
+BuildRequires:	libudev-devel
 BuildRequires:	pulseaudio-libs-devel
+BuildRequires:	elfutils-libelf-devel
+BuildRequires:	jsoncpp-devel
+BuildRequires:	webrtc-devel >= 0.1-0.9.20121218svn2718, libyuv-devel
+BuildRequires:	libusbx-devel
 
 ExclusiveArch:	%{ix86} arm x86_64
 
@@ -288,7 +271,7 @@ ExclusiveArch:	%{ix86} arm x86_64
 # Do nothing.
 %else
 %if 0%{?jingle}
-Requires: libjingle >= 0.4.0-7
+Requires: libjingle%{?_isa} >= %{jingle_version}
 %endif
 %endif
 
@@ -301,20 +284,12 @@ Requires:	libcanberra-gtk2%{_isa}
 Requires:	nss%{_isa} >= 3.12.3
 Requires:	nss-mdns%{_isa}
 
-%if 0%{?sharedbuild}
-# We want to make sure we have the chromium-libs
-Requires:	chromium-libs = %{version}-%{release}
-%else
-# We hardcode this because we don't get symbol deps with newer v8 versions
-# This forces an upgrade
-%if 0%{?vanillabuild}
-# Nope. Its inside of the pile.
-%else
-Requires:       v8 >= %{v8ver}
-%endif
-# This is a lie, but it keeps upgrades semi-sane
+# This is a lie, but it keeps older upgrades semi-sane
 Provides:	chromium-libs = %{version}-%{release}
 Obsoletes:	chromium-libs <= %{version}-%{release}
+
+%if 0%{?sysv8}
+Requires:	v8 >= %{v8ver}
 %endif
 
 %description
@@ -348,8 +323,7 @@ echo "Shared Build"
 %else
 echo "Static Build"
 %endif
-%setup -q -n chromium-%{version}%{?svncheckout:-%{svncheckout}} -a 1
-cp %{SOURCE4} .
+%setup -q -n chromium-%{version}%{?svncheckout:-%{svncheckout}}
 
 %if %{defined svncheckout}
 mv src/* .
@@ -370,60 +344,14 @@ mv src/* .
 %patch7 -p1 -b .system-icu
 %patch8 -p1 -b .icu
 
-# Revert sqlite debugging to stop crashes
-%patch9 -p1 -b .no-sqlite-debugging
-
-# Webkit needs to pull in nss to get to nspr headers
-# %patch10 -p1 -b .system-nss
-
-%if 0%{?sharedbuild}
-
-# Fix missing symbols in shared libs
-# %patch11 -p1 -b .sharedlibsfixes
-
-# Fix ChromiumThreading issue in wtf shared lib
-%patch12 -p1 -b .chromiumthreading
-
-%endif
-
-%if 0%{?sharedbuild}
-
-# Don't embed incorrect rpath into shared libs
-%patch14 -p1 -b .norpath
-
-%endif
-
 # Courgette not in source tree
 %patch15 -p1 -b .no-courgette
-
-%if 0%{?sharedbuild}
-
-# Nacl needs fPIC, even on x86_32
-# %patch16 -p1 -b .fPIC
-
-# chrome_dll_main.c needs libnacl for NaClMain()
-%patch17 -p1 -b .NaClMain
-
-%endif
-
-# Use system libGLEW
-# They've forked this beyond recognition.
-# %patch18 -p1 -b .GLEW
 
 # Don't try to build non-existent test sources
 %patch19 -p1 -b .notests
 
-# Fix media probing
-# %patch22 -p1 -b .media-probe
-
-# Use system expat
-%patch23 -p1 -b .system-expat
-
 # Fix ffmpeg wrapper
 %patch25 -p1 -b .no-pkgconfig
-
-# Don't build stupid empty shell zlib
-%patch26 -p1 -b .empty-shell
 
 %endif
 
@@ -440,18 +368,10 @@ mv src/* .
 %patch30 -p1 -b .speex
 
 %if 0%{?libsrtp}
-# %patch33 -p1 -b .system-srtp
+%patch33 -p1 -b .system-srtp
 %endif
 
 %patch34 -p1 -b .system-libvpx
-
-%patch36 -p1 -b .linking-fix
-
-# %patch37 -p1 -b .undefined
-
-%patch38 -p1 -b .undef
-
-%patch39 -p1 -b .experimental
 
 %if 0%{?flac}
 %patch40 -p1 -b .system-flac
@@ -461,29 +381,39 @@ mv src/* .
 
 %patch43 -p1 -b .nss
 
-# %patch44 -p1 -b .NULL
-
 %patch45 -p1 -b .base-nss
-
-%patch46 -p1 -b .zlib
-
-# %patch47 -p1 -b .sizet
 
 %if 0%{?fedora} >= 15
 %patch49 -p1 -b .gnome3
 %endif
 
-%patch52 -p1 -b .cups15
-
 %patch53 -p1 -b .ffmpegsumo
 
-%if 0%{?jingle}
-%patch54 -p1 -b .jingle060
-%endif
+%patch55 -p1 -b .buildnacl
 
-%patch55 -p1 -b .buildnaclirt
+%patch57 -p1 -b .OVERRIDE
 
-%patch56 -p1 -b .case-default
+%patch62 -p1 -b .ldflags
+
+%patch66 -p1 -b .system-jsoncpp
+
+%patch67 -p1 -b .system-webrtc
+
+%patch71 -p1 -b .system-libusb
+
+%patch72 -p1 -b .only-droid
+
+%patch73 -p1 -b .glibc216
+
+# %patch74 -p1 -b .124099
+
+%patch75 -p1 -b .naclfixes
+
+%patch76 -p1 -b .zlibfix
+
+%patch77 -p1 -b .de08ebc
+
+%patch78 -p1 -b .stillmorenaclfixes
 
 # We need this because icu changed its pkg-config files in F16+
 %if 0%{?fedora} >= 16
@@ -495,14 +425,27 @@ rm -rf third_party/libsrtp/ third_party/libvpx/ third_party/speex/
 %if 0%{?flac}
 rm -rf third_party/flac/
 %endif
+%if 0%{?jingle}
+# Note to self: leave the overrides in place.
+rm -rf third_party/libjingle/source
+%endif
+rm -rf third_party/webrtc
+rm -rf third_party/jsoncpp
+rm -rf third_party/libyuv
+rm -rf third_party/libusb
 
+%endif
+
+# F-17+ needs to disable narrowing, but earlier gcc versions have no idea what it is.
+%if 0%{?fedora} >= 17
+%global narrowingflag -Wno-error=narrowing
 %endif
 
 # Scrape out incorrect optflags and hack in the correct ones
 %if 0%{?sharedbuild}
-PARSED_OPT_FLAGS=`echo \'$RPM_OPT_FLAGS -DUSE_SYSTEM_LIBEVENT -fPIC -fno-strict-aliasing -fno-ipa-cp -Wno-error=unused-but-set-variable -Wno-error=c++0x-compat -Wno-error=uninitialized -Wno-error=int-to-pointer-cast \' | sed "s/ /',/g" | sed "s/',/', '/g"`
+PARSED_OPT_FLAGS=`echo \'$RPM_OPT_FLAGS -DUSE_SYSTEM_LIBEVENT -fPIC -fno-strict-aliasing -fno-ipa-cp -Wno-error=unused-but-set-variable -Wno-error=c++0x-compat -Wno-error=uninitialized -Wno-error=deprecated-declarations %{?narrowingflag} -Wno-error=int-to-pointer-cast \' | sed "s/ /',/g" | sed "s/',/', '/g"`
 %else
-PARSED_OPT_FLAGS=`echo \'$RPM_OPT_FLAGS -DUSE_SYSTEM_LIBEVENT -fno-strict-aliasing -fno-ipa-cp -Wno-error=unused-but-set-variable -Wno-error=c++0x-compat -Wno-error=uninitialized -Wno-error=int-to-pointer-cast \' | sed "s/ /',/g" | sed "s/',/', '/g"`
+PARSED_OPT_FLAGS=`echo \'$RPM_OPT_FLAGS -DUSE_SYSTEM_LIBEVENT -fno-strict-aliasing -fno-ipa-cp -Wno-error=unused-but-set-variable -Wno-error=c++0x-compat -Wno-error=uninitialized -Wno-error=deprecated-declarations %{?narrowingflag} -Wno-error=int-to-pointer-cast \' | sed "s/ /',/g" | sed "s/',/', '/g"`
 %endif
 for i in build/common.gypi; do
         sed -i "s|'-march=pentium4',||g" $i
@@ -530,6 +473,9 @@ sed -i 's|icu)|icu42)|g' build/linux/system.gyp
 			       -Dlinux_sandbox_chrome_path=%{_libdir}/chromium-browser/chromium-browser \
 %ifarch x86_64
                                -Dtarget_arch=x64 \
+%else
+			       -Dlinux_use_gold_binary=0 \
+                               -Dlinux_use_gold_flags=0 \
 %endif
 		               -Duse_system_libpng=1 \
 		 	       -Duse_system_bzip2=1 \
@@ -563,8 +509,33 @@ sed -i 's|icu)|icu42)|g' build/linux/system.gyp
                                -Drelease_extra_cflags=-fPIC \
 %endif
 			       -Ddisable_sse2=1 \
-                               -Ddisable_nacl=1 \
+                               -Ddisable_glibc=1 \
+                               -Ddisable_newlib=1 \
+                               -Ddisable_pnacl=1 \
                                -Djavascript_engine=v8
+
+# Make symlinks for nacl
+cd native_client/toolchain/
+mkdir -p linux_x86/x86_64-nacl/bin/
+mkdir -p linux_x86/x86_64-nacl/lib
+mkdir -p linux_x86/x86_64-nacl/lib32
+mkdir -p linux_x86/x86_64-nacl/nacl/include/bits
+mkdir -p linux_x86/x86_64-nacl/nacl/include/machine
+mkdir -p linux_x86/x86_64-nacl/nacl/include/sys
+ln -s linux_x86 linux_x86_newlib
+cd linux_x86/x86_64-nacl/bin/
+ln -s /usr/bin/x86_64-nacl-gcc gcc
+ln -s /usr/bin/x86_64-nacl-g++ g++
+ln -s /usr/bin/x86_64-nacl-ar ar
+ln -s /usr/bin/x86_64-nacl-as as
+ln -s /usr/bin/x86_64-nacl-ranlib ranlib
+ln -s /usr/bin/x86_64-nacl-strip x86-64-nacl-strip
+ln -s /usr/bin/x86_64-nacl-strip strip
+cp -a /usr/x86_64-nacl/lib/*.a ../lib/
+cp -a /usr/x86_64-nacl/lib/32/*.a ../lib32/
+cd ../nacl/include
+for i in `find /usr/x86_64-nacl/include/ -type f|grep -v "c++"`; do ln -s $i `echo $i | sed 's|/usr/x86_64-nacl/include/||g'`; done
+cd ../../../../..
 
 %build
 %if 0%{?selinux}
@@ -607,7 +578,8 @@ sed -i "s|/usr/lib/chromium|%{_libdir}/chromium|g" %{buildroot}%{_bindir}/chromi
 mkdir -p %{buildroot}%{_libdir}/chromium-browser/
 mkdir -p %{buildroot}%{_mandir}/man1/
 pushd out/Release
-cp -a chrome.pak locales resources resources.pak %{buildroot}%{_libdir}/chromium-browser/
+cp -a *.pak locales nacl_irt_*.nexe nacl_helper* libppGoogleNaClPluginChrome.so resources %{buildroot}%{_libdir}/chromium-browser/
+chmod -x %{buildroot}%{_libdir}/chromium-browser/nacl_irt_*.nexe %{buildroot}%{_libdir}/chromium-browser/nacl_helper_bootstrap*
 cp -a chrome %{buildroot}%{_libdir}/chromium-browser/chromium-browser
 %if 0%{?sharedbuild}
 cp -a lib.target/lib*.so %{buildroot}%{_libdir}/chromium-browser/
@@ -634,9 +606,11 @@ desktop-file-install --dir %{buildroot}%{_datadir}/applications %{SOURCE3}
 mkdir -p %{buildroot}%{_datadir}/gnome-control-center/default-apps/
 cp -a %{SOURCE5} %{buildroot}%{_datadir}/gnome-control-center/default-apps/
 
+# Make the dirtree for managed policies
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}/policies/managed/
 # Install the master_preferences file
-mkdir -p %{buildroot}%{_sysconfdir}
-install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/%{name}
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}-browser/
+install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/%{name}-browser/default
 
 %if 0%{?vanillabuild}
 # No need to do this.
@@ -655,6 +629,11 @@ popd
 %clean
 rm -rf %{buildroot}
 
+%pre 
+if [ -f /etc/chromium ]; then 
+    mv /etc/chromium /etc/chromium.rpmsave
+fi
+
 %post
 touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 update-desktop-database &> /dev/null || :
@@ -672,10 +651,15 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %files
 %defattr(-,root,root,-)
-%doc chromium-daily-tarball.sh
 %{_bindir}/chromium-browser
-%{_libdir}/chromium-browser/chrome.pak
+%{_libdir}/chromium-browser/*.pak
 %{_libdir}/chromium-browser/chromium-browser
+%{_libdir}/chromium-browser/nacl_irt_*.nexe
+%{_libdir}/chromium-browser/nacl_helper
+%attr(0755,root,root) %{_libdir}/chromium-browser/nacl_helper_bootstrap
+# %%{_libdir}/chromium-browser/nacl_helper_bootstrap_munge_phdr
+# %%{_libdir}/chromium-browser/nacl_helper_bootstrap_raw
+%{_libdir}/chromium-browser/libppGoogleNaClPluginChrome.so
 # Uncomment this line if building without SELINUX
 %if 0%{?selinux}
 # Do nothing. Sandboxing is in the selinux policy and core binary.
@@ -686,13 +670,13 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_libdir}/chromium-browser/locales/
 %{_libdir}/chromium-browser/plugins/
 %{_libdir}/chromium-browser/resources/
-%{_libdir}/chromium-browser/resources.pak
 # %%{_libdir}/chromium-browser/themes/
 %{_mandir}/man1/chrom*
 %{_datadir}/icons/hicolor/scalable/apps/chromium-browser.svg
 %{_datadir}/applications/*.desktop
 %{_datadir}/gnome-control-center/default-apps/chromium-browser.xml
-%{_sysconfdir}/%{name}
+%{_sysconfdir}/%{name}-browser/
+%{_sysconfdir}/%{name}/
 %if 0%{?sharedbuild}
 # Do nothing, we're covered in -libs
 %else
@@ -867,6 +851,48 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %endif
 
 %changelog
+* Wed Dec 12 2012 Tom Callaway <spot@fedoraproject.org> 23.0.1271.95-1
+- update to 23.0.1271.95
+
+* Tue Sep 11 2012 Tom Callaway <spot@fedoraproject.org> 21.0.1180.89-1
+- update to 21.0.1180.89
+- (there was an unreleased 21.0.1180.81 update, hence the -ffmpegsumo bits)
+
+* Wed Jul 11 2012 Tom Callaway <spot@fedoraproject.org> 20.0.1132.47-2
+- drop -Wdelete-non-virtual-dtor flag (not needed, f16 doesn't even know about it)
+- add epoch to v8ver
+
+* Fri Jul  6 2012 Tom Callaway <spot@fedoraproject.org> 20.0.1132.47-1
+- update to 20.0.1132.47
+
+* Tue Jun 26 2012 Tom Callaway <spot@fedoraproject.org> 19.0.1084.56-2
+- use system jsoncpp, libjingle, webrtc
+
+* Wed Jun 13 2012 Tom Callaway <spot@fedoraproject.org> 19.0.1084.56-1
+- update to 19.0.1084.56
+
+* Fri Mar 16 2012 Tom Callaway <spot@fedoraproject.org> 17.0.963.79-1
+- update to .79
+- fix versioned requires for libjingle
+
+* Mon Feb 20 2012 Tom Callaway <spot@fedoraproject.org> 17.0.963.46-3
+- apply upstream webkit fix for jpeg rendering
+
+* Fri Feb 17 2012 Tom Callaway <spot@fedoraproject.org> 17.0.963.46-2
+- fixes for gcc 4.7 (f17)
+
+* Tue Feb 14 2012 Tom Callaway <spot@fedoraproject.org> 17.0.963.46-1
+- 17.0.963.46
+
+* Sat Feb  4 2012 Tom Callaway <spot@fedoraproject.org> 15.0.874.106-3
+- rebuild for libvpx.so.1
+
+* Thu Dec  1 2011 Tom Callaway <spot@fedoraproject.org> 15.0.874.106-2
+- add fix for glib on f17
+
+* Wed Nov  2 2011 Tom Callaway <spot@fedoraproject.org> 15.0.874.106-1
+- 15.0.874.106
+
 * Mon Sep 26 2011 Tom Callaway <spot@fedoraproject.org> 14.0.835.186-1
 - 14.0.835.186
 
