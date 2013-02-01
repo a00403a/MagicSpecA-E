@@ -1,5 +1,5 @@
 %define main_ver 3.01
-%define min_ver a07
+%define min_ver a11
 Summary: A collection of CD/DVD utilities.
 Summary(zh_CN.UTF-8): 一套 CD/DVD 工具集合
 Name: cdrtools
@@ -14,12 +14,13 @@ Source: ftp://ftp.berlios.de/pub/cdrecord/alpha/cdrtools-%{tarversion}.tar.bz2
 Source1: cdrecord.conf
 
 BuildRequires: perl, groff
+BuildRequires: smake
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 # REMOVE epoch if the package NAME ever changes.  When package names change,
 # the Epoch information is no longer needed.  However, if someone makes an
 # official release by accident with an Epoch, then Epoch is again permanent.
-Epoch: 9
+Epoch: 10
 
 %description
 cdrtools is a collection of CD/DVD utilities.
@@ -112,13 +113,12 @@ Cdda2wav也可以当做CD播放器使用。
 %setup -q -n %{name}-%{main_ver}
 
 %build
-./Gmake.linux
-
+smake
 
 %install
 rm -rf $RPM_BUILD_ROOT
 mandir=%{_mandir}
-./Gmake.linux "MANDIR=${mandir#/usr}" "INS_BASE=$RPM_BUILD_ROOT/usr" install
+smake "MANDIR=${mandir#/usr}" "INS_BASE=$RPM_BUILD_ROOT/usr" install
 
 groff -Tps -man doc/cdrecord.man > doc/cdrecord.ps
 
